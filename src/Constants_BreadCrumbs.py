@@ -36,3 +36,10 @@ class Constants_BreadCrumbs():
 
     lNAs = list(set(["NA","na","Na","nA",c_strEmptyDataMetadata]))
 
+    #TODO remove
+    #Reference to circlader
+    c_strCircladerScript = "../circlader/circlader.py"
+
+    #AbundanceTable
+    #Suffix given to a file that is check with the checkRawDataFile method
+    OUTPUT_SUFFIX = "-checked.pcl"
