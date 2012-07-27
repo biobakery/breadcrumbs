@@ -15,7 +15,7 @@ __status__ = "Development"
 #External libraries
 import logging
 from matplotlib.patches import Polygon
-from Constants_Figures import Constants_Figures
+from Constants_FiguresBreadCrumbs import Constants_FiguresBreadCrumbs
 import matplotlib.pyplot as plt
 import numpy as np
 import random
@@ -35,7 +35,7 @@ class BoxPlot:
     imgFigure = plt.figure()
 
     #Get plot colorsstrOutFigure
-    objFigureControl = Constants_Figures()
+    objFigureControl = Constants_FiguresBreadCrumbs()
     objFigureControl.invertColors(fInvert=fInvert)
 
     #Color/Invert figure

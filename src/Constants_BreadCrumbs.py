@@ -19,10 +19,6 @@ class Constants_BreadCrumbs():
     Class to hold project constants.
     """
 
-    #References to other projects
-    c_strMicropitaProject = "../micropita/src"
-    c_strCircladerScript = "../circlader/circlader.py"
-
     #Character Constants
     COLON = ":"
     COMMA = ","
@@ -39,3 +35,4 @@ class Constants_BreadCrumbs():
     c_strEmptyDataMetadata = "NA"
 
     lNAs = list(set(["NA","na","Na","nA",c_strEmptyDataMetadata]))
+

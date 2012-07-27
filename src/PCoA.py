@@ -12,10 +12,6 @@ __maintainer__ = "Timothy Tickle"
 __email__ = "ttickle@sph.harvard.edu"
 __status__ = "Development"
 
-from Constants_BreadCrumbs import Constants_BreadCrumbs
-import sys
-sys.path.append(Constants_BreadCrumbs.c_strMicropitaProject)
-
 #External libraries
 from Constants_FiguresBreadCrumbs import Constants_FiguresBreadCrumbs
 from EcologyMetric import EcologyMetric

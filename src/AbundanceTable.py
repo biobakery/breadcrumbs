@@ -15,7 +15,7 @@ __status__ = "Development"
 #External libraries
 import blist
 from CClade import CClade
-from Constants_Micropita import Constants_Micropita
+from Constants_BreadCrumbs import Constants_BreadCrumbs
 import copy
 import numpy as np
 import os
@@ -39,7 +39,7 @@ class AbundanceTable:
     rows are features (bugs). 
     """
 
-    def __init__(self, npaAbundance, dictMetadata, strName, fIsNormalized, fIsSummed, cFileDelimiter = Constants_Micropita.TAB, cFeatureNameDelimiter="|"):
+    def __init__(self, npaAbundance, dictMetadata, strName, fIsNormalized, fIsSummed, cFileDelimiter = Constants_BreadCrumbs.TAB, cFeatureNameDelimiter="|"):
       """
       Averages feature abundance.
 
@@ -102,7 +102,7 @@ class AbundanceTable:
         print "Abundance or metadata was None, should be atleast an empty object"
 
     @staticmethod
-    def funcMakeFromFile(strInputFile, fIsNormalized, fIsSummed, cDelimiter = Constants_Micropita.TAB, sMetadataID = None, sLastMetadata = None, cFeatureNameDelimiter="|"):
+    def funcMakeFromFile(strInputFile, fIsNormalized, fIsSummed, cDelimiter = Constants_BreadCrumbs.TAB, sMetadataID = None, sLastMetadata = None, cFeatureNameDelimiter="|"):
         """
         Creates an abundance table from a table file.
 
@@ -164,7 +164,7 @@ class AbundanceTable:
 
     #Testing Status: Light happy path testing
     @staticmethod
-    def _funcTextToStructuredArray(strInputFile = None, cDelimiter = Constants_Micropita.TAB, sMetadataID = None, sLastMetadata = None):
+    def _funcTextToStructuredArray(strInputFile = None, cDelimiter = Constants_BreadCrumbs.TAB, sMetadataID = None, sLastMetadata = None):
         """
         Private method
         Used to read in a file that is samples (column) and taxa (rows) into a structured array.
@@ -204,7 +204,7 @@ class AbundanceTable:
 
         #Turn to lines of the file
         contents = contents.replace("\"","")
-        contents = filter(None,contents.split(Constants_Micropita.ENDLINE))
+        contents = filter(None,contents.split(Constants_BreadCrumbs.ENDLINE))
 
         #Get metadata and sample ids
         iFirstDataRow = -1
@@ -1194,16 +1194,16 @@ class AbundanceTable:
             if not cDelimiter:
                 cDelimiter = self._cDelimiter 
             #Write Ids
-            f.write(cDelimiter.join([self.funcGetIDMetadataName()]+list(self.funcGetSampleNames()))+Constants_Micropita.ENDLINE)
+            f.write(cDelimiter.join([self.funcGetIDMetadataName()]+list(self.funcGetSampleNames()))+Constants_BreadCrumbs.ENDLINE)
             #Write metadata
             lsKeys = list(set(self._dictTableMetadata.keys())-set([self.funcGetIDMetadataName()]))
-            f.write(Constants_Micropita.ENDLINE.join([cDelimiter.join([sMetaKey]+self.funcGetMetadata(sMetaKey)) for sMetaKey in lsKeys])+Constants_Micropita.ENDLINE)
+            f.write(Constants_BreadCrumbs.ENDLINE.join([cDelimiter.join([sMetaKey]+self.funcGetMetadata(sMetaKey)) for sMetaKey in lsKeys])+Constants_BreadCrumbs.ENDLINE)
             #Write abundance
             lsOutput = list()
             curAbundance = self._npaFeatureAbundance.tolist()
             for curAbundanceRow in curAbundance:
                 lsOutput.append(cDelimiter.join([str(curAbundanceElement) for curAbundanceElement in curAbundanceRow]))
-            f.write(Constants_Micropita.ENDLINE.join(lsOutput))
+            f.write(Constants_BreadCrumbs.ENDLINE.join(lsOutput))
 
     #Testing Status: 1 Happy path test
     @staticmethod
@@ -1248,7 +1248,7 @@ class AbundanceTable:
 
         #Get the file identifier for file one
         fileOneIdentifier = None
-        for sLine in filter(None, sContentsOne.split(Constants_Micropita.ENDLINE)):
+        for sLine in filter(None, sContentsOne.split(Constants_BreadCrumbs.ENDLINE)):
             lsLineContents = sLine.split(cDelimiter)
             if lsLineContents[0] == strIdentifier:
                 fileOneIdentifier = lsLineContents
@@ -1261,7 +1261,7 @@ class AbundanceTable:
 
         #Get the file identifier for file two
         fileTwoIdentifier = None
-        for sLine in filter(None, sContentsTwo.split(Constants_Micropita.ENDLINE)):
+        for sLine in filter(None, sContentsTwo.split(Constants_BreadCrumbs.ENDLINE)):
             lsLineContents = sLine.split(cDelimiter)
             if lsLineContents[0] == strIdentifier:
                 fileTwoIdentifier = lsLineContents
@@ -1283,19 +1283,19 @@ class AbundanceTable:
 
         #Write out file one
         with open(strOutFileOne, 'w') as f:
-            f.write(Constants_Micropita.ENDLINE.join([cDelimiter.join(np.compress(lfFileOneElements,sLine.split(cDelimiter)))
-                                           for sLine in filter(None, sContentsOne.split(Constants_Micropita.ENDLINE))]))
+            f.write(Constants_BreadCrumbs.ENDLINE.join([cDelimiter.join(np.compress(lfFileOneElements,sLine.split(cDelimiter)))
+                                           for sLine in filter(None, sContentsOne.split(Constants_BreadCrumbs.ENDLINE))]))
 
         #Write out file two
         with open(strOutFileTwo, 'w') as f:
-            f.write(Constants_Micropita.ENDLINE.join([cDelimiter.join(np.compress(lfFileTwoElements,sLine.split(cDelimiter)))
-                                           for sLine in filter(None, sContentsTwo.split(Constants_Micropita.ENDLINE))]))
+            f.write(Constants_BreadCrumbs.ENDLINE.join([cDelimiter.join(np.compress(lfFileTwoElements,sLine.split(cDelimiter)))
+                                           for sLine in filter(None, sContentsTwo.split(Constants_BreadCrumbs.ENDLINE))]))
 
         return True
 
     #Testing Status: Light happy path testing
     @staticmethod
-    def funcCheckRawDataFile(strReadDataFileName, iFirstDataIndex = -1, sLastMetadataName = None, lOccurenceFilter = None, strOutputFileName = "", cDelimiter = Constants_Micropita.TAB):
+    def funcCheckRawDataFile(strReadDataFileName, iFirstDataIndex = -1, sLastMetadataName = None, lOccurenceFilter = None, strOutputFileName = "", cDelimiter = Constants_BreadCrumbs.TAB):
         """
         Check the input otu or phlotype abundance table.
         Currently reduces the features that have no occurence.
@@ -1333,7 +1333,7 @@ class AbundanceTable:
         #Get output file and remove if existing
         outputFile = strOutputFileName
         if not strOutputFileName:
-            outputFile = os.path.splitext(strReadDataFileName)[0]+Constants_Micropita.OUTPUT_SUFFIX
+            outputFile = os.path.splitext(strReadDataFileName)[0]+Constants_BreadCrumbs.OUTPUT_SUFFIX
         if(os.path.exists(outputFile)):
             os.remove(outputFile)
 
@@ -1342,7 +1342,7 @@ class AbundanceTable:
         readData = ""
         with open(strReadDataFileName,'r') as f:
             readData = f.read()
-        readData = filter(None,readData.split(Constants_Micropita.ENDLINE))
+        readData = filter(None,readData.split(Constants_BreadCrumbs.ENDLINE))
 
         #Read the length of each line and make sure there is no jagged data
         #Also hold row count for the metadata
@@ -1373,10 +1373,10 @@ class AbundanceTable:
                 lsLineElements = strDataLine.split(cDelimiter)
                 for iindex, sElement in enumerate(lsLineElements):
                     if not sElement.strip():
-                        lsLineElements[iindex] = Constants_Micropita.c_strEmptyDataMetadata
+                        lsLineElements[iindex] = Constants_BreadCrumbs.c_strEmptyDataMetadata
                 if len(lsLineElements) < iLongestLength:
-                    lsLineElements = lsLineElements + ([Constants_Micropita.c_strEmptyDataMetadata]*(iLongestLength-len(lsLineElements)))
-                f.write(cDelimiter.join(lsLineElements)+Constants_Micropita.ENDLINE)
+                    lsLineElements = lsLineElements + ([Constants_BreadCrumbs.c_strEmptyDataMetadata]*(iLongestLength-len(lsLineElements)))
+                f.write(cDelimiter.join(lsLineElements)+Constants_BreadCrumbs.ENDLINE)
 
             #For each data line in the table
             for line in readData[iFirstDataIndex:]:
@@ -1393,7 +1393,7 @@ class AbundanceTable:
                 #If so add to output
                 for element in lineElements[1:]:
                     if(element.strip() in string.whitespace):
-                        cleanLine.append(Constants_Micropita.c_strEmptyAbundanceData)
+                        cleanLine.append(Constants_BreadCrumbs.c_strEmptyAbundanceData)
                     #Set abundance of 0 but do not indicate the line should be saved
                     elif(element == "0"):
                         cleanLine.append(element)
@@ -1411,12 +1411,12 @@ class AbundanceTable:
 
                 #Write to file
                 if writeToFile:    
-                    f.write(sCleanFeatureName+cDelimiter+cDelimiter.join(cleanLine)+Constants_Micropita.ENDLINE)
+                    f.write(sCleanFeatureName+cDelimiter+cDelimiter.join(cleanLine)+Constants_BreadCrumbs.ENDLINE)
         return outputFile
 
     #Testing Status: Light happy path testing
     @staticmethod
-    def funcStratifyAbundanceTableByMetadata(strInputFile = None, strDirectory = "", cDelimiter = Constants_Micropita.TAB, iStratifyByRow = 1, llsGroupings = []):
+    def funcStratifyAbundanceTableByMetadata(strInputFile = None, strDirectory = "", cDelimiter = Constants_BreadCrumbs.TAB, iStratifyByRow = 1, llsGroupings = []):
         """
         Splits an abundance table into multiple abundance tables stratified by the metadata
 
@@ -1462,7 +1462,7 @@ class AbundanceTable:
         sFileContents = None
         with open(strInputFile,'r') as f:
             sFileContents = f.read()
-        sFileContents = filter(None,re.split(Constants_Micropita.ENDLINE,sFileContents))
+        sFileContents = filter(None,re.split(Constants_BreadCrumbs.ENDLINE,sFileContents))
 
         #Collect metadata
         metadataInformation = dict()
@@ -1524,7 +1524,7 @@ class AbundanceTable:
         for metadata in stratifiedAbundanceTables:
             sOutputFile = baseFilePath+"-by-"+metadata.strip("\"")+lsFilePiecesExt[1]
             with open(sOutputFile,'w') as f:
-                sFileContents = f.write(Constants_Micropita.ENDLINE.join(stratifiedAbundanceTables[metadata]))
+                sFileContents = f.write(Constants_BreadCrumbs.ENDLINE.join(stratifiedAbundanceTables[metadata]))
                 lsFilesWritten.append(sOutputFile)
 
         return lsFilesWritten

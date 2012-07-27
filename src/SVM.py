@@ -15,7 +15,7 @@ __status__ = "Development"
 
 #Libraries
 from AbundanceTable import AbundanceTable
-from Constants_Micropita import Constants_Micropita
+from Constants_BreadCrumbs import Constants_BreadCrumbs
 import math
 import operator
 import os
@@ -73,8 +73,8 @@ class SVM:
 
         iRowIndex = 0
         for dataRow in dataMatrix[1:]:
-            llData.append(" ".join([lsLabels[iRowIndex]]+[Constants_Micropita.COLON.join([str(enuSamples[0]+1),str(enuSamples[1])])
-                            for enuSamples in enumerate(dataRow)])+Constants_Micropita.ENDLINE)
+            llData.append(" ".join([lsLabels[iRowIndex]]+[Constants_BreadCrumbs.COLON.join([str(enuSamples[0]+1),str(enuSamples[1])])
+                            for enuSamples in enumerate(dataRow)])+Constants_BreadCrumbs.ENDLINE)
             iRowIndex = iRowIndex + 1
 
         #Output file
