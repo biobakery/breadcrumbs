@@ -1,20 +1,26 @@
-#######################################################
-#
-#	Title:		CommandLine.py
-#	Author:		Timothy Tickle
-#	Date:		10/03/2011
-#	Purpose:	Parent class for inheriting methods for command line functionality.
-#
-#######################################################
+"""
+Author: Timothy Tickle
+Description: Manages calling commandline from within code.
+"""
+
+__author__ = "Timothy Tickle"
+__copyright__ = "Copyright 2011"
+__credits__ = ["Timothy Tickle"]
+__license__ = ""
+__version__ = ""
+__maintainer__ = "Timothy Tickle"
+__email__ = "ttickle@sph.harvard.edu"
+__status__ = "Development"
 
 #Import libaries
 from subprocess import call, Popen, PIPE
 from ValidateData import ValidateData
 import traceback
 
-##
-#Class containing commandline functionality.
 class CommandLine():
+    """
+    Manages calling commandline from within code.
+    """
 
     ##
     #Contructor

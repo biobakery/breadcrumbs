@@ -19,9 +19,7 @@ import operator
 import random
 from ValidateData import ValidateData
 
-##
-#Utility function for data generation
-class Utility_Math():
+class UtilityMath():
     """
     Class to perform misc math methods.
     """

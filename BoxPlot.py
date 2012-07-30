@@ -1,7 +1,7 @@
-#######################################################
-# Author: Timothy Tickle
-# Description: Class to create box plots
-#######################################################
+"""
+Author: Timothy Tickle
+Description: Class to craete box plots.
+"""
 
 __author__ = "Timothy Tickle"
 __copyright__ = "Copyright 2012"
@@ -13,12 +13,8 @@ __email__ = "ttickle@sph.harvard.edu"
 __status__ = "Development"
 
 #External libraries
-import logging
-from matplotlib.patches import Polygon
-from Constants_FiguresBreadCrumbs import Constants_FiguresBreadCrumbs
+from ConstantsFiguresBreadCrumbs import ConstantsFiguresBreadCrumbs
 import matplotlib.pyplot as plt
-import numpy as np
-import random
 from pylab import *
 
 #Plots a matrix
@@ -35,7 +31,11 @@ class BoxPlot:
     imgFigure = plt.figure()
 
     #Get plot colorsstrOutFigure
-    objFigureControl = Constants_FiguresBreadCrumbs()
+    objFigureControl = ConstantsFiguresBreadCrumbs()
+    #Boxplots have to be plotted over the scatter so the alpha can not go to 1.0
+    #In this case capturing the alpha before inversion
+    #Inversion automoatically sets it to 1.
+    dAlpha=objFigureControl.c_dAlpha
     objFigureControl.invertColors(fInvert=fInvert)
 
     #Color/Invert figure
@@ -68,7 +68,7 @@ class BoxPlot:
       plt.scatter(x=ldX,y=ly[iindex],c=strColor,marker="o",alpha=objFigureControl.c_dAlpha)
 
     #Color boxes
-    plt.setp(bp['boxes'], color=objFigureControl.c_strDetailsColorLetter, facecolor=strColor, alpha=objFigureControl.c_dAlpha)
+    plt.setp(bp['boxes'], color=objFigureControl.c_strDetailsColorLetter, facecolor=strColor, alpha=dAlpha)
     plt.setp(bp['whiskers'], color=objFigureControl.c_strDetailsColorLetter)
 
     #Set ticks and title

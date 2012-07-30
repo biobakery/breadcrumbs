@@ -12,12 +12,9 @@ __maintainer__ = "Timothy Tickle"
 __email__ = "ttickle@sph.harvard.edu"
 __status__ = "Development"
 
-
 #Libraries
 from AbundanceTable import AbundanceTable
-from Constants_BreadCrumbs import Constants_BreadCrumbs
-import math
-import operator
+from ConstantsBreadCrumbs import ConstantsBreadCrumbs
 import os
 from random import shuffle
 from ValidateData import ValidateData
@@ -73,8 +70,8 @@ class SVM:
 
         iRowIndex = 0
         for dataRow in dataMatrix[1:]:
-            llData.append(" ".join([lsLabels[iRowIndex]]+[Constants_BreadCrumbs.COLON.join([str(enuSamples[0]+1),str(enuSamples[1])])
-                            for enuSamples in enumerate(dataRow)])+Constants_BreadCrumbs.ENDLINE)
+            llData.append(" ".join([lsLabels[iRowIndex]]+[ConstantsBreadCrumbs.COLON.join([str(enuSamples[0]+1),str(enuSamples[1])])
+                            for enuSamples in enumerate(dataRow)])+ConstantsBreadCrumbs.ENDLINE)
             iRowIndex = iRowIndex + 1
 
         #Output file
@@ -83,6 +80,7 @@ class SVM:
 
         return lsUniqueLabels
 
+    #Tested 5
     @staticmethod
     def funcMakeLabels(lsMetadata):
         """

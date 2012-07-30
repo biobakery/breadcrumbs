@@ -204,6 +204,4 @@ class Minkowski:
                The Minkowski distance between vectors ``x`` and ``y``           
         """
         
-        return (abs(x - y)**self.__p).sum() ** (1.0 / self.__p)
-
-    
+        return (abs(x - y)**self.__p).sum() ** (1.0 / self.__p)    

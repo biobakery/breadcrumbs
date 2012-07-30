@@ -1,9 +1,7 @@
-#######################################################
-# Author: Timothy Tickle
-# Description: This manages the basic infrastructure
-# Needed for Circlader. Inherit this class and write over
-# over methods you want to customize.
-#######################################################
+"""
+Author: Timothy Tickle
+Description: Class to call circlader and create dendrograms.
+"""
 
 __author__ = "Timothy Tickle"
 __copyright__ = "Copyright 2012"
@@ -17,8 +15,8 @@ __status__ = "Development"
 #External libraries
 from AbundanceTable import AbundanceTable
 from CommandLine import CommandLine
-from Constants_BreadCrumbs import Constants_BreadCrumbs
-from Constants_FiguresBreadCrumbs import Constants_FiguresBreadCrumbs
+from ConstantsBreadCrumbs import ConstantsBreadCrumbs
+from ConstantsFiguresBreadCrumbs import ConstantsFiguresBreadCrumbs
 import math
 import numpy as np
 import os
@@ -31,8 +29,9 @@ class Cladogram:
   """
   This class manages creating files for Circlader and calling circulator.
   """
+
   #Script name
-  circladerScript = Constants_BreadCrumbs.c_strCircladerScript
+  circladerScript = ConstantsBreadCrumbs.c_strCircladerScript
 
   #Constants
   c_sTaxa="Taxa"
@@ -153,7 +152,6 @@ class Cladogram:
     """
     self.strRoot = strRoot
 
-#TODO Test
   def generate(self, strImageName, strStyleFile, sTaxaFileName, iTerminalCladeLevel = 10, sColorFileName=None, sTickFileName=None, sHighlightFileName=None, sSizeFileName=None, sCircleFileName=None):
     """
     This is the method to call to generate a cladogram using circlader.
@@ -260,14 +258,14 @@ class Cladogram:
 
     #Generate / write color file
     if(self.dictColors is not None):
-        lsColorData = [Constants_BreadCrumbs.TAB.join([sColorKey,self.dictColors[sColorKey]]) for sColorKey in self.dictColors]
-        self.writeToFile(self.strColorFilePath, Constants_BreadCrumbs.ENDLINE.join(lsColorData), False)
+        lsColorData = [ConstantsBreadCrumbs.TAB.join([sColorKey,self.dictColors[sColorKey]]) for sColorKey in self.dictColors]
+        self.writeToFile(self.strColorFilePath, ConstantsBreadCrumbs.ENDLINE.join(lsColorData), False)
         self.fColorFileMade=True
 
     #Generate / write tick file
     if(self.llsTicks is not None):
-        lsTickData = [Constants_BreadCrumbs.TAB.join(lsTicks) for lsTicks in self.llsTicks]
-        self.writeToFile(self.strTickFilePath, Constants_BreadCrumbs.ENDLINE.join(lsTickData), False)
+        lsTickData = [ConstantsBreadCrumbs.TAB.join(lsTicks) for lsTicks in self.llsTicks]
+        self.writeToFile(self.strTickFilePath, ConstantsBreadCrumbs.ENDLINE.join(lsTickData), False)
         self.fTickFileMade=True
 
     #Generate / Write size data
@@ -302,8 +300,8 @@ class Cladogram:
     """
     if ValidateData.funcIsValidDictionary(dictColors):
       self.dictColors = dictColors
-      if not Constants_FiguresBreadCrumbs.c_strBackgroundColorName in self.dictColors:
-        self.dictColors[Constants_FiguresBreadCrumbs.c_strBackgroundColorName]=Constants_FiguresBreadCrumbs.c_strBackgroundColor
+      if not ConstantsFiguresBreadCrumbs.c_strBackgroundColorName in self.dictColors:
+        self.dictColors[ConstantsFiguresBreadCrumbs.c_strBackgroundColorName]=ConstantsFiguresBreadCrumbs.c_strBackgroundColor
 
   #Not tested
   def setAbundanceData(self, abtbAbundanceTable):
@@ -562,23 +560,21 @@ class Cladogram:
               sAlpha = str(datAlpha[iTaxaIndex])
             else:
               sAlpha = str(datAlpha)
-            dictCircleDataMethods[sTaxa]=dictCircleDataMethods[sTaxa]+"".join([Constants_BreadCrumbs.TAB,sCircleMethod,":",sAlpha,"!",sShape,"#",sBorder])
+            dictCircleDataMethods[sTaxa]=dictCircleDataMethods[sTaxa]+"".join([ConstantsBreadCrumbs.TAB,sCircleMethod,":",sAlpha,"!",sShape,"#",sBorder])
           else:
-            dictCircleDataMethods[sTaxa]=dictCircleDataMethods[sTaxa]+"".join([Constants_BreadCrumbs.TAB,sCircleMethod,":0.0!R#0.0"])
+            dictCircleDataMethods[sTaxa]=dictCircleDataMethods[sTaxa]+"".join([ConstantsBreadCrumbs.TAB,sCircleMethod,":0.0!R#0.0"])
 
       if len(dictCircleDataMethods)>0:
         lsTaxaKeys = dictCircleDataMethods.keys()
         sCircleContent = dictCircleDataMethods[lsTaxaKeys[0]]
         for sTaxaKey in lsTaxaKeys[1:len(lsTaxaKeys)]:
-          sCircleContent = Constants_BreadCrumbs.ENDLINE.join([sCircleContent,dictCircleDataMethods[sTaxaKey]])
+          sCircleContent = ConstantsBreadCrumbs.ENDLINE.join([sCircleContent,dictCircleDataMethods[sTaxaKey]])
         self.writeToFile(self.strCircleFilePath, sCircleContent, False)
         self.fCircleFileMade=True
 
         return True
     self.fCircleFileMade=False
     return False
-
-############################################################
 
   #Happy Path tested
   def createHighlightFile(self, lsIDs):
@@ -612,12 +608,12 @@ class Cladogram:
           if(sID in self.dictRelabels):
             sCurLabel = self.dictRelabels[sID]
         if(sCurLabel == ""):
-          lsHighLightData.append(Constants_BreadCrumbs.TAB.join([sCurTaxa,sCurTaxaName,sCurLabel,sCurColor]))
+          lsHighLightData.append(ConstantsBreadCrumbs.TAB.join([sCurTaxa,sCurTaxaName,sCurLabel,sCurColor]))
         else:
-          lsHighLightData.append(Constants_BreadCrumbs.TAB.join([sCurTaxa,sCurLabel,sCurLabel,sCurColor]))
+          lsHighLightData.append(ConstantsBreadCrumbs.TAB.join([sCurTaxa,sCurLabel,sCurLabel,sCurColor]))
 
     if len(lsHighLightData)>0:
-      self.writeToFile(self.strHighLightFilePath, Constants_BreadCrumbs.ENDLINE.join(lsHighLightData), False)
+      self.writeToFile(self.strHighLightFilePath, ConstantsBreadCrumbs.ENDLINE.join(lsHighLightData), False)
       self.fHighlightFileMade=True
     return True
 
@@ -642,9 +638,9 @@ class Cladogram:
         if(strCurrentId in lsIDs):
           dAverage = np.average(list(rowData)[1:])
           dSize = max([dMinimumValue,(dAverage*self.c_dLogScale)+1])
-          lsWriteData.append(".".join(re.split("\|",strCurrentId))+Constants_BreadCrumbs.TAB+str(math.log10(dSize)*self.c_dCircleScale))
+          lsWriteData.append(".".join(re.split("\|",strCurrentId))+ConstantsBreadCrumbs.TAB+str(math.log10(dSize)*self.c_dCircleScale))
       if len(lsWriteData)>0:
-        self.writeToFile(self.strSizeFilePath, Constants_BreadCrumbs.ENDLINE.join(lsWriteData), False)
+        self.writeToFile(self.strSizeFilePath, ConstantsBreadCrumbs.ENDLINE.join(lsWriteData), False)
         self.fSizeFileMade=True
     return True
 
@@ -671,7 +667,7 @@ class Cladogram:
             lsFullTree.append(sNodePath)
 
     if len(lsFullTree)>0:
-      self.writeToFile(self.strTreeFilePath, Constants_BreadCrumbs.ENDLINE.join(lsFullTree), False)
+      self.writeToFile(self.strTreeFilePath, ConstantsBreadCrumbs.ENDLINE.join(lsFullTree), False)
     return True
 
   #Happy Path tested
@@ -839,7 +835,7 @@ class Cladogram:
     self.strCircleFilePath = sCircleFileName
     for sFile in [self.strTreeFilePath,self.strColorFilePath,self.strTickFilePath,
                   self.strHighLightFilePath,self.strSizeFilePath,self.strCircleFilePath]:
-      if not sFile == None:
+      if not sFile is None:
         if(os.path.exists(sFile)):
           os.remove(sFile)
     return True

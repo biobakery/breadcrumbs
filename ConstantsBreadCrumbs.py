@@ -1,6 +1,6 @@
 """
 Author: Timothy Tickle
-Description: Constants.
+Description: Project constants.
 """
 
 __author__ = "Timothy Tickle"
@@ -14,7 +14,7 @@ __status__ = "Development"
 
 ##
 #Used to test the FileIO class
-class Constants_BreadCrumbs():
+class ConstantsBreadCrumbs():
     """
     Class to hold project constants.
     """

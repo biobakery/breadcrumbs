@@ -1,6 +1,6 @@
 """
 Author: Timothy Tickle
-Description: Calculates ecology Metrics.
+Description: Calculates Metrics.
 """
 
 __author__ = "Timothy Tickle"
@@ -13,17 +13,14 @@ __email__ = "ttickle@sph.harvard.edu"
 __status__ = "Development"
 
 #Update path
-import sys
-import math
 import numpy as np
 from ValidateData import ValidateData
 
 #External libraries
 from cogent.maths.stats.alpha_diversity import chao1_uncorrected, chao1_bias_corrected
-from cogent.parse.tree import DndParser
 from scipy.spatial.distance import pdist
 
-class EcologyMetric:
+class Metric:
     """
     Performs ecological measurements.
     """
@@ -43,6 +40,7 @@ class EcologyMetric:
     c_strShannonRichness = "ShannonR"
     c_strObservedCount = "Observed_Count"
 
+    #Tested 4
     @staticmethod
     def funcGetSimpsonsDiversityIndex(ldSampleTaxaAbundancies=None):
         """
@@ -57,6 +55,7 @@ class EcologyMetric:
         #Calculate metric
         return sum((ldSampleTaxaAbundancies)*(ldSampleTaxaAbundancies))
 
+    #Tested 4
     @staticmethod
     def funcGetInverseSimpsonsDiversityIndex(ldSampleTaxaAbundancies=None):
         """
@@ -69,7 +68,7 @@ class EcologyMetric:
         :return	Double:	Diversity metric
         """
 
-        simpsons = EcologyMetric.funcGetSimpsonsDiversityIndex(ldSampleTaxaAbundancies)
+        simpsons = Metric.funcGetSimpsonsDiversityIndex(ldSampleTaxaAbundancies)
         #Return False if the diversity is 0 before inverting it
         if(simpsons == 0):
             return False
@@ -78,6 +77,7 @@ class EcologyMetric:
             simpsons = 1.0/simpsons
         return simpsons
 
+    #Tested 4
     @staticmethod
     def funcGetShannonRichnessIndex(ldSampleTaxaAbundancies=None):
         """
@@ -97,6 +97,7 @@ class EcologyMetric:
             return 0.0
         return -1 * tempIntermediateNumber
 
+    #Test 3
     @staticmethod
     def funcGetChao1DiversityIndex(ldSampleTaxaAbundancies=None, fCorrectForBias=False):
         """
@@ -129,6 +130,7 @@ class EcologyMetric:
         else:
             return chao1_uncorrected(observed = totalObservedSpecies, singles = singlesObserved, doubles = doublesObserved)
 
+    #Test 3
     @staticmethod
     def funcGetObservedCount(ldSampleAbundances, dThreshold = 0.0):
         """
@@ -145,6 +147,7 @@ class EcologyMetric:
 
         return sum([1 for observation in ldSampleAbundances if observation > dThreshold])
 
+    #Test 3
     @staticmethod
     def funcGetBrayCurtisDissimilarity(ldSampleTaxaAbundancies=None):
         """
@@ -167,6 +170,7 @@ class EcologyMetric:
             print "".join(["Diversity.getBrayCurtisDissimilarity. Error=",str(error)])
             return False
 
+    #Test 3
     @staticmethod
     def funcGetInverseBrayCurtisDissimilarity(ldSampleTaxaAbundancies=None):
         """
@@ -182,11 +186,12 @@ class EcologyMetric:
         :return	Double	1 - Bray-Curtis dissimilarity.	
         """
 
-        bcValue = EcologyMetric.funcGetBrayCurtisDissimilarity(ldSampleTaxaAbundancies = ldSampleTaxaAbundancies)
+        bcValue = Metric.funcGetBrayCurtisDissimilarity(ldSampleTaxaAbundancies = ldSampleTaxaAbundancies)
         if(not ValidateData.funcIsFalse(bcValue)):
             return 1.0-bcValue
         return False
 
+    #Test 4
     @staticmethod
     def funcGetAlphaMetric(ldAbundancies=None, strMetric=None):
         """
@@ -201,20 +206,21 @@ class EcologyMetric:
 
         if(not ValidateData.funcIsValidString(strMetric)):
             return False
-        elif(strMetric == EcologyMetric.c_strShannonRichness):
-            return EcologyMetric.funcGetShannonRichnessIndex(ldSampleTaxaAbundancies=ldAbundancies)
-        elif(strMetric == EcologyMetric.c_strSimpsonDiversity):
-            return EcologyMetric.funcGetSimpsonsDiversityIndex(ldSampleTaxaAbundancies=ldAbundancies)
-        elif(strMetric == EcologyMetric.c_strInvSimpsonDiversity):
-            return EcologyMetric.funcGetInverseSimpsonsDiversityIndex(ldSampleTaxaAbundancies=ldAbundancies)
-        elif(strMetric == EcologyMetric.c_strObservedCount):
-            return EcologyMetric.funcGetObservedCount(npaSampleAbundances=ldAbundancies)
+        elif(strMetric == Metric.c_strShannonRichness):
+            return Metric.funcGetShannonRichnessIndex(ldSampleTaxaAbundancies=ldAbundancies)
+        elif(strMetric == Metric.c_strSimpsonDiversity):
+            return Metric.funcGetSimpsonsDiversityIndex(ldSampleTaxaAbundancies=ldAbundancies)
+        elif(strMetric == Metric.c_strInvSimpsonDiversity):
+            return Metric.funcGetInverseSimpsonsDiversityIndex(ldSampleTaxaAbundancies=ldAbundancies)
+        elif(strMetric == Metric.c_strObservedCount):
+            return Metric.funcGetObservedCount(npaSampleAbundances=ldAbundancies)
         #Needs NOT Normalized Abundance
-        elif(strMetric == EcologyMetric.c_strChao1Diversity):
-            return EcologyMetric.funcGetChao1DiversityIndex(ldSampleTaxaAbundancies=ldAbundancies)
+        elif(strMetric == Metric.c_strChao1Diversity):
+            return Metric.funcGetChao1DiversityIndex(ldSampleTaxaAbundancies=ldAbundancies)
         else:
             return False
 
+    #Test 3
     @staticmethod
     def funcBuildAlphaMetricsMatrix(npaSampleAbundance = None, lsSampleNames = None, lsDiversityMetricAlpha = None):
         """
@@ -247,5 +253,5 @@ class EcologyMetric:
         for sample in lsSampleNames:
             sampleAbundance = npaSampleAbundance[sample]
             for metricIndex in xrange(0,metricsCount):
-                returnMetricsMatrix[metricIndex].append(EcologyMetric.funcGetAlphaMetric(ldAbundancies = sampleAbundance, strMetric = lsDiversityMetricAlpha[metricIndex]))
+                returnMetricsMatrix[metricIndex].append(Metric.funcGetAlphaMetric(ldAbundancies = sampleAbundance, strMetric = lsDiversityMetricAlpha[metricIndex]))
         return returnMetricsMatrix

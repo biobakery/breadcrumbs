@@ -19,11 +19,9 @@ import os
 import re
 import string
 
-##
-#Includes methods that help validating parameters
-#Created 8/12/09
 class ValidateData:
 
+    #Tested 5
     @staticmethod
     def funcIsValidBoolean(parameterValue):
         """
@@ -44,6 +42,7 @@ class ValidateData:
             return False
         return True
 
+    #Tested 6
     @staticmethod
     def funcIsTrue(parameterValue):
         """
@@ -60,6 +59,7 @@ class ValidateData:
                 return True
         return False
 
+    #Tested 6
     @staticmethod
     def funcIsFalse(parameterValue):
         """
@@ -76,6 +76,7 @@ class ValidateData:
                 return True
         return False
 
+    #Tested 5
     @staticmethod
     def funcIsValidInteger(parameterValue):
         """
@@ -97,6 +98,7 @@ class ValidateData:
 
         return True
 
+    #Tested 5
     @staticmethod
     def funcIsValidPositiveInteger(parameterValue, tempZero = False):
         """
@@ -123,6 +125,7 @@ class ValidateData:
             return tempZero
         return True
 
+    #Tested 14
     @staticmethod
     def funcIsValidNumeric(parameterValue):
         """
@@ -143,6 +146,7 @@ class ValidateData:
                 return True
         return False
 
+    #Tested 5
     @staticmethod
     def funcIsValidStringType(parameterValue):
         """
@@ -164,6 +168,7 @@ class ValidateData:
 
         return True
 
+    #Tested 5
     @staticmethod
     def funcIsValidString(parameterValue):
         """
@@ -184,6 +189,7 @@ class ValidateData:
             return False
         return True
 
+    #Tested 6
     @staticmethod
     def funcIsValidFormatString(parameterValue):
         """
@@ -204,6 +210,7 @@ class ValidateData:
                     break
         return lettersValid
 
+    #Tested 5
     @staticmethod
     def funcIsValidChar(parameterValue):
         """
@@ -217,6 +224,7 @@ class ValidateData:
 
         return ValidateData.funcIsValidString(parameterValue)
 
+    #Tested 13
     @staticmethod
     def funcIsValidPositiveNumberChar(parameterValue):
         """
@@ -241,6 +249,7 @@ class ValidateData:
             return False
         return True
 
+    #Tested 9
     @staticmethod
     def funcIsValidFlagChar(parameterValue):
         """
@@ -256,6 +265,7 @@ class ValidateData:
             return True
         return False
 
+    #Tested 15
     @staticmethod
     def funcIsValidBoundedIntegerChar(parameterValue, iValueOne, iValueTwo):
         """
@@ -301,6 +311,7 @@ class ValidateData:
         except:
             return False
 
+    #Tested 9
     @staticmethod
     def funcIsValidList(parameterValue):
         """
@@ -330,6 +341,7 @@ class ValidateData:
                     return False
         return True
 
+    #Tested 9
     @staticmethod
     def funcIsValidTuple(parameterValue):
         """
@@ -354,8 +366,12 @@ class ValidateData:
         for i in range(0,tupleSize):
             if parameterValue[i] == None:
                 return False
+            if type(parameterValue[i]) is TupleType:
+                if ValidateData.funcIsValidTuple(parameterValue[i]) == False:
+                    return False
         return True
 
+    #Tested 7
     @staticmethod
     def funcIsValidNumericList(parameterValue):
         """
@@ -378,6 +394,7 @@ class ValidateData:
                 return False
         return True
 
+    #Tested 7
     @staticmethod
     def funcIsValidStringList(parameterValue):
         """
@@ -400,6 +417,7 @@ class ValidateData:
                 return False
         return True
 
+    #Tested 4
     @staticmethod
     def funcIsValidNPArray(parameterValue):
         """
@@ -421,6 +439,7 @@ class ValidateData:
 
         return True
 
+    #Tested 9
     @staticmethod
     def funcIsValidDictionary(parameterValue):
         """
@@ -462,6 +481,7 @@ class ValidateData:
                     return False
         return True
 
+    #Tested 18
     @staticmethod
     def funcIsValidDNASequence(parameterValue):
         """
@@ -480,6 +500,7 @@ class ValidateData:
             return True
         return False
 
+    #Tested 15
     @staticmethod
     def funcIsValidNucleotideBase(parameterValue):
         """
@@ -496,6 +517,7 @@ class ValidateData:
                 return True
         return False
 
+    #Testing 4
     @staticmethod
     def funcIsValidFileName(parameterValue):
         """
@@ -507,10 +529,13 @@ class ValidateData:
         :type	Boolean
         """
 
-        if(ValidateData.funcIsValidString(parameterValue)):
+        if parameterValue is None:
+            return False
+        elif(ValidateData.funcIsValidString(parameterValue)):
             return os.path.exists(parameterValue)
         return False
 
+    #Tested 5
     @staticmethod
     def funcIsValidClass(parameterValue, strCorrectName):
         """

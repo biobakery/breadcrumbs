@@ -1,6 +1,6 @@
 """
 Author: Timothy Tickle
-Description: Allows KMedoids on a custom metric space..
+Description: Allows KMedoids on a custom metric space.
 """
 
 __author__ = "Timothy Tickle"
@@ -30,9 +30,9 @@ class MLPYDistanceAdaptor:
         Constructor requires a matrix of distances, could be condensed or square matrices
 
     	:param	npaDistanceMatrix:	The distance matrix to be used
-	    :type	Numpy array
-	    :param	fIsCondensedMatrix:	Indicator of the matrix being square (true = condensed; false = square)
-	    :type	Boolean
+	:type	Numpy array
+	:param	fIsCondensedMatrix:	Indicator of the matrix being square (true = condensed; false = square)
+	:type	Boolean
         """
 
         if(fIsCondensedMatrix):
@@ -45,10 +45,10 @@ class MLPYDistanceAdaptor:
         This is the only method required in the interface to MLPY to be a distance metric.
         Does NOT want values but positions, the positions will be used for accessing the distance matrix already provided.
 
-	    :param	x:	X position as a array of 1 number
-	    :type	Numpy array
-	    :param	y:	Y position as a array of 1 number
-	    :type	Boolean
+	:param	x:	X position as a array of 1 number
+	:type	Numpy array
+	:param	y:	Y position as a array of 1 number
+	:type	Boolean
         """
 
         if(self.npaMatrix == None):
