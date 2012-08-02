@@ -31,7 +31,7 @@ class Cladogram:
   """
 
   #Script name
-  circladerScript = ConstantsBreadCrumbs.c_strCircladerScript
+  circladerScript=None
 
   #Constants
   c_sTaxa="Taxa"
@@ -145,14 +145,14 @@ class Cladogram:
     This method allows one to root the tree at a certain level and value
     Only taxa that contain this value in their ancestry will be plotted
     The root will be the value given, any previous heirachy will be ignored
-    This will remove highlighted data if inidicated to do so
+    This will remove highlighted data if indicated to do so
 
     :params strRoot Where to root the tree
     :type strRoot String
     """
     self.strRoot = strRoot
 
-  def generate(self, strImageName, strStyleFile, sTaxaFileName, iTerminalCladeLevel = 10, sColorFileName=None, sTickFileName=None, sHighlightFileName=None, sSizeFileName=None, sCircleFileName=None):
+  def generate(self, strImageName, strStyleFile, sTaxaFileName, strCircladerScript = ConstantsBreadCrumbs.c_strCircladerScript, iTerminalCladeLevel = 10, sColorFileName=None, sTickFileName=None, sHighlightFileName=None, sSizeFileName=None, sCircleFileName=None):
     """
     This is the method to call to generate a cladogram using circlader.
     The default data file is an abundance table unless the getDa function is overwritten.
@@ -178,6 +178,9 @@ class Cladogram:
     if self.npaAbundance == None:
       print "Cladogram::generate. The data was not set so an image could not be generated"
       return False
+
+    #Set script
+    self.circladerScript = strCircladerScript
 
     #Set output file name
     self.strImageName = strImageName

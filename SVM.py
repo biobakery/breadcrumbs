@@ -70,7 +70,7 @@ class SVM:
 
         iRowIndex = 0
         for dataRow in dataMatrix[1:]:
-            llData.append(" ".join([lsLabels[iRowIndex]]+[ConstantsBreadCrumbs.COLON.join([str(enuSamples[0]+1),str(enuSamples[1])])
+            llData.append(ConstantsBreadCrumbs.c_strBreadCrumbsSVMSpace.join([lsLabels[iRowIndex]]+[ConstantsBreadCrumbs.COLON.join([str(enuSamples[0]+1),str(enuSamples[1])])
                             for enuSamples in enumerate(dataRow)])+ConstantsBreadCrumbs.ENDLINE)
             iRowIndex = iRowIndex + 1
 
@@ -98,6 +98,56 @@ class SVM:
 
         dictLabels = dict([[str(lenuLabels[1]),str(lenuLabels[0])] for lenuLabels in enumerate(lsUniqueLabels)])
         return [dictLabels[sLabel] for sLabel in lsMetadata]
+
+    #Tested
+    @staticmethod
+    def funcReadLabelsFromFile(sSVMFile, lsAllSampleNames, isPredictFile):
+      """
+      Reads in the labels from the input file or prediction output file of a LibSVM formatted file
+      and associates them in order with the given sample names.
+
+      Prediction file expected format: Labels declared in first line with labels keyword.
+      Each following row a sample with the first entry the predicted label
+      Prediction file example:
+      labels 0 1
+      0	0.3	0.4	0.6
+      1	0.1	0.2	0.3
+      1	0.2	0.2	0.2
+      0	0.2	0.4	0.3
+
+      Input file expected format:
+      Each row a sample with the first entry the predicted label
+      Input file example:
+      0	0.3	0.4	0.6
+      1	0.1	0.2	0.3
+      1	0.2	0.2	0.2
+      0	0.2	0.4	0.3
+
+      :param sSVMFile:  File path to read in prediction labels.
+      :type String
+      :param lsAllSampleNames List of sample ids in the order of the labels.
+      :type List of Strings
+      :param isPredictFile: Indicates is the file is the input (False) or prediction (True) file
+      :type boolean
+      :return: Dictionary {label:["sampleName1", "sampleName2"...],...} or False on error
+      """
+      dictSampleLabels = dict()
+ 
+      #Open prediction file and input file and get labels to compare to the predictions
+      with open(sSVMFile,'r') as g:
+          lsFileData = g.read()
+          lsFileRows = [strRow for strRow in lsFileData.split(ConstantsBreadCrumbs.ENDLINE) if not(strRow is None) and not(strRow.strip() == '')]
+          lsOriginalLabels = [row.split(ConstantsBreadCrumbs.c_strBreadCrumbsSVMSpace)[0] for row in lsFileRows[0+isPredictFile:]]
+          #Check sample name length
+          if not len(lsAllSampleNames) == len(lsOriginalLabels):
+              print "lsAllSampleNames:",lsAllSampleNames
+              print "len(lsAllSampleNames):",len(lsAllSampleNames)
+              print "lsOriginalLabels:",lsOriginalLabels
+              print "len(lsOriginalLabels):",len(lsOriginalLabels)
+              return False
+          for sValue in set(lsOriginalLabels):  
+              dictSampleLabels[sValue] = set([lsAllSampleNames[iindex] for iindex, sLabel in enumerate(lsOriginalLabels) if sLabel == sValue])
+      return dictSampleLabels
 
     #Tested
     @staticmethod

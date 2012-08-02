@@ -30,6 +30,8 @@ class ConstantsBreadCrumbs():
     WHITE_SPACE = " "
     PIPE = "|"
 
+    c_strBreadCrumbsSVMSpace = WHITE_SPACE
+
     #Default values for missing data in the Abundance Table
     c_strEmptyAbundanceData = "0"
     c_strEmptyDataMetadata = "NA"
@@ -38,7 +40,7 @@ class ConstantsBreadCrumbs():
 
     #TODO remove
     #Reference to circlader
-    c_strCircladerScript = "../circlader/circlader.py"
+    c_strCircladerScript = "circlader/circlader.py"
 
     #AbundanceTable
     #Suffix given to a file that is check with the checkRawDataFile method
