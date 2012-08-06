@@ -748,9 +748,10 @@ class Cladogram:
         if iLineageCount < self.iCladeLevelToReduce:
             retls.append(sID)
         #Check to see if the clade which is being reduced made the cut
-        if (iIDCount >= self.iCladeLevelToMeasure) or (lsID[-1] == self.strUnclassified):
-            if cladeCounts[self.cFeatureDelimiter.join(lsID[0:self.iCladeLevelToReduce])] >= self.iMinCladeSize:
-                retls.append(sID)
+        if iIDCount >= self.iCladeLevelToReduce:
+            if (iIDCount >= self.iCladeLevelToMeasure) or (lsID[-1] == self.strUnclassified):
+                if cladeCounts[self.cFeatureDelimiter.join(lsID[0:self.iCladeLevelToReduce])] >= self.iMinCladeSize:
+                    retls.append(sID)
 
     return retls
 
