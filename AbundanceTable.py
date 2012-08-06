@@ -12,6 +12,7 @@ __maintainer__ = "Timothy Tickle"
 __email__ = "ttickle@sph.harvard.edu"
 __status__ = "Development"
 
+import sys
 import blist
 from CClade import CClade
 from ConstantsBreadCrumbs import ConstantsBreadCrumbs
@@ -1367,7 +1368,7 @@ class AbundanceTable:
             #Write metadata
             #Empty data is changed to a default
             #Jagged ends are filled with a default
-            for strDataLine in readData[0:iFirstDataIndex]:
+            for strDataLine in readData[:iFirstDataIndex]:
                 lsLineElements = strDataLine.split(cDelimiter)
                 for iindex, sElement in enumerate(lsLineElements):
                     if not sElement.strip():
