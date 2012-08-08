@@ -626,7 +626,7 @@ class PCoA:
         if charForceShape == None:
             #Get shapes
             acharShapes = PCoA.getShapes(iCountUniqueValues)
-            if acharShapes == None:
+            if len(acharShapes) == 0:
                 return False
             #Make label shapes
             alLabelShapes = [ acharShapes[acharUniqueValues.index(sMetadata)] for sMetadata in lsLabelList ]
