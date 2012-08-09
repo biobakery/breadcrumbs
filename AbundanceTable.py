@@ -98,8 +98,8 @@ class AbundanceTable:
         self._dictTableMetadata = dictMetadata
         self._iOriginalFeatureCount = self._npaFeatureAbundance.shape[0]
         self._iOriginalSampleCount = len(self.funcGetSampleNames())
-      else:
-        print "Abundance or metadata was None, should be atleast an empty object"
+#      else:
+#        print "Abundance or metadata was None, should be atleast an empty object"
 
     @staticmethod
     def funcMakeFromFile(strInputFile, fIsNormalized, fIsSummed, cDelimiter = ConstantsBreadCrumbs.TAB, sMetadataID = None, sLastMetadata = None, cFeatureNameDelimiter="|"):
@@ -782,7 +782,7 @@ class AbundanceTable:
         """
 
         if self._fIsNormalized:
-            print "This table is already normalized, did not perform new normalization request."
+#            print "This table is already normalized, did not perform new normalization request."
             return False
 
         if self._fIsSummed:
@@ -815,11 +815,11 @@ class AbundanceTable:
         """
 
         if self._fIsNormalized:
-            print "This table is already normalized, did not perform new normalization request."
+#            print "This table is already normalized, did not perform new normalization request."
             return False
 
         if not self._fIsSummed:
-            print "This table does not have clades summed, this normalization is not appropriate until the clades are summed. The clades are being summed now before normalization."
+#            print "This table does not have clades summed, this normalization is not appropriate until the clades are summed. The clades are being summed now before normalization."
             self.funcSumClades()
 
         #Load a hash table with root data {sKey: npaAbundances}

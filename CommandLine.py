@@ -31,7 +31,7 @@ class CommandLine():
     #Create new array elements instead of white spacing
     #@return boolean indicator of success (True = Success)
     def runCommandLine(self,tempCommand = None):
-        print "Command="+str(tempCommand)
+
         #Makes sure the the input data is a list of strings
         if(not ValidateData.funcIsValidStringList(tempCommand)):
             print "Error:: tempCommand must be an array of strings. Received="+str(tempCommand)+"."

@@ -41,10 +41,10 @@ class SVM:
 
         #Validate parameters
         if abndAbundanceTable == None:
-            print "Error, invalid Abundance table."
+            print "SVM::Error, invalid Abundance table."
             return False
         if(not ValidateData.funcIsValidString(strOutputSVMFile)):
-            print "Error, file not valid. File:"+str(strOutputSVMFile)
+            print "SVM::Error, file not valid. File:"+str(strOutputSVMFile)
             return False
 
         #If output file exists, delete
@@ -140,10 +140,7 @@ class SVM:
           lsOriginalLabels = [row.split(ConstantsBreadCrumbs.c_strBreadCrumbsSVMSpace)[0] for row in lsFileRows[0+isPredictFile:]]
           #Check sample name length
           if not len(lsAllSampleNames) == len(lsOriginalLabels):
-              print "lsAllSampleNames:",lsAllSampleNames
-              print "len(lsAllSampleNames):",len(lsAllSampleNames)
-              print "lsOriginalLabels:",lsOriginalLabels
-              print "len(lsOriginalLabels):",len(lsOriginalLabels)
+              print "SVM::Error, the length of sample names did not match the original labels length."
               return False
           for sValue in set(lsOriginalLabels):  
               dictSampleLabels[sValue] = set([lsAllSampleNames[iindex] for iindex, sLabel in enumerate(lsOriginalLabels) if sLabel == sValue])

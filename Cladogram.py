@@ -825,7 +825,7 @@ class Cladogram:
       print("Error, style file is None")
       return(False)
     if not os.path.exists(strStyleFile):
-      print("Error, no style file")
+      print("Error, no style file found.")
       return(False)
     else:
       self.strStyleFilePath = strStyleFile
