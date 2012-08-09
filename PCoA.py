@@ -591,7 +591,7 @@ class PCoA:
         This is for the scenario where you do not care that the color or shape of the data will be as long as it varies
         with the label.
         This method does allow forcing color or shape to 1 character so that they do not vary with the label but are one value.
-        This is helpful when you have a large number of labels to plot given the shapes in the PCoA aer limited but not the coloring.
+        This is helpful when you have a large number of labels to plot given the shapes in the PCoA are limited but not the coloring.
 
         :param lsLabelList: List of string labels which are in order of the data in the PCoA object (as the data was loaded the PCoA object).
         :type List of strings

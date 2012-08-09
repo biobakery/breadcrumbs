@@ -127,7 +127,7 @@ class SVM:
       :type String
       :param lsAllSampleNames List of sample ids in the order of the labels.
       :type List of Strings
-      :param isPredictFile: Indicates is the file is the input (False) or prediction (True) file
+      :param isPredictFile: Indicates if the file is the input (False) or prediction (True) file
       :type boolean
       :return: Dictionary {label:["sampleName1", "sampleName2"...],...} or False on error
       """
