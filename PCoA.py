@@ -56,6 +56,17 @@ class PCoA:
     #Forced X Axis
     ldForcedXAxis = None
 
+    #Indices for the plot group dictionary
+    c_iXPointIndex = 0
+    c_iYPointIndex = 1
+    c_iColorIndex = 2
+    c_iMarkerIndex = 3
+    c_iAlphaIndex = 4
+    c_iLabelIndex = 5
+    c_iShapeIndex = 6
+    c_iEdgeColorIndex = 7
+    c_strTiesKey = "Ties"
+
     #Happy path tested
     def loadData(self, xData, fIsRawData):
         """
@@ -279,6 +290,11 @@ class PCoA:
             if(ValidateData.funcIsValidList(tempColorGrouping)):
                 if len(tempColorGrouping) == iPointCount:
 
+                    #Dictionary to hold plotting groups
+                    #Logistical to plot points as layers in an intelligent fashion
+                    #{CountofPoints: [[plot info list]]} The list happends so ties can occur in the key
+                    dictPlotGroups = dict()
+ 
                     #Check for lists in the list which indicate the need to plot pie charts
                     lfAreLists = [ValidateData.funcIsValidList(objColor) for objIndex, objColor in enumerate(tempColorGrouping)]
 
@@ -356,7 +372,7 @@ class PCoA:
                         reducedShapes = tempShape
                         if(not ValidateData.funcIsValidList(reducedShapes)):
                           reducedShapes = reducedShapes[0]
-                          imgSubplot.scatter(aiXPoints,aiYPoints, c=[charColor], marker=reducedShapes, alpha=tempAlpha, label=tempLabels[tempColorGrouping.index(charColor)], s=reducedSizes, edgecolor=charMarkerEdgeColor)
+                          dictPlotGroups.setdefault(len(aiXPoints), []).append([aiXPoints,aiYPoints,[charColor],reducedShapes,tempAlpha,tempLabels[tempColorGrouping.index(charColor)],reducedSizes,charMarkerEdgeColor])
                         #Shapes are supplied as a list so plot each shape
                         else:
                           #Reduce to shapes of the current colors
@@ -380,12 +396,25 @@ class PCoA:
                             reducedSizesPerShape = reducedSizes
                             if(ValidateData.funcIsValidList(reducedSizes)):
                               reducedSizesPerShape = Utility.reduceList(reducedSizes,aiShapeIndices)
-                            #Plot
-                            imgSubplot.scatter(aiXPointsPerShape,aiYPointsPerShape, c=[charColor], marker=aCharShapeElement, alpha=tempAlpha, label=strShapeLabel[0], s=strShapeSizes, edgecolor=charMarkerEdgeColor)
+                            #Put plot data in dict of lists for later plotting
+                            #Separate out the background printing
+                            dictPlotGroups.setdefault(len(aiXPointsPerShape), []).append([aiXPointsPerShape,aiYPointsPerShape,[charColor],aCharShapeElement,tempAlpha,strShapeLabel[0],strShapeSizes,charMarkerEdgeColor])
 
                     #Plot each color starting with largest color amount to smallest color anmount so small groups will not be covered up by larger groups
-                    #
-
+                    #Plot other colors in increasing order
+                    for sPlotGroupKey in sorted(list(dictPlotGroups.keys()), reverse=True):
+                        lslsCurPlotGroup = dictPlotGroups[sPlotGroupKey]
+                        #Plot
+                        for lsGroup in lslsCurPlotGroup:
+                            imgSubplot.scatter(lsGroup[self.c_iXPointIndex],
+                                           lsGroup[self.c_iYPointIndex],
+                                           c = lsGroup[self.c_iColorIndex],
+                                           marker = lsGroup[self.c_iMarkerIndex],
+                                           alpha = lsGroup[self.c_iAlphaIndex],
+                                           label = lsGroup[self.c_iLabelIndex],
+                                           s = lsGroup[self.c_iShapeIndex],
+                                           edgecolor = lsGroup[self.c_iEdgeColorIndex])
+ 
                     #Plot pie charts
                     if not lsColorsPieCharts is None:
                         self.plotWithPieMarkers(imgSubplot=imgSubplot, aiXPoints=ldXPointsPieCharts, aiYPoints=ldYPointsPieCharts, dSize=lsSizesPieCharts, llColors=lsColorsPieCharts, lsLabels=lsLabelsPieCharts, lcShapes=lcShapesPieCharts, edgeColor=charMarkerEdgeColor, dAlpha=tempAlpha)

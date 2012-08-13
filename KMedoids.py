@@ -1,6 +1,3 @@
-"""
-k-medoids algorithm.
-"""
 ## MLPY build 2.2.0
 ## This code is written by Davide Albanese, <albanese@fbk.eu>
 ## (C) 2009 Fondazione Bruno Kessler - Via Santa Croce 77, 38100 Trento, ITALY.
