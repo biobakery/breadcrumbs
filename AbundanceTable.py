@@ -39,7 +39,7 @@ class AbundanceTable:
     rows are features (bugs). 
     """
 
-    def __init__(self, npaAbundance, dictMetadata, strName, fIsNormalized, fIsSummed, cFileDelimiter = ConstantsBreadCrumbs.TAB, cFeatureNameDelimiter="|"):
+    def __init__(self, npaAbundance, dictMetadata, strName, fIsNormalized, fIsSummed, cFileDelimiter = ConstantsBreadCrumbs.c_cTab, cFeatureNameDelimiter="|"):
       """
       Averages feature abundance.
 
@@ -102,7 +102,7 @@ class AbundanceTable:
 #        print "Abundance or metadata was None, should be atleast an empty object"
 
     @staticmethod
-    def funcMakeFromFile(strInputFile, fIsNormalized, fIsSummed, cDelimiter = ConstantsBreadCrumbs.TAB, sMetadataID = None, sLastMetadata = None, cFeatureNameDelimiter="|"):
+    def funcMakeFromFile(strInputFile, fIsNormalized, fIsSummed, cDelimiter = ConstantsBreadCrumbs.c_cTab, sMetadataID = None, sLastMetadata = None, cFeatureNameDelimiter="|"):
         """
         Creates an abundance table from a table file.
 
@@ -162,7 +162,7 @@ class AbundanceTable:
 
     #Testing Status: Light happy path testing
     @staticmethod
-    def _funcTextToStructuredArray(strInputFile = None, cDelimiter = ConstantsBreadCrumbs.TAB, sMetadataID = None, sLastMetadata = None):
+    def _funcTextToStructuredArray(strInputFile = None, cDelimiter = ConstantsBreadCrumbs.c_cTab, sMetadataID = None, sLastMetadata = None):
         """
         Private method
         Used to read in a file that is samples (column) and taxa (rows) into a structured array.
@@ -202,7 +202,7 @@ class AbundanceTable:
 
         #Turn to lines of the file
         contents = contents.replace("\"","")
-        contents = filter(None,contents.split(ConstantsBreadCrumbs.ENDLINE))
+        contents = filter(None,contents.split(ConstantsBreadCrumbs.c_strEndline))
 
         #Get metadata and sample ids
         iFirstDataRow = -1
@@ -1193,16 +1193,16 @@ class AbundanceTable:
             if not cDelimiter:
                 cDelimiter = self._cDelimiter 
             #Write Ids
-            f.write(cDelimiter.join([self.funcGetIDMetadataName()]+list(self.funcGetSampleNames()))+ConstantsBreadCrumbs.ENDLINE)
+            f.write(cDelimiter.join([self.funcGetIDMetadataName()]+list(self.funcGetSampleNames()))+ConstantsBreadCrumbs.c_strEndline)
             #Write metadata
             lsKeys = list(set(self._dictTableMetadata.keys())-set([self.funcGetIDMetadataName()]))
-            f.write(ConstantsBreadCrumbs.ENDLINE.join([cDelimiter.join([sMetaKey]+self.funcGetMetadata(sMetaKey)) for sMetaKey in lsKeys])+ConstantsBreadCrumbs.ENDLINE)
+            f.write(ConstantsBreadCrumbs.c_strEndline.join([cDelimiter.join([sMetaKey]+self.funcGetMetadata(sMetaKey)) for sMetaKey in lsKeys])+ConstantsBreadCrumbs.c_strEndline)
             #Write abundance
             lsOutput = list()
             curAbundance = self._npaFeatureAbundance.tolist()
             for curAbundanceRow in curAbundance:
                 lsOutput.append(cDelimiter.join([str(curAbundanceElement) for curAbundanceElement in curAbundanceRow]))
-            f.write(ConstantsBreadCrumbs.ENDLINE.join(lsOutput))
+            f.write(ConstantsBreadCrumbs.c_strEndline.join(lsOutput))
 
     #Testing Status: 1 Happy path test
     @staticmethod
@@ -1247,7 +1247,7 @@ class AbundanceTable:
 
         #Get the file identifier for file one
         fileOneIdentifier = None
-        for sLine in filter(None, sContentsOne.split(ConstantsBreadCrumbs.ENDLINE)):
+        for sLine in filter(None, sContentsOne.split(ConstantsBreadCrumbs.c_strEndline)):
             lsLineContents = sLine.split(cDelimiter)
             if lsLineContents[0] == strIdentifier:
                 fileOneIdentifier = lsLineContents
@@ -1260,7 +1260,7 @@ class AbundanceTable:
 
         #Get the file identifier for file two
         fileTwoIdentifier = None
-        for sLine in filter(None, sContentsTwo.split(ConstantsBreadCrumbs.ENDLINE)):
+        for sLine in filter(None, sContentsTwo.split(ConstantsBreadCrumbs.c_strEndline)):
             lsLineContents = sLine.split(cDelimiter)
             if lsLineContents[0] == strIdentifier:
                 fileTwoIdentifier = lsLineContents
@@ -1282,19 +1282,19 @@ class AbundanceTable:
 
         #Write out file one
         with open(strOutFileOne, 'w') as f:
-            f.write(ConstantsBreadCrumbs.ENDLINE.join([cDelimiter.join(np.compress(lfFileOneElements,sLine.split(cDelimiter)))
-                                           for sLine in filter(None, sContentsOne.split(ConstantsBreadCrumbs.ENDLINE))]))
+            f.write(ConstantsBreadCrumbs.c_strEndline.join([cDelimiter.join(np.compress(lfFileOneElements,sLine.split(cDelimiter)))
+                                           for sLine in filter(None, sContentsOne.split(ConstantsBreadCrumbs.c_strEndline))]))
 
         #Write out file two
         with open(strOutFileTwo, 'w') as f:
-            f.write(ConstantsBreadCrumbs.ENDLINE.join([cDelimiter.join(np.compress(lfFileTwoElements,sLine.split(cDelimiter)))
-                                           for sLine in filter(None, sContentsTwo.split(ConstantsBreadCrumbs.ENDLINE))]))
+            f.write(ConstantsBreadCrumbs.c_strEndline.join([cDelimiter.join(np.compress(lfFileTwoElements,sLine.split(cDelimiter)))
+                                           for sLine in filter(None, sContentsTwo.split(ConstantsBreadCrumbs.c_strEndline))]))
 
         return True
 
     #Testing Status: Light happy path testing
     @staticmethod
-    def funcCheckRawDataFile(strReadDataFileName, iFirstDataIndex = -1, sLastMetadataName = None, lOccurenceFilter = None, strOutputFileName = "", cDelimiter = ConstantsBreadCrumbs.TAB):
+    def funcCheckRawDataFile(strReadDataFileName, iFirstDataIndex = -1, sLastMetadataName = None, lOccurenceFilter = None, strOutputFileName = "", cDelimiter = ConstantsBreadCrumbs.c_cTab):
         """
         Check the input otu or phlotype abundance table.
         Currently reduces the features that have no occurence.
@@ -1341,7 +1341,7 @@ class AbundanceTable:
         readData = ""
         with open(strReadDataFileName,'r') as f:
             readData = f.read()
-        readData = filter(None,readData.split(ConstantsBreadCrumbs.ENDLINE))
+        readData = filter(None,readData.split(ConstantsBreadCrumbs.c_strEndline))
 
         #Read the length of each line and make sure there is no jagged data
         #Also hold row count for the metadata
@@ -1375,7 +1375,7 @@ class AbundanceTable:
                         lsLineElements[iindex] = ConstantsBreadCrumbs.c_strEmptyDataMetadata
                 if len(lsLineElements) < iLongestLength:
                     lsLineElements = lsLineElements + ([ConstantsBreadCrumbs.c_strEmptyDataMetadata]*(iLongestLength-len(lsLineElements)))
-                f.write(cDelimiter.join(lsLineElements)+ConstantsBreadCrumbs.ENDLINE)
+                f.write(cDelimiter.join(lsLineElements)+ConstantsBreadCrumbs.c_strEndline)
 
             #For each data line in the table
             for line in readData[iFirstDataIndex:]:
@@ -1410,12 +1410,12 @@ class AbundanceTable:
 
                 #Write to file
                 if writeToFile:    
-                    f.write(sCleanFeatureName+cDelimiter+cDelimiter.join(cleanLine)+ConstantsBreadCrumbs.ENDLINE)
+                    f.write(sCleanFeatureName+cDelimiter+cDelimiter.join(cleanLine)+ConstantsBreadCrumbs.c_strEndline)
         return outputFile
 
     #Testing Status: Light happy path testing
     @staticmethod
-    def funcStratifyAbundanceTableByMetadata(strInputFile = None, strDirectory = "", cDelimiter = ConstantsBreadCrumbs.TAB, iStratifyByRow = 1, llsGroupings = []):
+    def funcStratifyAbundanceTableByMetadata(strInputFile = None, strDirectory = "", cDelimiter = ConstantsBreadCrumbs.c_cTab, iStratifyByRow = 1, llsGroupings = []):
         """
         Splits an abundance table into multiple abundance tables stratified by the metadata
 
@@ -1461,7 +1461,7 @@ class AbundanceTable:
         sFileContents = None
         with open(strInputFile,'r') as f:
             sFileContents = f.read()
-        sFileContents = filter(None,re.split(ConstantsBreadCrumbs.ENDLINE,sFileContents))
+        sFileContents = filter(None,re.split(ConstantsBreadCrumbs.c_strEndline,sFileContents))
 
         #Collect metadata
         metadataInformation = dict()
@@ -1523,7 +1523,7 @@ class AbundanceTable:
         for metadata in stratifiedAbundanceTables:
             sOutputFile = baseFilePath+"-by-"+metadata.strip("\"")+lsFilePiecesExt[1]
             with open(sOutputFile,'w') as f:
-                sFileContents = f.write(ConstantsBreadCrumbs.ENDLINE.join(stratifiedAbundanceTables[metadata]))
+                sFileContents = f.write(ConstantsBreadCrumbs.c_strEndline.join(stratifiedAbundanceTables[metadata]))
                 lsFilesWritten.append(sOutputFile)
 
         return lsFilesWritten

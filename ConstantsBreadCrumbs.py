@@ -20,17 +20,20 @@ class ConstantsBreadCrumbs():
     """
 
     #Character Constants
-    COLON = ":"
-    COMMA = ","
-    ENDLINE = "\n"
-    FASTA_ID_LINE_START = ">"
-    PATH_SEP = "/"
-    QUOTE = "\""
-    TAB = '\t'
-    WHITE_SPACE = " "
-    PIPE = "|"
+    c_strComma = ','
+    c_strColon = ':'
+    c_strConfigFileHeaderChar = '['
+    c_strConfigFileCommentChar = '#'
+    c_strEndline = '\n'
+    c_strExtDelim = '.'
+    c_cFastaIDLineStart = '>'
+    c_strPathDelim = '/'
+    c_cPipe = '|'
+    c_cQuote = '\"'
+    c_cTab = '\t'
+    c_strWhiteSpace = ' '
 
-    c_strBreadCrumbsSVMSpace = WHITE_SPACE
+    c_strBreadCrumbsSVMSpace = c_strWhiteSpace
 
     #Default values for missing data in the Abundance Table
     c_strEmptyAbundanceData = "0"
@@ -45,3 +48,6 @@ class ConstantsBreadCrumbs():
     #AbundanceTable
     #Suffix given to a file that is check with the checkRawDataFile method
     OUTPUT_SUFFIX = "-checked.pcl"
+
+    def __init__(self):
+      pass
