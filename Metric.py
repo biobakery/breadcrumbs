@@ -147,11 +147,32 @@ class Metric:
 
         return sum([1 for observation in ldSampleAbundances if observation > dThreshold])
 
+    @staticmethod
+    def funcGetDissimilarity(ldSampleTaxaAbundancies, funcDistanceFunction):
+        """
+        Calculates the distance between samples given a function.
+
+        If you have 5 rows (labeled r1,r2,r3,r4,r5) the vector are the distances in this order.
+        condensed form = [d(r1,r2), d(r1,r3), d(r1,r4), d(r1,r5), d(r2,r3), d(r2,r4), d(r2,r5), d(r3,r4), d(r3,r5), d(r4,r5)].
+        Note***: Assumes that the abundance measurements are already normalized by the total population N.
+
+        :param	ldSampleTaxaAbundancies:
+        :type	List	List of doubles
+        :return	Double:	Dissimilarity metric
+        """
+
+        #Calculate metric
+        try:
+            return pdist(ldSampleTaxaAbundancies, funcDistanceFunction)
+        except ValueError as error:
+            print "".join(["Metric.funcGetDissimilarity. Error=",str(error)])
+            return False
+
     #Test 3
     @staticmethod
     def funcGetBrayCurtisDissimilarity(ldSampleTaxaAbundancies=None):
         """
-        Calculates the BrayCurtis Beta diversity index.
+        Calculates the BrayCurtis Beta dissimilarity index.
         d(u,v)=sum(abs(row1-row2))/sum(row1+row2).
         This is scale invariant.
         If you have 5 rows (labeled r1,r2,r3,r4,r5) the vector are the distances in this order.
@@ -167,21 +188,21 @@ class Metric:
         try:
             return pdist(X=ldSampleTaxaAbundancies, metric='braycurtis')
         except ValueError as error:
-            print "".join(["Diversity.getBrayCurtisDissimilarity. Error=",str(error)])
+            print "".join(["Metric.getBrayCurtisDissimilarity. Error=",str(error)])
             return False
 
     #Test 3
     @staticmethod
     def funcGetInverseBrayCurtisDissimilarity(ldSampleTaxaAbundancies=None):
         """
-        Calculates 1 - the BrayCurtis Beta diversity index.
+        Calculates 1 - the BrayCurtis Beta dissimilarity index.
         d(u,v)=1-(sum(abs(row1-row2))/sum(row1+row2)).
         This is scale invariant and ranges between 0 and 1.
         If you have 5 rows (labeled r1,r2,r3,r4,r5) the vector are the distances in this order.
         condensed form = [d(r1,r2), d(r1,r3), d(r1,r4), d(r1,r5), d(r2,r3), d(r2,r4), d(r2,r5), d(r3,r4), d(r3,r5), d(r4,r5)].
         Note***: Assumes that the abundance measurements are already normalized by the total population N.
 
-        :param	ldSampleTaxaAbundancies:	An np.array of samples (rows) x measurements (columns) in which diversity is measured between rows
+        :param	ldSampleTaxaAbundancies:	An np.array of samples (rows) x measurements (columns) in which distance is measured between rows
         :type	List	List of doubles
         :return	Double	1 - Bray-Curtis dissimilarity.	
         """

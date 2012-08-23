@@ -189,6 +189,26 @@ class ValidateData:
             return False
         return True
 
+    @staticmethod
+    def funcIsValidStringInt(parameterValue):
+        """
+        Validates a parameter that is a string as a format which is an integer.
+
+        :param	parameterValue:	Value to be evaluated.
+        :type	Unknown
+        """
+
+        #Type string check
+        if not ValidateData.funcIsValidStringType(parameterValue):
+            return False
+
+        #Check to see if the string can be converted to an integer
+        try:
+            int(parameterValue)
+        except:
+            return False
+        return True
+
     #Tested 6
     @staticmethod
     def funcIsValidFormatString(parameterValue):

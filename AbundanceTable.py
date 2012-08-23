@@ -39,7 +39,7 @@ class AbundanceTable:
     rows are features (bugs). 
     """
 
-    def __init__(self, npaAbundance, dictMetadata, strName, fIsNormalized, fIsSummed, cFileDelimiter = ConstantsBreadCrumbs.c_cTab, cFeatureNameDelimiter="|"):
+    def __init__(self, npaAbundance, dictMetadata, strName, strLastMetadata, fIsNormalized, fIsSummed, cFileDelimiter = ConstantsBreadCrumbs.c_cTab, cFeatureNameDelimiter="|"):
       """
       Averages feature abundance.
 
@@ -49,6 +49,8 @@ class AbundanceTable:
       :type	Dictionary:	Dictionary of metadata {"String ID":["strValue","strValue","strValue","strValue","strValue"]}
       :param	strName:	The name of the metadata that serves as the ID for the columns (For example a sample ID)
       :type	String:	Structured Array of abundance data (Row=Features, Columns=Samples)
+      :param	strLastMetadata:	The string last metadata name
+      :type	string: Last metadata name	
       :param	fIsNormalized:	Indicates if the data is already normalized upon reading
       :type	Boolean:	Boolean indicator of normalization (True=Already Normalized)
       :param	fIsSummed:	Indicates if the data is already summed upon reading
@@ -92,6 +94,9 @@ class AbundanceTable:
       #The delimiter from the source file
       self._cDelimiter = cFileDelimiter
 
+      #The last metadata name (which should be preserved when writing the file).
+      self._strLastMetadataName = strLastMetadata
+
       #If contents is not a false then set contents to appropriate objects
       if (not npaAbundance == None) and dictMetadata:
         self._npaFeatureAbundance = npaAbundance
@@ -131,7 +136,7 @@ class AbundanceTable:
 
         #If contents is not a false then set contents to appropriate objects
         if lContents:
-            return AbundanceTable(npaAbundance=lContents[0], dictMetadata=lContents[1], strName=strInputFile, 
+            return AbundanceTable(npaAbundance=lContents[0], dictMetadata=lContents[1], strName=strInputFile, strLastMetadata=sLastMetadata,
                               fIsNormalized=fIsNormalized, fIsSummed=fIsSummed, cFileDelimiter=cDelimiter, cFeatureNameDelimiter=cFeatureNameDelimiter)
         return False
 
@@ -408,7 +413,7 @@ class AbundanceTable:
             #compressed version as an Abundance table
             strFeatureName = "".join([os.path.splitext(self._strOriginalName)[0],"-",str(len(lsFeatures)),"-Features.txt"])
             abndTableRet = AbundanceTable(npaAbundance=np.compress(lfFeatureData, self._npaFeatureAbundance, axis = 0),
-                           dictMetadata = self.funcGetMetadataCopy(), strName = strFeatureName,
+                           dictMetadata = self.funcGetMetadataCopy(), strName = strFeatureName, strLastMetadata=self.funcGetLastMetadataName(),
                            fIsNormalized = self.funcIsNormalized(), fIsSummed = self.funcIsSummed(),
                            cFileDelimiter = self.funcGetFileDelimiter(), cFeatureNameDelimiter= self.funcGetFeatureDelimiter())
 
@@ -495,6 +500,15 @@ class AbundanceTable:
         if (not self._npaFeatureAbundance == None):
             return self._npaFeatureAbundance[sSampleName].copy()
         return np.array([])
+
+    def funcGetLastMetadataName(self):
+        """
+        Get the last metadata name that seperates abundance and metadata measurements.
+
+        :return string: Metadata name
+        """ 
+
+        return self._strLastMetadataName
 
     #Happy path tested
     def funcGetMetadata(self, strMetadataName):
@@ -898,7 +912,7 @@ class AbundanceTable:
 
             lsPathPieces = os.path.splitext(self.funcGetName())
             return AbundanceTable(npaAbundance=npRankAbundance, dictMetadata=self.funcGetMetadataCopy(),
-                  strName="".join([lsPathPieces[0],"-Ranked",lsPathPieces[1]]), fIsNormalized=self.funcIsNormalized(),
+                  strName="".join([lsPathPieces[0],"-Ranked",lsPathPieces[1]]), strLastMetadata=self.funcGetLastMetadataName(), fIsNormalized=self.funcIsNormalized(),
                   fIsSummed=self.funcIsSummed(), cFileDelimiter=self.funcGetFileDelimiter(),
                   cFeatureNameDelimiter=self.funcGetFeatureDelimiter())
 
@@ -910,7 +924,7 @@ class AbundanceTable:
         Reduce the current table to a certain clade level.
 
         :param	iCladeLevel:	The level of the clade to trim the features to.
-        :type	Integer	The higher the number the more clades are presevered in the consensus lineage contained in the feauture name.
+        :type	Integer	The higher the number the more clades are presevered in the consensus lineage contained in the feature name.
         :return	Boolean:	Indicator of success. False indicates error.
         """
 
@@ -1001,7 +1015,7 @@ class AbundanceTable:
             #Keep the sum for later normalization
             #Give a tree the feature name and abundance
             for dataRow in self._npaFeatureAbundance:
-                
+
                 sFeatureName = dataRow[0]
                 ldAbundances = list(dataRow)[1:]
 
@@ -1017,6 +1031,7 @@ class AbundanceTable:
             pTree.impute( )
             hashFeatures = {}
             pTree.freeze( hashFeatures, c_iSumAllCladeLevels, c_fOutputLeavesOnly )
+
             setstrFeatures = hashFeatures.keys( )
 
             #Remove parent clades that are identical to child clades
@@ -1102,7 +1117,8 @@ class AbundanceTable:
                 #Add abundance table to the list
                 strStratifiedName = "".join([os.path.splitext(self._strOriginalName)[0],"-StratBy-",value,".txt"])
                 objStratifiedAbundanceTable = AbundanceTable(npaAbundance=npaStratfiedAbundance, dictMetadata=dictStratifiedMetadata, strName=strStratifiedName,
-                                              fIsNormalized=self._fIsNormalized, fIsSummed=self._fIsSummed, cFeatureNameDelimiter=self._cFeatureDelimiter)
+                                              strLastMetadata=self.funcGetLastMetadataName(), fIsNormalized=self._fIsNormalized, fIsSummed=self._fIsSummed,
+                                              cFeatureNameDelimiter=self._cFeatureDelimiter)
 
                 #Write to file if needed
                 if fWriteToFile:
@@ -1195,8 +1211,8 @@ class AbundanceTable:
             #Write Ids
             f.write(cDelimiter.join([self.funcGetIDMetadataName()]+list(self.funcGetSampleNames()))+ConstantsBreadCrumbs.c_strEndline)
             #Write metadata
-            lsKeys = list(set(self._dictTableMetadata.keys())-set([self.funcGetIDMetadataName()]))
-            f.write(ConstantsBreadCrumbs.c_strEndline.join([cDelimiter.join([sMetaKey]+self.funcGetMetadata(sMetaKey)) for sMetaKey in lsKeys])+ConstantsBreadCrumbs.c_strEndline)
+            lsKeys = list(set(self._dictTableMetadata.keys())-set([self.funcGetIDMetadataName(),self.funcGetLastMetadataName()]))
+            f.write(ConstantsBreadCrumbs.c_strEndline.join([cDelimiter.join([sMetaKey]+self.funcGetMetadata(sMetaKey)) for sMetaKey in lsKeys+[self.funcGetLastMetadataName()]])+ConstantsBreadCrumbs.c_strEndline)
             #Write abundance
             lsOutput = list()
             curAbundance = self._npaFeatureAbundance.tolist()
@@ -1291,6 +1307,20 @@ class AbundanceTable:
                                            for sLine in filter(None, sContentsTwo.split(ConstantsBreadCrumbs.c_strEndline))]))
 
         return True
+
+    def funcGetWithoutOTUs(self):
+        """
+        Remove features that are terminal otus. Terminal otus are identified as being an integer.
+        """
+
+        #Get the feature names
+        lsFeatures = self.funcGetFeatureNames()
+
+        #Reduce filter the feature names
+        lsFeatures = [sFeature for sFeature in lsFeatures if not(ValidateData.funcIsValidStringInt(sFeature.split(self.funcGetFeatureDelimiter())[-1]))]
+
+        #Reduce to features
+        return self.funcGetFeatureAbundanceTable(lsFeatures)
 
     #Testing Status: Light happy path testing
     @staticmethod

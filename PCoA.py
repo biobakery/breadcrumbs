@@ -20,6 +20,7 @@ import matplotlib.cm as cm
 from Metric import Metric
 import numpy as np
 from scipy.spatial.distance import squareform
+from scipy.stats.stats import spearmanr
 from Utility import Utility
 from UtilityMath import UtilityMath
 from ValidateData import ValidateData
@@ -38,6 +39,7 @@ class PCoA:
 
     #Supported distance metrics
     c_BRAY_CURTIS="BRAY_CURTIS"
+    c_SPEARMAN="SPEARMAN"
 
     #Holds the data Matrix
     dataMatrix=None
@@ -70,7 +72,7 @@ class PCoA:
     #Happy path tested
     def loadData(self, xData, fIsRawData):
         """
-        Loads data into PCoA (given the matrix or a valid file path)
+        Loads data into PCoA (given the matrix or an abundance table)
         Data can be the Abundance Table to be converted to a distance matrix or a distance matrix
         If it is the AbundanceTable, indicate that it is rawData (tempIsRawData=True)
         If it is the distance matrix already generated indicate (tempIsRawData=False)
@@ -141,16 +143,20 @@ class PCoA:
             return False
 
         #Supported distances
+        distanceMatrix = None
         if(tempDistanceMetric==self.c_BRAY_CURTIS):
             distanceMatrix=Metric().funcGetBrayCurtisDissimilarity(ldSampleTaxaAbundancies=self.dataMatrix)
-            if(ValidateData.funcIsFalse(distanceMatrix)):
-                print "PCoA:run::Error, when generating distance matrix."
-                return False
-            self.pcoa = NMDS(squareform(distanceMatrix), dimension=max(self._iDimensions,2), verbosity=0)
-            return self.pcoa
+        elif(tempDistanceMetric==self.c_SPEARMAN):
+            distanceMatrix = Metric().funcGetDissimilarity(ldSampleTaxaAbundancies=self.dataMatrix, funcDistanceFunction=lambda u,v: spearmanr(u,v)[0])
+            print distanceMatrix
         else:
             print("PCoA:run::Error, not a supported distance metric. Please generate the distance matrix and load.")
             return False
+        if(ValidateData.funcIsFalse(distanceMatrix)):
+            print "PCoA:run::Error, when generating distance matrix."
+            return False
+        self.pcoa = NMDS(squareform(distanceMatrix), dimension=max(self._iDimensions,2), verbosity=0)
+
 
         return False
 
