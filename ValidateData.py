@@ -327,7 +327,7 @@ class ValidateData:
         if parameterValue == None:
             return False
 
-        #Check to make sure it is a string
+        #Check to make sure it is a list
         if not type(parameterValue) is ListType:
             return False
 
