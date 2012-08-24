@@ -20,6 +20,7 @@ import matplotlib.cm as cm
 from Metric import Metric
 import numpy as np
 from scipy.spatial.distance import squareform
+from scipy.stats.stats import spearmanr
 from Utility import Utility
 from UtilityMath import UtilityMath
 from ValidateData import ValidateData
@@ -38,6 +39,7 @@ class PCoA:
 
     #Supported distance metrics
     c_BRAY_CURTIS="BRAY_CURTIS"
+    c_SPEARMAN="SPEARMAN"
 
     #Holds the data Matrix
     dataMatrix=None
@@ -56,10 +58,21 @@ class PCoA:
     #Forced X Axis
     ldForcedXAxis = None
 
+    #Indices for the plot group dictionary
+    c_iXPointIndex = 0
+    c_iYPointIndex = 1
+    c_iColorIndex = 2
+    c_iMarkerIndex = 3
+    c_iAlphaIndex = 4
+    c_iLabelIndex = 5
+    c_iShapeIndex = 6
+    c_iEdgeColorIndex = 7
+    c_strTiesKey = "Ties"
+
     #Happy path tested
     def loadData(self, xData, fIsRawData):
         """
-        Loads data into PCoA (given the matrix or a valid file path)
+        Loads data into PCoA (given the matrix or an abundance table)
         Data can be the Abundance Table to be converted to a distance matrix or a distance matrix
         If it is the AbundanceTable, indicate that it is rawData (tempIsRawData=True)
         If it is the distance matrix already generated indicate (tempIsRawData=False)
@@ -130,16 +143,20 @@ class PCoA:
             return False
 
         #Supported distances
+        distanceMatrix = None
         if(tempDistanceMetric==self.c_BRAY_CURTIS):
             distanceMatrix=Metric().funcGetBrayCurtisDissimilarity(ldSampleTaxaAbundancies=self.dataMatrix)
-            if(ValidateData.funcIsFalse(distanceMatrix)):
-                print "PCoA:run::Error, when generating distance matrix."
-                return False
-            self.pcoa = NMDS(squareform(distanceMatrix), dimension=max(self._iDimensions,2), verbosity=0)
-            return self.pcoa
+        elif(tempDistanceMetric==self.c_SPEARMAN):
+            distanceMatrix = Metric().funcGetDissimilarity(ldSampleTaxaAbundancies=self.dataMatrix, funcDistanceFunction=lambda u,v: spearmanr(u,v)[0])
+            print distanceMatrix
         else:
             print("PCoA:run::Error, not a supported distance metric. Please generate the distance matrix and load.")
             return False
+        if(ValidateData.funcIsFalse(distanceMatrix)):
+            print "PCoA:run::Error, when generating distance matrix."
+            return False
+        self.pcoa = NMDS(squareform(distanceMatrix), dimension=max(self._iDimensions,2), verbosity=0)
+
 
         return False
 
@@ -279,6 +296,11 @@ class PCoA:
             if(ValidateData.funcIsValidList(tempColorGrouping)):
                 if len(tempColorGrouping) == iPointCount:
 
+                    #Dictionary to hold plotting groups
+                    #Logistical to plot points as layers in an intelligent fashion
+                    #{CountofPoints: [[plot info list]]} The list happends so ties can occur in the key
+                    dictPlotGroups = dict()
+ 
                     #Check for lists in the list which indicate the need to plot pie charts
                     lfAreLists = [ValidateData.funcIsValidList(objColor) for objIndex, objColor in enumerate(tempColorGrouping)]
 
@@ -356,7 +378,7 @@ class PCoA:
                         reducedShapes = tempShape
                         if(not ValidateData.funcIsValidList(reducedShapes)):
                           reducedShapes = reducedShapes[0]
-                          imgSubplot.scatter(aiXPoints,aiYPoints, c=[charColor], marker=reducedShapes, alpha=tempAlpha, label=tempLabels[tempColorGrouping.index(charColor)], s=reducedSizes, edgecolor=charMarkerEdgeColor)
+                          dictPlotGroups.setdefault(len(aiXPoints), []).append([aiXPoints,aiYPoints,[charColor],reducedShapes,tempAlpha,tempLabels[tempColorGrouping.index(charColor)],reducedSizes,charMarkerEdgeColor])
                         #Shapes are supplied as a list so plot each shape
                         else:
                           #Reduce to shapes of the current colors
@@ -380,12 +402,25 @@ class PCoA:
                             reducedSizesPerShape = reducedSizes
                             if(ValidateData.funcIsValidList(reducedSizes)):
                               reducedSizesPerShape = Utility.reduceList(reducedSizes,aiShapeIndices)
-                            #Plot
-                            imgSubplot.scatter(aiXPointsPerShape,aiYPointsPerShape, c=[charColor], marker=aCharShapeElement, alpha=tempAlpha, label=strShapeLabel[0], s=strShapeSizes, edgecolor=charMarkerEdgeColor)
+                            #Put plot data in dict of lists for later plotting
+                            #Separate out the background printing
+                            dictPlotGroups.setdefault(len(aiXPointsPerShape), []).append([aiXPointsPerShape,aiYPointsPerShape,[charColor],aCharShapeElement,tempAlpha,strShapeLabel[0],strShapeSizes,charMarkerEdgeColor])
 
                     #Plot each color starting with largest color amount to smallest color anmount so small groups will not be covered up by larger groups
-                    #
-
+                    #Plot other colors in increasing order
+                    for sPlotGroupKey in sorted(list(dictPlotGroups.keys()), reverse=True):
+                        lslsCurPlotGroup = dictPlotGroups[sPlotGroupKey]
+                        #Plot
+                        for lsGroup in lslsCurPlotGroup:
+                            imgSubplot.scatter(lsGroup[self.c_iXPointIndex],
+                                           lsGroup[self.c_iYPointIndex],
+                                           c = lsGroup[self.c_iColorIndex],
+                                           marker = lsGroup[self.c_iMarkerIndex],
+                                           alpha = lsGroup[self.c_iAlphaIndex],
+                                           label = lsGroup[self.c_iLabelIndex],
+                                           s = lsGroup[self.c_iShapeIndex],
+                                           edgecolor = lsGroup[self.c_iEdgeColorIndex])
+ 
                     #Plot pie charts
                     if not lsColorsPieCharts is None:
                         self.plotWithPieMarkers(imgSubplot=imgSubplot, aiXPoints=ldXPointsPieCharts, aiYPoints=ldYPointsPieCharts, dSize=lsSizesPieCharts, llColors=lsColorsPieCharts, lsLabels=lsLabelsPieCharts, lcShapes=lcShapesPieCharts, edgeColor=charMarkerEdgeColor, dAlpha=tempAlpha)

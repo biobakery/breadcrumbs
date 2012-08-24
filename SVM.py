@@ -70,8 +70,8 @@ class SVM:
 
         iRowIndex = 0
         for dataRow in dataMatrix[1:]:
-            llData.append(ConstantsBreadCrumbs.c_strBreadCrumbsSVMSpace.join([lsLabels[iRowIndex]]+[ConstantsBreadCrumbs.COLON.join([str(enuSamples[0]+1),str(enuSamples[1])])
-                            for enuSamples in enumerate(dataRow)])+ConstantsBreadCrumbs.ENDLINE)
+            llData.append(ConstantsBreadCrumbs.c_strBreadCrumbsSVMSpace.join([lsLabels[iRowIndex]]+[ConstantsBreadCrumbs.c_strColon.join([str(enuSamples[0]+1),str(enuSamples[1])])
+                            for enuSamples in enumerate(dataRow)])+ConstantsBreadCrumbs.c_strEndline)
             iRowIndex = iRowIndex + 1
 
         #Output file
@@ -136,7 +136,7 @@ class SVM:
       #Open prediction file and input file and get labels to compare to the predictions
       with open(sSVMFile,'r') as g:
           lsFileData = g.read()
-          lsFileRows = [strRow for strRow in lsFileData.split(ConstantsBreadCrumbs.ENDLINE) if not(strRow is None) and not(strRow.strip() == '')]
+          lsFileRows = [strRow for strRow in lsFileData.split(ConstantsBreadCrumbs.c_strEndline) if not(strRow is None) and not(strRow.strip() == '')]
           lsOriginalLabels = [row.split(ConstantsBreadCrumbs.c_strBreadCrumbsSVMSpace)[0] for row in lsFileRows[0+isPredictFile:]]
           #Check sample name length
           if not len(lsAllSampleNames) == len(lsOriginalLabels):

@@ -40,7 +40,7 @@ class AbundanceTable:
 	rows are features (bugs). 
 	"""
 
-	def __init__(self, npaAbundance, dictMetadata, strName, lOccurenceFilter = None, cFileDelimiter = ConstantsBreadCrumbs.TAB, cFeatureNameDelimiter="|"):
+	def __init__(self, npaAbundance, dictMetadata, strName, lOccurenceFilter = None, cFileDelimiter = ConstantsBreadCrumbs.c_cTab, cFeatureNameDelimiter="|"):
 	  """
 	  Averages feature abundance.
 
@@ -106,7 +106,7 @@ class AbundanceTable:
 #		sys.stderr.write( "Abundance or metadata was None, should be atleast an empty object\n" )
 
 	@staticmethod
-	def funcMakeFromFile(xInputFile, cDelimiter = ConstantsBreadCrumbs.TAB, sMetadataID = None, sLastMetadata = None,
+	def funcMakeFromFile(xInputFile, cDelimiter = ConstantsBreadCrumbs.c_cTab, sMetadataID = None, sLastMetadata = None,
 	   lOccurenceFilter = None, cFeatureNameDelimiter="|", xOutputFile = None):
 		"""
 		Creates an abundance table from a table file.
@@ -166,7 +166,7 @@ class AbundanceTable:
 
 	#Testing Status: Light happy path testing
 	@staticmethod
-	def _funcTextToStructuredArray(xInputFile = None, cDelimiter = ConstantsBreadCrumbs.TAB, sMetadataID = None, sLastMetadata = None, ostmOutputFile = None):
+	def _funcTextToStructuredArray(xInputFile = None, cDelimiter = ConstantsBreadCrumbs.c_cTab, sMetadataID = None, sLastMetadata = None, ostmOutputFile = None):
 		"""
 		Private method
 		Used to read in a file that is samples (column) and taxa (rows) into a structured array.
@@ -1177,7 +1177,7 @@ class AbundanceTable:
 
 	#Testing Status: Light happy path testing
 	@staticmethod
-	def funcStratifyAbundanceTableByMetadata(strInputFile = None, strDirectory = "", cDelimiter = ConstantsBreadCrumbs.TAB, iStratifyByRow = 1, llsGroupings = []):
+	def funcStratifyAbundanceTableByMetadata(strInputFile = None, strDirectory = "", cDelimiter = ConstantsBreadCrumbs.c_cTab, iStratifyByRow = 1, llsGroupings = []):
 		"""
 		Splits an abundance table into multiple abundance tables stratified by the metadata
 

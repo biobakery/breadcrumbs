@@ -261,14 +261,14 @@ class Cladogram:
 
     #Generate / write color file
     if(self.dictColors is not None):
-        lsColorData = [ConstantsBreadCrumbs.TAB.join([sColorKey,self.dictColors[sColorKey]]) for sColorKey in self.dictColors]
-        self.writeToFile(self.strColorFilePath, ConstantsBreadCrumbs.ENDLINE.join(lsColorData), False)
+        lsColorData = [ConstantsBreadCrumbs.c_cTab.join([sColorKey,self.dictColors[sColorKey]]) for sColorKey in self.dictColors]
+        self.writeToFile(self.strColorFilePath, ConstantsBreadCrumbs.c_strEndline.join(lsColorData), False)
         self.fColorFileMade=True
 
     #Generate / write tick file
     if(self.llsTicks is not None):
-        lsTickData = [ConstantsBreadCrumbs.TAB.join(lsTicks) for lsTicks in self.llsTicks]
-        self.writeToFile(self.strTickFilePath, ConstantsBreadCrumbs.ENDLINE.join(lsTickData), False)
+        lsTickData = [ConstantsBreadCrumbs.c_cTab.join(lsTicks) for lsTicks in self.llsTicks]
+        self.writeToFile(self.strTickFilePath, ConstantsBreadCrumbs.c_strEndline.join(lsTickData), False)
         self.fTickFileMade=True
 
     #Generate / Write size data
@@ -563,15 +563,15 @@ class Cladogram:
               sAlpha = str(datAlpha[iTaxaIndex])
             else:
               sAlpha = str(datAlpha)
-            dictCircleDataMethods[sTaxa]=dictCircleDataMethods[sTaxa]+"".join([ConstantsBreadCrumbs.TAB,sCircleMethod,":",sAlpha,"!",sShape,"#",sBorder])
+            dictCircleDataMethods[sTaxa]=dictCircleDataMethods[sTaxa]+"".join([ConstantsBreadCrumbs.c_cTab,sCircleMethod,":",sAlpha,"!",sShape,"#",sBorder])
           else:
-            dictCircleDataMethods[sTaxa]=dictCircleDataMethods[sTaxa]+"".join([ConstantsBreadCrumbs.TAB,sCircleMethod,":0.0!R#0.0"])
+            dictCircleDataMethods[sTaxa]=dictCircleDataMethods[sTaxa]+"".join([ConstantsBreadCrumbs.c_cTab,sCircleMethod,":0.0!R#0.0"])
 
       if len(dictCircleDataMethods)>0:
         lsTaxaKeys = dictCircleDataMethods.keys()
         sCircleContent = dictCircleDataMethods[lsTaxaKeys[0]]
         for sTaxaKey in lsTaxaKeys[1:len(lsTaxaKeys)]:
-          sCircleContent = ConstantsBreadCrumbs.ENDLINE.join([sCircleContent,dictCircleDataMethods[sTaxaKey]])
+          sCircleContent = ConstantsBreadCrumbs.c_strEndline.join([sCircleContent,dictCircleDataMethods[sTaxaKey]])
         self.writeToFile(self.strCircleFilePath, sCircleContent, False)
         self.fCircleFileMade=True
 
@@ -611,12 +611,12 @@ class Cladogram:
           if(sID in self.dictRelabels):
             sCurLabel = self.dictRelabels[sID]
         if(sCurLabel == ""):
-          lsHighLightData.append(ConstantsBreadCrumbs.TAB.join([sCurTaxa,sCurTaxaName,sCurLabel,sCurColor]))
+          lsHighLightData.append(ConstantsBreadCrumbs.c_cTab.join([sCurTaxa,sCurTaxaName,sCurLabel,sCurColor]))
         else:
-          lsHighLightData.append(ConstantsBreadCrumbs.TAB.join([sCurTaxa,sCurLabel,sCurLabel,sCurColor]))
+          lsHighLightData.append(ConstantsBreadCrumbs.c_cTab.join([sCurTaxa,sCurLabel,sCurLabel,sCurColor]))
 
     if len(lsHighLightData)>0:
-      self.writeToFile(self.strHighLightFilePath, ConstantsBreadCrumbs.ENDLINE.join(lsHighLightData), False)
+      self.writeToFile(self.strHighLightFilePath, ConstantsBreadCrumbs.c_strEndline.join(lsHighLightData), False)
       self.fHighlightFileMade=True
     return True
 
@@ -641,9 +641,9 @@ class Cladogram:
         if(strCurrentId in lsIDs):
           dAverage = np.average(list(rowData)[1:])
           dSize = max([dMinimumValue,(dAverage*self.c_dLogScale)+1])
-          lsWriteData.append(".".join(re.split("\|",strCurrentId))+ConstantsBreadCrumbs.TAB+str(math.log10(dSize)*self.c_dCircleScale))
+          lsWriteData.append(".".join(re.split("\|",strCurrentId))+ConstantsBreadCrumbs.c_cTab+str(math.log10(dSize)*self.c_dCircleScale))
       if len(lsWriteData)>0:
-        self.writeToFile(self.strSizeFilePath, ConstantsBreadCrumbs.ENDLINE.join(lsWriteData), False)
+        self.writeToFile(self.strSizeFilePath, ConstantsBreadCrumbs.c_strEndline.join(lsWriteData), False)
         self.fSizeFileMade=True
     return True
 
@@ -670,7 +670,7 @@ class Cladogram:
             lsFullTree.append(sNodePath)
 
     if len(lsFullTree)>0:
-      self.writeToFile(self.strTreeFilePath, ConstantsBreadCrumbs.ENDLINE.join(lsFullTree), False)
+      self.writeToFile(self.strTreeFilePath, ConstantsBreadCrumbs.c_strEndline.join(lsFullTree), False)
     return True
 
   #Happy Path tested
