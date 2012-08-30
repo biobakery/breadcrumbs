@@ -40,68 +40,73 @@ class AbundanceTable:
 	rows are features (bugs). 
 	"""
 
-	def __init__(self, npaAbundance, dictMetadata, strName, lOccurenceFilter = None, cFileDelimiter = ConstantsBreadCrumbs.c_cTab, cFeatureNameDelimiter="|"):
-	  """
-	  Averages feature abundance.
+	def __init__(self, npaAbundance, dictMetadata, strName, strLastMetadata, lOccurenceFilter = None, cFileDelimiter = ConstantsBreadCrumbs.c_cTab, cFeatureNameDelimiter="|"):
+		"""
+		Averages feature abundance.
 
-	  :param	npaAbundance:	Structured Array of abundance data (Row=Features, Columns=Samples)
-	  :type	Numpy Structured Array:	Structured Array of abundance data (Row=Features, Columns=Samples)
-	  :param	dictMetadata:	Structured Array of abundance data (Row=Features, Columns=Samples)
-	  :type	Dictionary:	Dictionary of metadata {"String ID":["strValue","strValue","strValue","strValue","strValue"]}
-	  :param	strName:	The name of the metadata that serves as the ID for the columns (For example a sample ID)
-	  :type	String:	Structured Array of abundance data (Row=Features, Columns=Samples)
-	  :param	fIsNormalized:	Indicates if the data is already normalized upon reading
-	  :type	Boolean:	Boolean indicator of normalization (True=Already Normalized)
-	  :param	fIsSummed:	Indicates if the data is already summed upon reading
-	  :type	Boolean:	Boolean indicator of already being summed (True=Summed)
-	  :param	cFileDelimiter:	Character used as the delimiter of the file that is read in to create the abundance table.
+		:param	npaAbundance:	Structured Array of abundance data (Row=Features, Columns=Samples)
+		:type	Numpy Structured Array:	Structured Array of abundance data (Row=Features, Columns=Samples)
+		:param	dictMetadata:	Structured Array of abundance data (Row=Features, Columns=Samples)
+		:type	Dictionary:	Dictionary of metadata {"String ID":["strValue","strValue","strValue","strValue","strValue"]}
+	 	:param	strName:	The name of the metadata that serves as the ID for the columns (For example a sample ID)
+		:param	strLastMetadata:	The string last metadata name
+      		:type	string: Last metadata name
+		:type	String:	Structured Array of abundance data (Row=Features, Columns=Samples)
+		:param	fIsNormalized:	Indicates if the data is already normalized upon reading
+		:type	Boolean:	Boolean indicator of normalization (True=Already Normalized)
+		:param	fIsSummed:	Indicates if the data is already summed upon reading
+		:type	Boolean:	Boolean indicator of already being summed (True=Summed)
+		:param	cFileDelimiter:	Character used as the delimiter of the file that is read in to create the abundance table.
 								Will also be used to write the abudance table file to a file to keep file consistency.
-	  :type	Character:	Character delimiter for reading the data in (default = TAB)
-	  :param	cFeatureNameDelimiter:	Character used as the delimiter of the feature names (column 1). This is useful if the name are complex, for instance consensus lineages in metagenomics.
-	  :type	Character:	Character delimiter for feature names (default = |)
-	  """
+		:type	Character:	Character delimiter for reading the data in (default = TAB)
+		:param	cFeatureNameDelimiter:	Character used as the delimiter of the feature names (column 1). This is useful if the name are complex, for instance consensus lineages in metagenomics.
+		:type	Character:	Character delimiter for feature names (default = |)
+		"""
 
-	  #The abundance data
-	  self._npaFeatureAbundance = npaAbundance
+		#The abundance data
+		self._npaFeatureAbundance = npaAbundance
 
-	  #The metdata
-	  self._dictTableMetadata = dictMetadata
+		#The metdata
+		self._dictTableMetadata = dictMetadata
 
-	  #The name of the object relating to the file it was read from or would have been read from if it exists
-	  #Keeps tract of changes to the file through the name
-	  #Will be used to wrtie out the object to a file as needed
-	  self._strOriginalName = strName
+		#The name of the object relating to the file it was read from or would have been read from if it exists
+		#Keeps tract of changes to the file through the name
+		#Will be used to wrtie out the object to a file as needed
+		self._strOriginalName = strName
 
-	  #The original number of features in the table
-	  self._iOriginalFeatureCount = -1
+		#The original number of features in the table
+		self._iOriginalFeatureCount = -1
 
-	  #The original number of samples in the table
-	  self._iOriginalSampleCount = -1
+		#The original number of samples in the table
+		self._iOriginalSampleCount = -1
 
-	  #Indicates if the table has been filtered and how
-	  self._strCurrentFilterState = ""
+		#Indicates if the table has been filtered and how
+		self._strCurrentFilterState = ""
 
-	  #The feature name delimiter
-	  self._cFeatureDelimiter = cFeatureNameDelimiter
+		#The feature name delimiter
+		self._cFeatureDelimiter = cFeatureNameDelimiter
 
-	  #The delimiter from the source file
-	  self._cDelimiter = cFileDelimiter
+		#The delimiter from the source file
+		self._cDelimiter = cFileDelimiter
 
-	  self._fIsNormalized = self._fIsSummed = None
-	  #If contents is not a false then set contents to appropriate objects
-	  if ( self._npaFeatureAbundance != None ) and self._dictTableMetadata:
-		self._iOriginalFeatureCount = self._npaFeatureAbundance.shape[0]
-		self._iOriginalSampleCount = len(self.funcGetSampleNames())
+		#The lastmetadata name (which should be preserved when writing the file)
+		self._strLastMetadataName = strLastMetadata
+
+		self._fIsNormalized = self._fIsSummed = None
+		#If contents is not a false then set contents to appropriate objects
+		if ( self._npaFeatureAbundance != None ) and self._dictTableMetadata:
+			self._iOriginalFeatureCount = self._npaFeatureAbundance.shape[0]
+			self._iOriginalSampleCount = len(self.funcGetSampleNames())
 		
-		self._fIsNormalized = ( max( [max( list(a)[1:] or [0] ) for a in self._npaFeatureAbundance] or [0] ) <= 1 )
-		lsLeaves = AbundanceTable.funcGetTerminalNodesFromList( [a[0] for a in self._npaFeatureAbundance], self._cFeatureDelimiter )
-		self._fIsSummed = ( len( lsLeaves ) != len( self._npaFeatureAbundance ) )
+			self._fIsNormalized = ( max( [max( list(a)[1:] or [0] ) for a in self._npaFeatureAbundance] or [0] ) <= 1 )
+			lsLeaves = AbundanceTable.funcGetTerminalNodesFromList( [a[0] for a in self._npaFeatureAbundance], self._cFeatureDelimiter )
+			self._fIsSummed = ( len( lsLeaves ) != len( self._npaFeatureAbundance ) )
 
-		#Occurence filtering
-		#Removes features that do not have a given level iLowestAbundance in a given amount of samples iLowestSampleOccurence
-		if ( not self._fIsNormalized ) and lOccurenceFilter:
-			iLowestAbundance, iLowestSampleOccurrence = lOccurenceFilter
-			self.funcFilterAbundanceBySequenceOccurence( iLowestAbundance, iLowestSampleOccurrence )
+			#Occurence filtering
+			#Removes features that do not have a given level iLowestAbundance in a given amount of samples iLowestSampleOccurence
+			if ( not self._fIsNormalized ) and lOccurenceFilter:
+				iLowestAbundance, iLowestSampleOccurrence = lOccurenceFilter
+				self.funcFilterAbundanceBySequenceOccurence( iLowestAbundance, iLowestSampleOccurrence )
 #	  else:
 #		sys.stderr.write( "Abundance or metadata was None, should be atleast an empty object\n" )
 
@@ -133,11 +138,124 @@ class AbundanceTable:
 		outputFile = open( strOutputFileName, "w" ) if isinstance(xOutputFile, str) else xOutputFile
 		#Read in from text file to create the abundance and metadata structures
 		lContents = AbundanceTable._funcTextToStructuredArray(xInputFile=xInputFile, cDelimiter=cDelimiter,
-														sMetadataID = sMetadataID, sLastMetadata = sLastMetadata, ostmOutputFile = outputFile)
+				sMetadataID = sMetadataID, sLastMetadata = sLastMetadata, ostmOutputFile = outputFile)
 
 		#If contents is not a false then set contents to appropriate objects
-		return AbundanceTable(npaAbundance=lContents[0], dictMetadata=lContents[1], strName=str(xInputFile), 
+		return AbundanceTable(npaAbundance=lContents[0], dictMetadata=lContents[1], strName=str(xInputFile), strLastMetadata=sLastMetadata,
 		  lOccurenceFilter = lOccurenceFilter, cFileDelimiter=cDelimiter, cFeatureNameDelimiter=cFeatureNameDelimiter) if lContents else False
+
+	#Testing Status: Light happy path testing
+	@staticmethod
+	def funcCheckRawDataFile(strReadDataFileName, iFirstDataIndex = -1, sLastMetadataName = None, lOccurenceFilter = None, strOutputFileName = "", cDelimiter = ConstantsBreadCrumbs.c_cTab):
+		"""
+		Check the input otu or phlotype abundance table.
+		Currently reduces the features that have no occurence.
+		Also inserts a NA for blank metadata and a 0 for blank abundance data.
+		Gives the option to filter features through an occurence filter (a feature must have a level of abundance in a minimal number of samples to be included).
+		Either iFristDataIndex or sLastMetadataName must be given
+
+		:param	strReadDataFileName:	File path of file to read and check.
+		:type	String	File path.
+		:param	iFirstDataIndex:	First (row) index of data not metadata in the abundance file.
+		:type	Integer	Index starting at 0.
+		:param	sLastMetadataName:	The ID of the last metadata in the file. Rows of measurements should follow this metadata.
+		:param	lOccurenceFilter:	The lowest number of occurences in the lowest number of samples needed for a feature to be kept
+		:type	List[2]	List length 2 [lowest abundance (not normalized), lowest number of samples to occur in] (eg. [2.0,2.0])
+		:type	String	Matadata ID.
+		:param	strOutputFileName:	File path of out put file.
+		:type	String	File path.
+		:param	cDelimiter:	Character delimiter for reading and writing files.
+		:type	Character	Delimiter.
+		:return	Output Path:	Output path for written checked file.
+		File Path.
+		"""
+
+		#Validate parameters
+		if (iFirstDataIndex == -1) and (sLastMetadataName == None):
+			print "AbundanceTable:checkRawDataFile::Error, either iFirstDataIndex or sLastMetadataNamemust be given."
+			return False
+
+		#Get output file and remove if existing
+		outputFile = strOutputFileName
+		if not strOutputFileName:
+			outputFile = os.path.splitext(strReadDataFileName)[0]+ConstantsBreadCrumbs.OUTPUT_SUFFIX
+
+		#Read input file lines
+		#Drop blank lines
+		readData = ""
+		with open(strReadDataFileName,'r') as f:
+			readData = f.read()
+		readData = filter(None,readData.split(ConstantsBreadCrumbs.c_strEndline))
+
+		#Read the length of each line and make sure there is no jagged data
+		#Also hold row count for the metadata
+		iLongestLength = len(readData[0].split(cDelimiter))
+		iMetadataRow = -1
+		if not sLastMetadataName:
+			sLastMetadataName = "None"
+		for iIndex, strLine in enumerate(readData):
+			sLineElements = strLine.split(cDelimiter)
+		if sLineElements[0] == sLastMetadataName:
+			iMetadataRow = iIndex
+		iLongestLength = max(iLongestLength, len(sLineElements))
+
+		#If not already set, set iFirstDataIndex
+		if iFirstDataIndex < 0:
+			iFirstDataIndex = iMetadataRow + 1
+
+		#Used to substitute . to -
+		reSubPeriod = re.compile('\.')
+
+		#File writer
+		with open(outputFile,'w') as f:
+
+			#Write metadata
+			#Empty data is changed to a default
+			#Jagged ends are filled with a default
+			for strDataLine in readData[:iFirstDataIndex]:
+				lsLineElements = strDataLine.split(cDelimiter)
+				for iindex, sElement in enumerate(lsLineElements):
+					if not sElement.strip():
+						lsLineElements[iindex] = ConstantsBreadCrumbs.c_strEmptyDataMetadata
+				if len(lsLineElements) < iLongestLength:
+					lsLineElements = lsLineElements + ([ConstantsBreadCrumbs.c_strEmptyDataMetadata]*(iLongestLength-len(lsLineElements)))
+				f.write(cDelimiter.join(lsLineElements)+ConstantsBreadCrumbs.c_strEndline)
+
+			#For each data line in the table
+			for line in readData[iFirstDataIndex:]:
+				writeToFile = False
+				cleanLine = list()
+				#Break line into delimited elements
+				lineElements = line.split(cDelimiter)
+
+				#Clean feature name
+				sCleanFeatureName = reSubPeriod.sub("-",lineElements[0])
+
+				#For each element but the first (taxa name)
+				#Element check to see if not == zero
+				#If so add to output
+				for element in lineElements[1:]:
+					if(element.strip() in string.whitespace):
+						cleanLine.append(ConstantsBreadCrumbs.c_strEmptyAbundanceData)
+					#Set abundance of 0 but do not indicate the line should be saved
+					elif(element == "0"):
+						cleanLine.append(element)
+					#If an abundance is found set the line to be saved.
+					else:
+						cleanLine.append(element)
+						writeToFile = True
+
+				#Occurence filtering
+				#Removes features that do not have a given level iLowestAbundance in a given amount of samples iLowestSampleOccurence
+				if lOccurenceFilter:
+					iLowestAbundance, iLowestSampleOccurence = lOccurenceFilter
+					if iLowestSampleOccurence > sum([1 if float(sEntry) >= iLowestAbundance else 0 for sEntry in cleanLine]):
+						writeToFile = False
+
+				#Write to file
+				if writeToFile:    
+					f.write(sCleanFeatureName+cDelimiter+cDelimiter.join(cleanLine)+ConstantsBreadCrumbs.c_strEndline)
+		return outputFile
 
 	def __repr__(self):
 		"""
@@ -151,18 +269,18 @@ class AbundanceTable:
 	  """
 
 	  return "".join(["Sample count:", str(len(self._npaFeatureAbundance.dtype.names[1:])),
-	  "\nFeature count:", str(len(self._npaFeatureAbundance[self._npaFeatureAbundance.dtype.names[0]])),
-	  "\nId Metadata:", self._npaFeatureAbundance.dtype.names[0],
-	  "\nMetadata ids:", str(self._dictTableMetadata.keys()),
-	  "\nMetadata count:", str(len(self._dictTableMetadata.keys())),
-	  "\nOriginating source:",self._strOriginalName,
-	  "\nOriginal feature count:", str(self._iOriginalFeatureCount),
-	  "\nOriginal sample count:", str(self._iOriginalSampleCount),
-	  "\nIs normalized:", str(self._fIsNormalized),
-	  "\nIs summed:", str(self._fIsSummed),
-	  "\nCurrent filtering state:", str(self._strCurrentFilterState),
-	  "\nFeature delimiter:", self._cFeatureDelimiter,
-	  "\nFile delimiter:",self._cDelimiter])
+	  os.linesep+"Feature count:", str(len(self._npaFeatureAbundance[self._npaFeatureAbundance.dtype.names[0]])),
+	  os.linesep+"Id Metadata:", self._npaFeatureAbundance.dtype.names[0],
+	  os.linesep+"Metadata ids:", str(self._dictTableMetadata.keys()),
+	  os.linesep+"Metadata count:", str(len(self._dictTableMetadata.keys())),
+	  os.linesep+"Originating source:",self._strOriginalName,
+	  os.linesep+"Original feature count:", str(self._iOriginalFeatureCount),
+	  os.linesep+"Original sample count:", str(self._iOriginalSampleCount),
+	  os.linesep+"Is normalized:", str(self._fIsNormalized),
+	  os.linesep+"Is summed:", str(self._fIsSummed),
+	  os.linesep+"Current filtering state:", str(self._strCurrentFilterState),
+	  os.linesep+"Feature delimiter:", self._cFeatureDelimiter,
+	  os.linesep+"File delimiter:",self._cDelimiter])
 
 	#Testing Status: Light happy path testing
 	@staticmethod
@@ -192,7 +310,9 @@ class AbundanceTable:
 		metadata = dict()
 		dataMatrix = []
 		iIndex = -1
-		csvw = csv.writer( ostmOutputFile, csv.excel_tab, delimiter = cDelimiter ) if ostmOutputFile else None
+		csvw = None
+		if ostmOutputFile:
+			csvw = csv.writer( open(ostmOutputFile,'w') if isinstance(ostmOutputFile, str) else ostmOutputFile, csv.excel_tab, delimiter = cDelimiter )
 		for lsLineElements in csv.reader( istmInput, csv.excel_tab, delimiter = cDelimiter ):
 			iIndex += 1
 			taxId, sampleReads = lsLineElements[0], lsLineElements[1:]
@@ -347,9 +467,12 @@ class AbundanceTable:
 		#Get a list of boolean indicators that the row is from the features list
 		lfFeatureData = [sRowID in lsFeatures for sRowID in self.funcGetFeatureNames()]
 		#compressed version as an Abundance table
+		lsNamePieces = os.path.splitext(self._strOriginalName)
 		return AbundanceTable(npaAbundance=np.compress(lfFeatureData, self._npaFeatureAbundance, axis = 0),
-					   dictMetadata = self.funcGetMetadataCopy(), strName = self._strOriginalName + "-" + str(len(lsFeatures)) +"-Features",
-					   cFileDelimiter = self.funcGetFileDelimiter(), cFeatureNameDelimiter= self.funcGetFeatureDelimiter())
+					dictMetadata = self.funcGetMetadataCopy(),
+					strName = lsNamePieces[0] + "-" + str(len(lsFeatures)) +"-Features"+lsNamePieces[1],
+					strLastMetadata=self.funcGetLastMetadataName(),
+					cFileDelimiter = self.funcGetFileDelimiter(), cFeatureNameDelimiter= self.funcGetFeatureDelimiter())
 
 	#Happy path tested
 	def funcGetFeatureDelimiter(self):
@@ -370,7 +493,7 @@ class AbundanceTable:
 						Returns None on error.
 		"""
 
-		return self._npaFeatureAbundance.shape[0] if self._npaFeatureAbundance else 0
+		return self._npaFeatureAbundance.shape[0] if not self._npaFeatureAbundance is None else 0
 
 	#Happy path tested
 	def funcGetFeatureSumAcrossSamples(self,sFeatureName):
@@ -409,6 +532,14 @@ class AbundanceTable:
 		"""
 
 		return self._cDelimiter
+
+	def funcGetLastMetadataName(self):
+		"""
+		Get the last metadata name that seperates abundance and metadata measurements.
+
+		:return string:	Metadata name
+		"""
+		return self._strLastMetadataName
 
 	#Happy path tested
 	def funcGetSample(self,sSampleName):
@@ -664,6 +795,19 @@ class AbundanceTable:
 
 		return True
 
+	def funcGetWithoutOTUs(self):
+		"""
+		Remove features that are terminal otus. Terminal otus are identified as being an integer.
+		"""
+
+		#Get the feature names
+		lsFeatures = self.funcGetFeatureNames()
+
+		#Reduce, filter the feature names
+		lsFeatures = [sFeature for sFeature in lsFeatures if not (ValidateData.funcIsValidStringInt(sFeature.split(self.funcGetFeatureDelimiter())[-1]))]
+
+		return self.funcGetFeatureAbundanceTable(lsFeatures)
+
 	#Happy path tested
 	def funcNormalize(self):
 		"""
@@ -797,9 +941,10 @@ class AbundanceTable:
 			self._funcRankAbundanceHelper( aaTodo, i + 1, npRankAbundance[sName] )
 
 		return AbundanceTable(npaAbundance=npRankAbundance, dictMetadata=self.funcGetMetadataCopy(),
-			  strName= self.funcGetName() + "-Ranked",
-			  cFileDelimiter=self.funcGetFileDelimiter(),
-			  cFeatureNameDelimiter=self.funcGetFeatureDelimiter())
+			strName= self.funcGetName() + "-Ranked",
+			strLastMetadata=self.funcGetLastMetadataName(),
+			cFileDelimiter=self.funcGetFileDelimiter(),
+			cFeatureNameDelimiter=self.funcGetFeatureDelimiter())
 
 	#Happy Path Tested
 	def funcReduceFeaturesToCladeLevel(self, iCladeLevel):
@@ -807,7 +952,7 @@ class AbundanceTable:
 		Reduce the current table to a certain clade level.
 
 		:param	iCladeLevel:	The level of the clade to trim the features to.
-		:type	Integer	The higher the number the more clades are presevered in the consensus lineage contained in the feauture name.
+		:type	Integer	The higher the number the more clades are presevered in the consensus lineage contained in the feature name.
 		:return	Boolean:	Indicator of success. False indicates error.
 		"""
 
@@ -942,7 +1087,7 @@ class AbundanceTable:
 		return True
 
 	#Happy path tested
-	def funcStratifyByMetadata(self, strMetadata, ostmWriteToFile=None):
+	def funcStratifyByMetadata(self, strMetadata, fWriteToFile=False):
 		"""
 		Stratifies the AbundanceTable by the given metadata.
 		Will write each stratified abundance table to file
@@ -959,7 +1104,7 @@ class AbundanceTable:
 						Empty list on error.
 		"""
 
-		if not ( self._npaFeatureAbundance and self._dictTableMetadata ):
+		if self._npaFeatureAbundance is None or self._dictTableMetadata is None:
 			return []
 
 		#Get unique metadata values to stratify by
@@ -988,9 +1133,13 @@ class AbundanceTable:
 
 			#Make abundance table
 			#Add abundance table to the list
+			lsNamePieces = os.path.splitext(self._strOriginalName)
 			objStratifiedAbundanceTable = AbundanceTable(npaAbundance=npaStratfiedAbundance, dictMetadata=dictStratifiedMetadata,
-				strName=self._strOriginalName + "-StratBy-" + value, cFeatureNameDelimiter=self._cFeatureDelimiter, cDelimiter = self._cDelimiter)
-			objStratifiedAbundanceTable.funcWriteToFile(ostmWriteToFile)
+				strName=lsNamePieces[0] + "-StratBy-" + value+lsNamePieces[1],
+				strLastMetadata=self.funcGetLastMetadataName(),
+				cFeatureNameDelimiter=self._cFeatureDelimiter, cFileDelimiter = self._cDelimiter)
+			if fWriteToFile:
+				objStratifiedAbundanceTable.funcWriteToFile(lsNamePieces[0] + "-StratBy-" + value+lsNamePieces[1])
 			#Append abundance table to returning list
 			retlAbundanceTables.append(objStratifiedAbundanceTable)
 
@@ -1070,22 +1219,22 @@ class AbundanceTable:
 
 		if not xOutputFile:
 			return
-
-		f = open( xOutputFile, "w" ) if isinstance(xOutputFile, str) else xOutputFile
 		#Check delimiter argument
 		if not cDelimiter:
-			cDelimiter = self._cDelimiter 
+			cDelimiter = self._cDelimiter
+
+		f = csv.writer(open( xOutputFile, "w" ) if isinstance(xOutputFile, str) else xOutputFile, csv.excel_tab, delimiter=cDelimiter)
+		
 		#Write Ids
-		f.write(cDelimiter.join([self.funcGetIDMetadataName()]+list(self.funcGetSampleNames()))+ConstantsBreadCrumbs.ENDLINE)
+		f.writerows([[self.funcGetIDMetadataName()]+list(self.funcGetSampleNames())])
 		#Write metadata
-		lsKeys = list(set(self._dictTableMetadata.keys())-set([self.funcGetIDMetadataName()]))
-		f.write(ConstantsBreadCrumbs.ENDLINE.join([cDelimiter.join([sMetaKey]+self.funcGetMetadata(sMetaKey)) for sMetaKey in lsKeys])+ConstantsBreadCrumbs.ENDLINE)
+		lsKeys = list(set(self._dictTableMetadata.keys())-set([self.funcGetIDMetadataName(),self.funcGetLastMetadataName()]))
+		f.writerows([[sMetaKey]+self.funcGetMetadata(sMetaKey) for sMetaKey in lsKeys+[self.funcGetLastMetadataName()]])
 		#Write abundance
 		lsOutput = list()
 		curAbundance = self._npaFeatureAbundance.tolist()
 		for curAbundanceRow in curAbundance:
-			lsOutput.append(cDelimiter.join([str(curAbundanceElement) for curAbundanceElement in curAbundanceRow]))
-		f.write(ConstantsBreadCrumbs.ENDLINE.join(lsOutput))
+			f.writerows([[str(curAbundanceElement) for curAbundanceElement in curAbundanceRow]])
 
 	#Testing Status: 1 Happy path test
 	@staticmethod
@@ -1125,28 +1274,26 @@ class AbundanceTable:
 
 		#Make file one
 		#Read in file
-		with open(strFileOne,'r') as f:
-			sContentsOne = f.read()
+		istm = csv.reader(open(strFileOne,'r'), csv.excel_tab, delimiter=cDelimiter)
+		lsContentsOne = [lsRow for lsRow in istm]
 
 		#Get the file identifier for file one
 		fileOneIdentifier = None
-		for sLine in filter(None, sContentsOne.split(ConstantsBreadCrumbs.ENDLINE)):
-			lsLineContents = sLine.split(cDelimiter)
-			if lsLineContents[0] == strIdentifier:
-				fileOneIdentifier = lsLineContents
+		for sLine in lsContentsOne:
+			if sLine[0] == strIdentifier:
+				fileOneIdentifier = sLine
 				break
 
 		#Make file two
 		#Read in file
-		with open(strFileTwo,'r') as f:
-			sContentsTwo = f.read()
+		istm = csv.reader(open(strFileTwo,'r'), csv.excel_tab, delimiter=cDelimiter)
+		lsContentsTwo = [lsRow for lsRow in istm]
 
 		#Get the file identifier for file two
 		fileTwoIdentifier = None
-		for sLine in filter(None, sContentsTwo.split(ConstantsBreadCrumbs.ENDLINE)):
-			lsLineContents = sLine.split(cDelimiter)
-			if lsLineContents[0] == strIdentifier:
-				fileTwoIdentifier = lsLineContents
+		for sLine in lsContentsTwo:
+			if sLine[0] == strIdentifier:
+				fileTwoIdentifier = sLine
 				break
 
 		#Get what is in common between the identifiers
@@ -1164,14 +1311,12 @@ class AbundanceTable:
 		lfFileTwoElements = [iIndex in lfFileTwoIDIndexes for iIndex, sIdentifier in enumerate(fileTwoIdentifier)]
 
 		#Write out file one
-		with open(strOutFileOne, 'w') as f:
-			f.write(ConstantsBreadCrumbs.ENDLINE.join([cDelimiter.join(np.compress(lfFileOneElements,sLine.split(cDelimiter)))
-										   for sLine in filter(None, sContentsOne.split(ConstantsBreadCrumbs.ENDLINE))]))
+		ostm = csv.writer(open(strOutFileOne,'w'), csv.excel_tab, delimiter=cDelimiter)
+		(ostm.writerows([np.compress(lfFileOneElements,sLine) for sLine in lsContentsOne]))
 
 		#Write out file two
-		with open(strOutFileTwo, 'w') as f:
-			f.write(ConstantsBreadCrumbs.ENDLINE.join([cDelimiter.join(np.compress(lfFileTwoElements,sLine.split(cDelimiter)))
-										   for sLine in filter(None, sContentsTwo.split(ConstantsBreadCrumbs.ENDLINE))]))
+		ostm = csv.writer(open(strOutFileTwo,'w'), csv.excel_tab, delimiter=cDelimiter)
+		(ostm.writerows([np.compress(lfFileTwoElements,sLine) for sLine in lsContentsTwo]))
 
 		return True
 
@@ -1221,10 +1366,8 @@ class AbundanceTable:
 			baseFilePath = lsFilePiecesExt[0]
 
 		#Read in file
-		sFileContents = None
-		with open(strInputFile,'r') as f:
-			sFileContents = f.read()
-		sFileContents = filter(None,re.split(ConstantsBreadCrumbs.ENDLINE,sFileContents))
+		istm = csv.reader(open(strInputFile,'r'), csv.excel_tab, delimiter=cDelimiter)
+		sFileContents = [lsRow for lsRow in istm]
 
 		#Collect metadata
 		metadataInformation = dict()
@@ -1232,14 +1375,14 @@ class AbundanceTable:
 		#If the tempStratifyRow is by key word than find the index
 		if ValidateData.funcIsValidString(iStratifyByRow):
 			for iLineIndex, strLine in enumerate(sFileContents):
-				if strLine.split(cDelimiter)[0].strip("\"") == iStratifyByRow:
+				if strLine[0].strip("\"") == iStratifyByRow:
 					iStratifyByRow = iLineIndex
 					break
 
 		#Stratify by metadata row
 		#Split metadata row into metadata entries
 		#And put in a dictionary containing {"variable":[1,2,3,4 column index]}
-		stratifyByRow = sFileContents[iStratifyByRow].split(cDelimiter)
+		stratifyByRow = sFileContents[iStratifyByRow]
 		for metaDataIndex in xrange(1,len(stratifyByRow)):
 			metadata = stratifyByRow[metaDataIndex]
 			#Put all wierd categories, none, whitespace, blank space metadata cases into one bin
@@ -1267,8 +1410,7 @@ class AbundanceTable:
 		#Stratify data
 		stratifiedAbundanceTables = dict()
 		for tableRow in sFileContents:
-			row = tableRow.split(cDelimiter) 
-			if(len(row)> 1):
+			if(len(tableRow)> 1):
 				for metadata in metadataInformation:
 					#[0] includes the taxa line
 					columns = metadataInformation[metadata]
@@ -1276,17 +1418,15 @@ class AbundanceTable:
 						columns = [0] + columns
 						lineList = list()
 						for column in columns:
-							lineList.append(row[column])
-						if(not metadata in stratifiedAbundanceTables):
-							stratifiedAbundanceTables[metadata] = list()
-						stratifiedAbundanceTables[metadata].append(cDelimiter.join(lineList))
+							lineList.append(tableRow[column])
+						stratifiedAbundanceTables.setdefault(metadata,[]).append(lineList)
 
 		#Write to file
 		lsFilesWritten = []
 		for metadata in stratifiedAbundanceTables:
 			sOutputFile = baseFilePath+"-by-"+metadata.strip("\"")+lsFilePiecesExt[1]
-			with open(sOutputFile,'w') as f:
-				sFileContents = f.write(ConstantsBreadCrumbs.ENDLINE.join(stratifiedAbundanceTables[metadata]))
-				lsFilesWritten.append(sOutputFile)
+			f = csv.writer(open(sOutputFile,'w'), csv.excel_tab, delimiter = cDelimiter )
+			f.writerows(stratifiedAbundanceTables[metadata])
+			lsFilesWritten.append(sOutputFile)
 
 		return lsFilesWritten

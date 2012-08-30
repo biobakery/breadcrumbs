@@ -131,14 +131,6 @@ class UtilityMath():
 
         #Change to samples x taxa as is needed for the compute method below
         #Also remove the first row which is taxa identification
-        startColumnElement = 0
-        if(fRemoveAdornments == True):
-            startColumnElement = 1
-        conversionMatrix = list()
-        for row in npaMatrix:
-            conversionMatrix.append(list(row)[startColumnElement:])
-        npaMatrix = None
-        conversionMatrix = np.array(conversionMatrix)
-        conversionMatrix = conversionMatrix.transpose()
-        return conversionMatrix
+        conversionMatrix = [list(row)[fRemoveAdornments:] for row in npaMatrix]
+        return np.array(conversionMatrix).transpose()
 

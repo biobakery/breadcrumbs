@@ -35,7 +35,7 @@ class MLPYDistanceAdaptor:
 	:type	Boolean
         """
 
-        if(fIsCondensedMatrix):
+        if fIsCondensedMatrix:
             self.npaMatrix = squareform(npaDistanceMatrix)
         else:
             self.npaMatrix = npaDistanceMatrix

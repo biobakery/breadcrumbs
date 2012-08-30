@@ -14,6 +14,7 @@ __status__ = "Development"
 
 #Update path
 import numpy as np
+from types import *
 from ValidateData import ValidateData
 
 #External libraries
@@ -69,13 +70,10 @@ class Metric:
         """
 
         simpsons = Metric.funcGetSimpsonsDiversityIndex(ldSampleTaxaAbundancies)
-        #Return False if the diversity is 0 before inverting it
-        if(simpsons == 0):
-            return False
         #If simpsons is false return false, else return inverse
-        if(not ValidateData.funcIsFalse(simpsons)):
-            simpsons = 1.0/simpsons
-        return simpsons
+        if not simpsons:
+            return False
+        return 1.0/simpsons
 
     #Tested 4
     @staticmethod
@@ -125,7 +123,7 @@ class Metric:
             return totalObservedSpecies
 
         #Calculate metric
-        if(fCorrectForBias == True):
+        if fCorrectForBias:
             return chao1_bias_corrected(observed = totalObservedSpecies, singles = singlesObserved, doubles = doublesObserved)
         else:
             return chao1_uncorrected(observed = totalObservedSpecies, singles = singlesObserved, doubles = doublesObserved)
@@ -208,7 +206,7 @@ class Metric:
         """
 
         bcValue = Metric.funcGetBrayCurtisDissimilarity(ldSampleTaxaAbundancies = ldSampleTaxaAbundancies)
-        if(not ValidateData.funcIsFalse(bcValue)):
+        if not type(bcValue) is BooleanType:
             return 1.0-bcValue
         return False
 
@@ -225,9 +223,7 @@ class Metric:
         :return	Double:	Metric specified by strMetric derived from ldAbundancies.
         """
 
-        if(not ValidateData.funcIsValidString(strMetric)):
-            return False
-        elif(strMetric == Metric.c_strShannonRichness):
+        if(strMetric == Metric.c_strShannonRichness):
             return Metric.funcGetShannonRichnessIndex(ldSampleTaxaAbundancies=ldAbundancies)
         elif(strMetric == Metric.c_strSimpsonDiversity):
             return Metric.funcGetSimpsonsDiversityIndex(ldSampleTaxaAbundancies=ldAbundancies)
@@ -261,12 +257,11 @@ class Metric:
         if not ValidateData.funcIsValidList(lsDiversityMetricAlpha):
             lsDiversityMetricAlpha = [lsDiversityMetricAlpha]
 
-        #Create return
-        returnMetricsMatrix = []
-        [returnMetricsMatrix.append(list()) for index in lsDiversityMetricAlpha]
-
         #Get amount of metrics
         metricsCount = len(lsDiversityMetricAlpha)
+
+        #Create return
+        returnMetricsMatrixRet = [[] for index in lsDiversityMetricAlpha]
 
         #For each sample get all metrics
         #Place in list of lists
@@ -274,5 +269,5 @@ class Metric:
         for sample in lsSampleNames:
             sampleAbundance = npaSampleAbundance[sample]
             for metricIndex in xrange(0,metricsCount):
-                returnMetricsMatrix[metricIndex].append(Metric.funcGetAlphaMetric(ldAbundancies = sampleAbundance, strMetric = lsDiversityMetricAlpha[metricIndex]))
-        return returnMetricsMatrix
+                returnMetricsMatrixRet[metricIndex].append(Metric.funcGetAlphaMetric(ldAbundancies = sampleAbundance, strMetric = lsDiversityMetricAlpha[metricIndex]))
+        return returnMetricsMatrixRet

@@ -38,6 +38,7 @@ class ConstantsBreadCrumbs():
     #Default values for missing data in the Abundance Table
     c_strEmptyAbundanceData = "0"
     c_strEmptyDataMetadata = "NA"
+    c_strSVMNoSample = "-"
 
     lNAs = list(set(["NA","na","Na","nA",c_strEmptyDataMetadata]))
 

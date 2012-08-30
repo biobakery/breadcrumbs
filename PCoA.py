@@ -148,7 +148,6 @@ class PCoA:
             distanceMatrix=Metric().funcGetBrayCurtisDissimilarity(ldSampleTaxaAbundancies=self.dataMatrix)
         elif(tempDistanceMetric==self.c_SPEARMAN):
             distanceMatrix = Metric().funcGetDissimilarity(ldSampleTaxaAbundancies=self.dataMatrix, funcDistanceFunction=lambda u,v: spearmanr(u,v)[0])
-            print distanceMatrix
         else:
             print("PCoA:run::Error, not a supported distance metric. Please generate the distance matrix and load.")
             return False
