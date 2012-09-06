@@ -21,7 +21,7 @@ from pylab import *
 class BoxPlot:
 
   @staticmethod
-  def funcPlot(ly, lsLabels, strOutputFigurePath, strTitle = "Title", strXTitle="X Axis", strYTitle="Y Axis", strColor = "#83C8F9", fJitter=False, fInvert=False):
+  def funcPlot(ly, lsLabels, strOutputFigurePath, strTitle = "Title", strXTitle="X Axis", strYTitle="Y Axis", strColor = "#83C8F9", fJitter=False, fInvert=False, fInvertY=False):
     """
     Plot a box plot with optional jittering.
     """
@@ -74,6 +74,11 @@ class BoxPlot:
     #Set ticks and title
     xtickNames = plt.setp(imgSubplot, xticklabels=lsLabels)
     imgSubplot.set_title(strTitle)
+
+    #Invert Y axis
+    if fInvertY:
+      ax = plt.gca()
+      ax.set_ylim(ax.get_ylim()[::-1])
 
     #End plot
     #Save to a file
