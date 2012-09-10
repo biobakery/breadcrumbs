@@ -23,6 +23,22 @@ class PlotMatrix:
   #Given a matrix and labels consistent to the matrix, plot a matrix
   @staticmethod
   def funcPlotMatrix(npMatrix, lsXLabels, strOutputFigurePath, strXTitle="X Axis", strYTitle="Y Axis", fFlipYLabels=False):
+    """
+    Given a matrix and labels consistent to the matrix, plot a matrix.
+
+    :param npMatrix: Numpy Array (matrix) to plot.
+    :type: Numpy Array
+    :param lsXLabels: X Labels
+    :type: List of strings
+    :param strOutputFigurePath: File to create the figure file.
+    :type: String
+    :param strXTitle: X Axis label.
+    :type: String
+    :param strYTitle: Y axis label.
+    :type: String
+    :param fFlipYLabels: Flip the Y labels so they are opposite order of x axis.
+    :type: Boolean
+    """
 
     #Get canvas/figure
     plt.clf()

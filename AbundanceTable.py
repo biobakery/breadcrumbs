@@ -42,25 +42,23 @@ class AbundanceTable:
 
 	def __init__(self, npaAbundance, dictMetadata, strName, strLastMetadata, lOccurenceFilter = None, cFileDelimiter = ConstantsBreadCrumbs.c_cTab, cFeatureNameDelimiter="|"):
 		"""
-		Averages feature abundance.
+		Constructor for an abundance table.
 
 		:param	npaAbundance:	Structured Array of abundance data (Row=Features, Columns=Samples)
-		:type	Numpy Structured Array:	Structured Array of abundance data (Row=Features, Columns=Samples)
+		:type:	Numpy Structured Array abundance data (Row=Features, Columns=Samples)
 		:param	dictMetadata:	Structured Array of abundance data (Row=Features, Columns=Samples)
-		:type	Dictionary:	Dictionary of metadata {"String ID":["strValue","strValue","strValue","strValue","strValue"]}
+		:type:	Dictionary	Dictionary of metadata {"String ID":["strValue","strValue","strValue","strValue","strValue"]}
 	 	:param	strName:	The name of the metadata that serves as the ID for the columns (For example a sample ID)
-		:param	strLastMetadata:	The string last metadata name
-      		:type	string: Last metadata name
-		:type	String:	Structured Array of abundance data (Row=Features, Columns=Samples)
-		:param	fIsNormalized:	Indicates if the data is already normalized upon reading
-		:type	Boolean:	Boolean indicator of normalization (True=Already Normalized)
-		:param	fIsSummed:	Indicates if the data is already summed upon reading
-		:type	Boolean:	Boolean indicator of already being summed (True=Summed)
+		:type:	string
+		:param	strLastMetadata: The string last metadata name
+      		:type:	string
+		:param	lOccurenceFilter: List of integers used in an occurence filter. [Min abundance, Min sample]
+		:type:	List of integers
 		:param	cFileDelimiter:	Character used as the delimiter of the file that is read in to create the abundance table.
 								Will also be used to write the abudance table file to a file to keep file consistency.
-		:type	Character:	Character delimiter for reading the data in (default = TAB)
+		:type:	Character delimiter for reading the data in (default = TAB)
 		:param	cFeatureNameDelimiter:	Character used as the delimiter of the feature names (column 1). This is useful if the name are complex, for instance consensus lineages in metagenomics.
-		:type	Character:	Character delimiter for feature names (default = |)
+		:type:	Character delimiter for feature names (default = |)
 		"""
 
 		#The abundance data
@@ -116,21 +114,21 @@ class AbundanceTable:
 		"""
 		Creates an abundance table from a table file.
 
-		:param	strInputFile:	Path to input file.
-		:type	String		String path.
-		:param	fIsNormalized:	Indicates if the data is already normalized on read.
-		:type	Boolean		True indicates the data IS normalized.
-		:param	fIsSummed:	Indicates if the data is already summed.
-		:type	Boolean		True indicates the data IS summed at the clade levels.
+		:param	xInputFile:	Path to input file.
+		:type:	String		String path.
 		:param	cDelimiter:	Delimiter for parsing the input file.
-		:type	Character	Character.
+		:type:	Character	Character.
 		:param	sMetadataID:	String ID that is a metadata row ID (found on the first column) and used as an ID for samples
-		:type	String		String ID
+		:type:	String		String ID
 		:param	sLastMetadata:	The ID of the metadata that is the last metadata before measurement or feature rows.
-		:type	String		String ID
-		:param	cFeatureNameDelimiter:	Used to parse Feature (bug) names if they are complex.
-										For example if they are consensus lineages and contain parent clade information.
-		:type	Character	Delimiting letter
+		:type:	String		String ID
+		:param	lOccurenceFilter: List of integers used in an occurence filter. [Min abundance, Min sample]
+		:type:	List of integers
+		:param	cFeatureNameDelimiter:	Used to parse feature (bug) names if they are complex.
+						For example if they are consensus lineages and contain parent clade information.
+		:type:	Character	Delimiting letter
+		:param	xOutputFile:	File to output the abundance table which was read in.
+		:type:	FileStream or String file path
 		:return	AbundanceTable:	Will return an AbundanceTable object on no error. Returns False on error.
 		"""
 		
@@ -148,26 +146,25 @@ class AbundanceTable:
 	@staticmethod
 	def funcCheckRawDataFile(strReadDataFileName, iFirstDataIndex = -1, sLastMetadataName = None, lOccurenceFilter = None, strOutputFileName = "", cDelimiter = ConstantsBreadCrumbs.c_cTab):
 		"""
-		Check the input otu or phlotype abundance table.
+		Check the input abundance table.
 		Currently reduces the features that have no occurence.
 		Also inserts a NA for blank metadata and a 0 for blank abundance data.
 		Gives the option to filter features through an occurence filter (a feature must have a level of abundance in a minimal number of samples to be included).
-		Either iFristDataIndex or sLastMetadataName must be given
+		Either iFirstDataIndex or sLastMetadataName must be given
 
 		:param	strReadDataFileName:	File path of file to read and check.
-		:type	String	File path.
+		:type:	String	File path.
 		:param	iFirstDataIndex:	First (row) index of data not metadata in the abundance file.
-		:type	Integer	Index starting at 0.
+		:type:	Integer	Index starting at 0.
 		:param	sLastMetadataName:	The ID of the last metadata in the file. Rows of measurements should follow this metadata.
+		:type:	String
 		:param	lOccurenceFilter:	The lowest number of occurences in the lowest number of samples needed for a feature to be kept
-		:type	List[2]	List length 2 [lowest abundance (not normalized), lowest number of samples to occur in] (eg. [2.0,2.0])
-		:type	String	Matadata ID.
+		:type:	List[2]	List length 2 [lowest abundance (not normalized), lowest number of samples to occur in] (eg. [2.0,2.0])
 		:param	strOutputFileName:	File path of out put file.
-		:type	String	File path.
+		:type:	String	File path.
 		:param	cDelimiter:	Character delimiter for reading and writing files.
-		:type	Character	Delimiter.
+		:type:	Character	Delimiter.
 		:return	Output Path:	Output path for written checked file.
-		File Path.
 		"""
 
 		#Validate parameters
@@ -289,14 +286,16 @@ class AbundanceTable:
 		Private method
 		Used to read in a file that is samples (column) and taxa (rows) into a structured array.
 
-		:param	strInputFile:	Path to input file.
-		:type	String		String path.
+		:param	xInputFile:	File stream or path to input file.
+		:type:	String		File stream or string path.
 		:param	cDelimiter:	Delimiter for parsing the input file.
-		:type	Character	Character.
+		:type:	Character	Character.
 		:param	sMetadataID:	String ID that is a metadata row ID (found on the first column) and used as an ID for samples
-		:type	String		String ID
+		:type:	String		String ID
 		:param	sLastMetadata:	The ID of the metadata that is the last metadata before measurement or feature rows.
-		:type	String		String ID
+		:type:	String		String ID
+		:param	ostmOutputFile:	Output File to write to if needed. None does not wrtie the file.
+		:type:	FileStream or String
 		:return	[taxData,metadata]:	Numpy Structured Array of abundance data and dictionary of metadata.
 										Metadata is a dictionary as such {"ID", [value,value,values...]}
 										Values are in the order thety are read in (and the order of the sample names).
@@ -394,9 +393,9 @@ class AbundanceTable:
 		Averages feature abundance within a sample.
 	
 		:param	lsTargetedFeatures:	String names of features to average
-		:type	list	list of string names of features which are measured
-			:return	List: of lists or boolean:	List of lists or False on error. One internal list per sample indicating the sample and the feature's average abudance
-					 [[sample,average abundance of selected taxa]] or False on error
+		:type:	List of string names of features which are measured
+		:return	List: List of lists or boolean (False on error). One internal list per sample indicating the sample and the feature's average abudance
+			[[sample,average abundance of selected taxa]] or False on error
 		"""
 
 		#Sample rank averages [[sample,average abundance of selected taxa]]
@@ -456,7 +455,7 @@ class AbundanceTable:
 		Returns a copy of the current abundance table with the abundance of just the given features.
 
 		:param	lsFeatures:	String Feature IDs that are kept in the compressed abundance table.
-		:type	List of strings	Feature IDs (found as the first entry of a filter in the input file.
+		:type:	List of strings	Feature IDs (found as the first entry of a filter in the input file.
 		:return	AbundanceTable:	A compressed version of the abundance table.
 				  On an error None is returned.
 		"""
@@ -500,8 +499,8 @@ class AbundanceTable:
 		"""
 		Returns float sum of feature values across the samples.
 
-		:param	sFeatureName:
-		:type	String.
+		:param	sFeatureName: The feature ID to get the sum from.
+		:type:	String.
 		:return	Double:	Sum of one feature across samples.
 		"""
 
@@ -547,9 +546,9 @@ class AbundanceTable:
 		Return a copy of the feature measurements of a sample.
 
 		:param	sSampleName:	Name of sample to return.	
-		:type	String	
+		:type:	String	
 		:return	Sample: Measurements	Feature measurements of a sample.
-										Empty numpy array returned on error.
+				Empty numpy array returned on error.
 		"""
 
 		if (not self._npaFeatureAbundance == None):
@@ -562,7 +561,7 @@ class AbundanceTable:
 		Returns a list of metadata that is associated with the given metadata name (id).
 
 		:param	strMetadataName:	String metadata ID to be returned
-		:type	String	ID
+		:type:	String	ID
 		:return	Metadata:	List of metadata
 		"""
 		
@@ -607,9 +606,9 @@ class AbundanceTable:
 		features must contain a consensus lineage or all will be returned.
 
 		:param	lsNames:	The list of string names to parse and filter.
-		:type	List of strings
+		:type:	List of strings
 		:param	cNameDelimiter:	The delimiter for the name of the features.
-		:type	Character	Delimiter
+		:type:	Character	Delimiter
 		:return list:	A list of terminal elements in the list (given only the list).
 		"""
 
@@ -658,7 +657,7 @@ class AbundanceTable:
 		This is important to some of the functions in the Abundance Table specifically when translating from one metadata to another.
 		
 		:param	sMetadataName:	ID of metadata to check for uniqueness.
-		:type	String	Metadata ID.
+		:type:	String	Metadata ID.
 		:return	Boolean:	Returns indicator of uniqueness.
 							True indicates unique.
 		"""
@@ -673,8 +672,7 @@ class AbundanceTable:
 		"""
 		Return is the data is summed.
 
-		:return	Boolean:	Indicator of being summed. 
-							True indicates summed.
+		:return	Boolean:	Indicator of being summed. True indicates summed.
 		"""
 
 		return self._fIsSummed
@@ -686,11 +684,10 @@ class AbundanceTable:
 		A feature is removed if it's abundance is not found in the top X percentile a certain percentage of the samples.
 
 		:param	dPercentileCutOff:	The percentile used for filtering.
-		:type	double	A double between 0.0 and 100.0
+		:type:	double	A double between 0.0 and 100.0
 		:param	dPercentageAbovePercentile:	The percentage above the given percentile (dPercentileCutOff) that must exist to keep the feature.
-		:type	double	Between 0.0 and 100.0
-		:return	Boolean:	Indicator of filtering occuring without error.	
-							True indicates filtering occuring.
+		:type:	double	Between 0.0 and 100.0
+		:return	Boolean:	Indicator of filtering occuring without error. True indicates filtering occuring.
 		"""
 
 		#No need to do anything
@@ -734,11 +731,10 @@ class AbundanceTable:
 		Will evaluate greater than or equal to the iMinSequence and iMinSamples.
 
 		:param	iMinSequence:	Minimum sequence to occur.
-		:type	Integer	Number Greater than 1.
+		:type:	Integer	Number Greater than 1.
 		:param	iMinSamples:	Minimum samples to occur in.
-		:type	Integer	Number greater than 1.
-		:return	Boolean:	Indicator of the filter running without error.
-							  False indicates error.
+		:type:	Integer	Number greater than 1.
+		:return	Boolean:	Indicator of the filter running without error. False indicates error.
 		"""
 
 		#No need to do anything
@@ -770,9 +766,8 @@ class AbundanceTable:
 		A feature is removed if it's abundance is not found to have standard deviation more than the given dMinSDCutoff.
 
 		:param	dMinSDCuttOff:	Standard deviation threshold.
-		:type	Double	A double greater than 0.0.
-		:return	Boolean:	Indicator of success.
-							False indicates error.
+		:type:	Double	A double greater than 0.0.
+		:return	Boolean:	Indicator of success. False indicates error.
 		"""
 
 		#No need to do anything
@@ -812,7 +807,7 @@ class AbundanceTable:
 	def funcNormalize(self):
 		"""
 		Convenience method which will call which ever normalization is approriate on the data.
-		:return Boolean:	Indicator of success (true).
+		:return Boolean: Indicator of success (true).
 		"""
 
 		if self._fIsSummed:
@@ -828,8 +823,7 @@ class AbundanceTable:
 		Normalizes as a fraction of the total (number/(sum of all numbers in the column)).
 		Will not act on summed tables.
 
-		:return	Boolean:	Indicator of success.
-							False indicates error.
+		:return	Boolean:	Indicator of success. False indicates error.
 		"""
 
 		if self._fIsNormalized:
@@ -861,8 +855,7 @@ class AbundanceTable:
 		The data will be summed first and then normalized.
 		If already normalized, the current normalization is kept.
 
-		:return	Boolean:	Indicator of success.
-							 False indicates error.
+		:return	Boolean:	Indicator of success. False indicates error.
 		"""
 
 		if self._fIsNormalized:
@@ -901,6 +894,16 @@ class AbundanceTable:
 		return True
 	
 	def _funcRankAbundanceHelper( self, aaTodo, iRank, lRankAbundance ):
+		"""
+		Helper method for ranking abudance which are tied.
+
+		:params aaTodo: List of tied ranks to change to a rank.
+		:type:	List of Enumerates of samples.
+		:params iRank: Current Rank
+		:type:	Integer
+		:params lRankAbundance: Sample of abundance
+		:type:	List of integers
+		"""
 
 		# Subtract one from iRank (each time) to account for next loop iteration
 		# Then average it with itself minus (the length of aaTodo + 1)
@@ -952,7 +955,7 @@ class AbundanceTable:
 		Reduce the current table to a certain clade level.
 
 		:param	iCladeLevel:	The level of the clade to trim the features to.
-		:type	Integer	The higher the number the more clades are presevered in the consensus lineage contained in the feature name.
+		:type:	Integer	The higher the number the more clades are presevered in the consensus lineage contained in the feature name.
 		:return	Boolean:	Indicator of success. False indicates error.
 		"""
 
@@ -976,8 +979,8 @@ class AbundanceTable:
 		Removes the samples given in the list.
 
 		:param	lsSampleNames:	A list of string names of samples to remove.
-		:type	List of strings	Unique values
-		:return Boolean:	Indicator of success (True = success, no error)
+		:type:	List of strings	Unique values
+		:return Boolean: Indicator of success (True = success, no error)
 		"""
 
 		#Samples to remove
@@ -1010,9 +1013,9 @@ class AbundanceTable:
 		If a metadata has any value given the associated sample is removed.
 
 		:param	sMetadata:	ID of the metdata to check the given values.
-		:type	String	Metadata ID
+		:type:	String	Metadata ID
 		:param	lValuesToRemove:	A list of values which if equal to a metadata entry indicate to remove the associated sample.
-		:type	List of values:	List
+		:type:	List of values:	List
 		:return	Boolean:	Indicator of success (True = success, no error)
 		"""
 
@@ -1025,7 +1028,7 @@ class AbundanceTable:
 		Sums abundance data by clades indicated in the feature name (as consensus lineages).
 
 		:return	Boolean:	Indicator of success.
-		:type	Boolean	False indicates an error.
+					False indicates an error.
 		"""
 
 		if not self.funcIsSummed():
@@ -1097,9 +1100,9 @@ class AbundanceTable:
 		Note: If the metadata used for stratification has NAs, they will be segregated to thier own table and returned.
 
 		:param	strMetadata:	Metadata ID to stratify data with.
-		:type	String	ID for a metadata.
+		:type:	String	ID for a metadata.
 		:param	fWriteToFile:	Indicator to write to file.
-		:type	Boolean	True indicates to write to file.
+		:type:	Boolean	True indicates to write to file.
 		:return	List:	List of AbundanceTables which are deep copies of the original.
 						Empty list on error.
 		"""
@@ -1156,13 +1159,13 @@ class AbundanceTable:
 		if the sMetadataFrom has any duplicates the function fails and return false.
 
 		:param	lsValues:	Values to translate.
-		:type	List	List of values.
+		:type:	List	List of values.
 		:param	sMetadataFrom:	The metadata the lsValues come from.
-		:type	String	ID for the metadata.
+		:type:	String	ID for the metadata.
 		:param	sMetadataTo:	The metadata the lsValues will be translated into keeping the samples the same.
-		:type	String	ID for the metadata.
+		:type:	String	ID for the metadata.
 		:param	fFromPrimaryIds:	The metadata that are in the from metadata list must be unique in each sample.
-		:type	Boolean	True indicates the metadata list should be unique in each sample. Otherwise a false will return.
+		:type:	Boolean	True indicates the metadata list should be unique in each sample. Otherwise a false will return.
 		:return List:	List of new values or False on error.
 		"""
 
@@ -1211,10 +1214,10 @@ class AbundanceTable:
 		Will rewrite over a file as needed.
 		Will use the cDelimiter to delimit columns if provided.
 
-		:param	strOutputFile:	File path to write the file to.
-		:type	String	File Path
+		:param	xOutputFile:	File stream or File path to write the file to.
+		:type:	String	File Path
 		:param	cDelimiter:	Delimiter for the output file.
-		:type	Character	If cDlimiter is not specified, the internally stored file delimiter is used.
+		:type:	Character	If cDlimiter is not specified, the internally stored file delimiter is used.
 		"""
 
 		if not xOutputFile:
@@ -1246,19 +1249,19 @@ class AbundanceTable:
 		Expects the files to have the sample delimiters.
 
 		:param	strFileOne:	Path to file one to be paired.
-		:type	String	File path.
+		:type:	String	File path.
 		:param	strFileTwo:	Path to file two to be paired.
-		:type	String	File path.
+		:type:	String	File path.
 		:param	strIdentifier:	Metadata ID that is used for pairing.
-		:type	String	Metadata ID.
+		:type:	String	Metadata ID.
 		:param	cDelimiter:	Character delimiter to read the files.
-		:type	Character	Delimiter.
+		:type:	Character	Delimiter.
 		:param	strOutFileOne:	The output file for the paired version of the first file.
-		:type	String	File path.
+		:type:	String	File path.
 		:param	strOutFileTwo:	The output file for the paired version of the second file.
-		:type	String	File path.
+		:type:	String	File path.
 		:param	lsIgnoreValues:	These values are ignored even if common IDs between the two files.
-		:type	List	List of strings.
+		:type:	List	List of strings.
 		:return	Boolean:	Indicator of no errors.
 							  False indicates errors.
 		"""
@@ -1327,13 +1330,13 @@ class AbundanceTable:
 		Splits an abundance table into multiple abundance tables stratified by the metadata
 
 		:param	strInputFile:	String file path to read in and stratify.
-		:type	String	File path.
+		:type:	String	File path.
 		:param	strDirectory:	Output directory to write stratified files.
-		:type	String	Output directory path.
+		:type:	String	Output directory path.
 		:param	cDelimiter:	The delimiter used in the adundance file.
-		:type	Character	Delimiter.
+		:type:	Character	Delimiter.
 		:param	iStratifyByRow:	The row which contains the metadata to use in stratification.
-		:type	Integer	Positive integer index.
+		:type:	Integer	Positive integer index.
 		:param	llsGroupings:	A list of string lists where each string list holds values that are equal and should be grouped together.
 								So for example, if you wanted to group metadata "1", "2", and "3" seperately but "4" and "5" together you would
 								Give the following [["4","5"]].

@@ -1,6 +1,6 @@
 """
 Author: Timothy Tickle
-Description: Class to craete box plots.
+Description: Class to create box plots.
 """
 
 __author__ = "Timothy Tickle"
@@ -24,6 +24,27 @@ class BoxPlot:
   def funcPlot(ly, lsLabels, strOutputFigurePath, strTitle = "Title", strXTitle="X Axis", strYTitle="Y Axis", strColor = "#83C8F9", fJitter=False, fInvert=False, fInvertY=False):
     """
     Plot a box plot with optional jittering.
+
+    :params	ly: List of y values
+    :type:	List of doubles
+    :params	lsLabels: List of labels (x tick lables)
+    :type:	List string
+    :params	strOutputFigurePath: File path to make figure
+    :type:	String file path
+    :params	strTitle: Title of figure
+    :type:	String
+    :params	strXTitle: Label of x axis
+    :type:	String
+    :params	strYTitle: Label of y axis
+    :type:	String
+    :params	strColor: Hex color for the face of the boxplots
+    :type:	String
+    :params	fJitter: Indicator of jittering (true) or not (false)
+    :type:	Boolean
+    :params	fInvert: Invert colors (true)
+    :type:	Boolean
+    :params	fInvertY: Invert y axis
+    :type:	Boolean
     """
 
     #Start plot

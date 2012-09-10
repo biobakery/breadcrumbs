@@ -79,9 +79,9 @@ class PCoA:
         and no conversion will occur in subsequent methods.
 
         :params xData: AbundanceTable or Distance matrix . Taxa (columns) by samples (rows)(lists)
-        :type AbundanceTable or DistanceMatrix
+        :type: AbundanceTable or DistanceMatrix
         :param fIsRawData: Indicates if the xData is an AbudanceTable (True) or distance matrix (False; numpy array)
-        :type boolean
+        :type: boolean
         :return boolean: indicator of success (True=Was able to load data)
         """
 
@@ -115,11 +115,11 @@ class PCoA:
         :param tempDistanceMetric: The name of the distance metric to use when performing PCoA.
                                    None indicates a distance matrix was already given when loading and will be used.
                                    Currently only brays-curtis distance is supported.
-        :type String Distance matrix name
+        :type: String Distance matrix name
         :param iDims: How many dimension to plot the PCoA graphs.
                       (This can be minimally 2; all combinations of dimensions are plotted).
                       iDims start with 1 (not index-based).
-        :type Integer Positive integer 2 or greater.
+        :type: Integer Positive integer 2 or greater.
         :return boolean: Indicator of success (True)
         """
 
@@ -160,34 +160,34 @@ class PCoA:
         return False
 
     #Happy path tested
-    def plot(self,tempPlotName="PCOA.png", tempColorGrouping=None, tempShape=None, tempLabels=None, tempShapeSize=None, tempAlpha = 1.0, tempLegendLocation="upper right", tempInvert=False, iDim1 = 1, iDim2 = 2):
+    def plot(self, tempPlotName="PCOA.png", tempColorGrouping=None, tempShape=None, tempLabels=None, tempShapeSize=None, tempAlpha = 1.0, tempLegendLocation="upper right", tempInvert=False, iDim1 = 1, iDim2 = 2):
         """
         Plots the provided data by the given distance matrix in the file.
         All lists should be in order in relation to each other.
  
         :param tempPlotName: Path of file to save figure.
-        :type String: File path.
+        :type: String File path.
         :param tempColorGrouping: Colors for markers.
                                   If you want a marker with multiple colors (piewedges) for that marker give a list in the list of colors.
                                   For example ['r','r','r',['r','g','b']] This would make 3 red markers and 1 split into  3 wedges (red, green, and blue).
                                   This is only possible if you are using circle shapes ('o') or square shapes ('s').
-        :type Character or list of characters: Characters should be useable by matplotlib as a color.
+        :type: Character or list of characters: Characters should be useable by matplotlib as a color.
         :param tempShape: Marker shapes. If you want to specify one shape for all markers then just pass a char/str for the marker not a list.
-        :type Character or list of characters. Characters should be useable by matplotlib as shapes.
+        :type: Character or list of characters. Characters should be useable by matplotlib as shapes.
         :param tempLabels: Labels associated with the coloring. Should be consistent with tempColorGrouping (both should be strings or lists of equal length).
-        :type String or list of Strings.
+        :type: String or list of Strings.
         :param tempShapeSize: Sizes of markers (points). If no list is given, all markers are given the same size.
-        :type Integer of list of integers:	1 or greater.
+        :type: Integer of list of integers:	1 or greater.
         :param tempAlpha: Value between 0.0 and 1.0 (0.0 being completely transparent, 1.0 being opaque).
-        :type Float: 0.0-1.0.
+        :type: Float 0.0-1.0.
         :param tempLegendLocation: Indicates where to put the legend.
-        :type String: Either "upper right", "lower right", "upper left", "lower left".
+        :type: String Either "upper right", "lower right", "upper left", "lower left".
         :param tempInvert: Allows the inverting of the figure.
-        :type boolean: True inverts.
+        :type: boolean True inverts.
         :param iDim1: First dimension to plot.
-        :type Integer: Greater than 1.
+        :type: Integer Greater than 1.
         :param iDim2: Second dimension to plot.
-        :type Integer: Greater than 1.
+        :type: Integer Greater than 1.
         :return boolean: Indicator of success (True)
         """
 
@@ -446,23 +446,25 @@ class PCoA:
         """
         The all lists should be in the same order
 
+        :param imgSubPlot: Image to plot to
+        :type: Image
         :param aiXPoints: List of X axis points (one element per color list)
-        :type List of Floats
+        :type: List of Floats
         :param aiYPoints: List of X axis points (one element per color list)
-        :type List of Floats
+        :type: List of Floats
         :param dSize: double or List of doubles (one element per color list)
-        :type List of Floats
+        :type: List of Floats
         :param llColors: List of Lists of colors, one list of colors is for 1 piechart/multiply highlighted feature
                          Example ["red","blue","green"] for a marker with 3 sections.
-        :type List of strings
+        :type: List of strings
         :param lsLabels: List of labels  (one element per color list).
-        :type List of Floats
+        :type: List of Floats
         :param lcShapes: Indicates which shape of a pie chart to use, currently supported 'o' and 's'  (one element per color list).
-        :type List of characters
+        :type: List of characters
         :param edgeColor: One color entry for the edge of the piechart.
-        :type List of characters
+        :type: List of characters
         :param dAlpha: Value between 0.0 and 1.0 (0.0 being completely transparent, 1.0 being opaque).
-        :type Float: 0.0-1.0.
+        :type: Float 0.0-1.0.
         """
 
         #Zip up points to pairs
@@ -487,9 +489,9 @@ class PCoA:
         Generate a list of tuple points which will draw a square broken up into pie cuts.
 
         :param iWedgeCount: The number of piecuts in the square.
-        :type Integer Number greater than 1.
+        :type: Integer Number greater than 1.
         :param iSplineResolution: The amount of smoothing to the circle's outer edge, the higher the number the more smooth.
-        :type integer Greater than 1.
+        :type: integer Greater than 1.
         :return list List of tuples. Each tuple is a point, formatted for direct plotting of the marker.
         """
 
@@ -517,7 +519,7 @@ class PCoA:
         Generate a list of tuple points which will draw a square broken up into pie cuts.
 
         :param iWedgeCount: The number of piecuts in the square.
-        :type Integer Number greater than 1.
+        :type: Integer Number greater than 1.
         :return list List of tuples. Each tuple is a point, formatted for direct plotting of the marker.
         """
 
@@ -628,23 +630,23 @@ class PCoA:
         This is helpful when you have a large number of labels to plot given the shapes in the PCoA are limited but not the coloring.
 
         :param lsLabelList: List of string labels which are in order of the data in the PCoA object (as the data was loaded the PCoA object).
-        :type List of strings
+        :type: List of strings
         :param strOutputFileName: File path to save figure.
-        :type String
+        :type: String
         :param iSize: Size of marker. Default 20.
-        :type Integer
+        :type: Integer
         :param dAlpha: Alpha for the markers. (0.0 tranparent, 1.0 opaque)
-        :type Double between 0.0 and 1.0
+        :type: Double between 0.0 and 1.0
         :param charForceColor: Color to force the points to. (Must be understandable by matplotlib as a color [ie. 'k','m','c','r','g','b','y','w'])
-        :type Character
+        :type: Character
         :param charForceShape: Shape to force the points to. (Must be understandable by matplotlib as a shape [ie. 'o','s','^','v','<','>','8','p','h'])
-        :type Character
+        :type: Character
         :param fInvert: Allows one to invert the background and plot details from white to black (True == background is black).
-        :type Boolean
+        :type: Boolean
         :param iDim1: The first dimension to plot
-        :type Integer starting at 1
+        :type: Integer starting at 1
         :param iDim2: The second dimension to plot
-        :type Integer starting at 2
+        :type: Integer starting at 2
         :return boolean: Indicator of success (True)
         """
 
@@ -714,7 +716,7 @@ class PCoA:
         Force the X axis to the given list.
 
         :param dList: List of values to force the x axis of the plot (floats).
-        :type List of floats
+        :type: List of floats
         """
 
         self.ldForcedXAxis = dList
@@ -733,7 +735,7 @@ class PCoA:
         Returns a list of characters which are valid shapes for markers.
 
         :param intShapeCount: The number of shapes to return.
-        :type Integer (min 1, max 9)
+        :type: Integer (min 1, max 9)
         :return: A list of characters to use as markers. [] is returned on error
         """
 

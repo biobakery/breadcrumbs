@@ -121,10 +121,10 @@ class Cladogram:
     This color name should be supplied in the set Color Data method
     {strName1:strColorName1,strName2:strColorName2,...}
 
-    :param dictClades Names of elements, if found in the tree which should be highlighted
-    :type dictClades Dictionary of element name (string) and element color (string) 
-    :param fOverwrite If element is already indicated to be highlighted, overwrite the color to the one provided here.
-    :type fOverwrite boolean (True == overwrite color)
+    :param dictClades: Names of elements, if found in the tree which should be highlighted
+    :type: dictClades Dictionary of element name (string) and element color (string) 
+    :param fOverwrite: If element is already indicated to be highlighted, overwrite the color to the one provided here.
+    :type: fOverwrite boolean (True == overwrite color)
     """
     if ValidateData.funcIsValidDictionary(dictClades):
         if ValidateData.funcIsValidBoolean(fOverwrite):
@@ -147,8 +147,8 @@ class Cladogram:
     The root will be the value given, any previous heirachy will be ignored
     This will remove highlighted data if indicated to do so
 
-    :params strRoot Where to root the tree
-    :type strRoot String
+    :params strRoot: Where to root the tree
+    :type: strRoot String
     """
     self.strRoot = strRoot
 
@@ -157,22 +157,26 @@ class Cladogram:
     This is the method to call to generate a cladogram using circlader.
     The default data file is an abundance table unless the getDa function is overwritten.
 
-    :param strImageName File name to save the output cladogram image
-    :type strImageName File name (string)
-    :param strStyleFile File path indicating the style file to use
-    :type strStyleFile File path (string)
-    :param sTaxaFileName File path indicating the taxa file to use
-    :type sTaxaFileName File path (string)
-    :param iTerminalCladeLevel Clade level to use as terminal in plotting
-    :type iTerminalCladeLevel integer starting with 1
-    :param strColorFile File path indicating the color file to use
-    :type strColorFile File path (string)
-    :param strTickFile File path indicating the tick file to use
-    :type strTickFile File path (string)
-    :param strHighlightFile File path indicating the highlight file to use
-    :type strHighlightFile File path (string)
-    :param strSizeFile File path indicating the size file to use
-    :type strSizeFile File path (string)
+    :param strImageName: File name to save the output cladogram image
+    :type: strImageName File name (string)
+    :param strStyleFile: File path indicating the style file to use
+    :type: strStyleFile File path (string)
+    :param sTaxaFileName: File path indicating the taxa file to use
+    :type: sTaxaFileName File path (string)
+    :param strCircladerScript: File path to the Circlader script
+    :type: String
+    :param iTerminalCladeLevel: Clade level to use as terminal in plotting
+    :type: iTerminalCladeLevel integer starting with 1
+    :param strColorFile: File path indicating the color file to use
+    :type: strColorFile File path (string)
+    :param strTickFile: File path indicating the tick file to use
+    :type: strTickFile File path (string)
+    :param strHighlightFile: File path indicating the highlight file to use
+    :type: strHighlightFile File path (string)
+    :param strSizeFile: File path indicating the size file to use
+    :type: strSizeFile File path (string)
+    :param sCircleFileName: File path of circlader circle file.
+    :type: String
     """
 
     if self.npaAbundance == None:
@@ -298,8 +302,8 @@ class Cladogram:
     Name will be a string name that references what needs to be this color
     Color data should be a string in the RGB format 0-255,0-255,0-255
 
-    :param dictColors Color Name and RGB specification
-    :type dictColorsDictionary strings 
+    :param dictColors: Color Name and RGB specification
+    :type: dictColorsDictionary strings 
     """
     if ValidateData.funcIsValidDictionary(dictColors):
       self.dictColors = dictColors
@@ -310,6 +314,9 @@ class Cladogram:
   def setAbundanceData(self, abtbAbundanceTable):
     """
     Sets the abundance data the Cladogram will use to plot
+
+    :params abtAbundanceTable: AbundanceTable to set
+    :type: AbundanceTable
     """
     self.npaAbundance = abtbAbundanceTable.funcGetAbundanceCopy()
     self.strSampleID = abtbAbundanceTable.funcGetIDMetadataName()
@@ -321,8 +328,12 @@ class Cladogram:
     Switch filtering by abundance on and off.
     fAbundanceFilter == True indicates filtering is on
 
-    :param fAbundanceFilter Switch to turn on (true) and off (false) abundance-based filtering
-    :type fAbundanceFilter boolean
+    :param fAbundanceFilter: Switch to turn on (true) and off (false) abundance-based filtering
+    :type: fAbundanceFilter boolean
+    :param dPercentileCutOff: Percentage between 100.0 to 0.0.
+    :type: double
+    :param dPercentageAbovePercentile: Percentage between 100.0 to 1.0.
+    :type: double
     """
     self.fAbundanceFilter = fAbundanceFilter
     self.c_dPercentileCutOff = dPercentileCutOff
@@ -334,31 +345,41 @@ class Cladogram:
     Is a scale used to increase or decrease node sizes in the the cladogram to make more visible
     iScale default is 3
 
-    :param iScale Integer to increase the relative sizes of nodes
-    :type iScale integer
+    :param iScale: Integer to increase the relative sizes of nodes
+    :type: iScale integer
     """
     self.c_dCircleScale = iScale
 
   #Not tested
   def setFeatureDelimiter(self, cDelimiter):
+    """
+    Set the delimiter used to parse the consensus lineages of features.
+
+    :param cDelimiter: The delimiter used to parse the consensus lineage of features.
+    :type: Character
+    """
     if cDelimiter:
       self.cFeatureDelimiter = cDelimiter
 
   #Not tested
-  def setFilterByCladeSize(self, fCladeSizeFilter, iCladeLevelToMeasure = 3, iCladeLevelToReduce = 1, iMinimumCladeSize = 5, cFeatureDelimiter = "|", strUnclassified="unclassified"):
+  def setFilterByCladeSize(self, fCladeSizeFilter, iCladeLevelToMeasure = 3, iCladeLevelToReduce = 1, iMinimumCladeSize = 5, cFeatureDelimiter = None, strUnclassified="unclassified"):
     """
     Switch filtering by clade size on and off.
     fCladeSizeFilter == True indicates filtering is on
     NOT 0 based.
 
-    :param fCladeSizeFilter Switch to turn on (true) and off (false) clade size-based filtering
-    :type fCladeSizeFilter boolean
-    :param iCladeLevelToMeasure The level of the concensus lineage that is measure or counted. Should be greater than iCladeLevelToReduce (Root is 1)
-    :type iCladeLevelToMeasure int
-    :param iCladeLevelToReduce The level of the concensus lineage that is reduced if the measured level are not the correct count (Root is 1)
-    :type iCladeLevelToReduce int
-    :param iMinimumCladeSize Minimum count of the measured clade for the clade to be kept
-    :type iMinimumCladeSize int
+    :param fCladeSizeFilter: Switch to turn on (true) and off (false) clade size-based filtering
+    :type: fCladeSizeFilter boolean
+    :param iCladeLevelToMeasure: The level of the concensus lineage that is measure or counted. Should be greater than iCladeLevelToReduce (Root is 1)
+    :type: iCladeLevelToMeasure int
+    :param iCladeLevelToReduce: The level of the concensus lineage that is reduced if the measured level are not the correct count (Root is 1)
+    :type: iCladeLevelToReduce int
+    :param iMinimumCladeSize: Minimum count of the measured clade for the clade to be kept
+    :type: iMinimumCladeSize int
+    :param cFeatureDelimiter: One may set the feature delimiter if needed.
+    :type: Character
+    :param strUnclassified: String indicating unclassifed features
+    :type: String
     """
     self.fCladeSizeFilter = fCladeSizeFilter
     if iCladeLevelToMeasure > 0:
@@ -380,8 +401,8 @@ class Cladogram:
     #Lowest numbers are closest to the center of the tree
     [[#,Name1],[#,Name2]...]
 
-    :param llsTicks Level # and Name of level
-    :type llsTicks List of lists of strings 
+    :param llsTicks: Level # and Name of level
+    :type: llsTicks List of lists of strings 
     """
     self.llsTicks = llsTicks
 
@@ -390,21 +411,23 @@ class Cladogram:
     """
     This methods allows one to add a circle to the outside of the cladogram.
 
-    :param lsTaxa Taxa to highlight with this circle
-    :type lsTaxa List of strings (taxa names)
-    :param strCircle Circle the elements will be in, indicates color and circle level.
-    :type strCircle String circle 
-    :param dBorder Border size for the circle element border (between 0.0 and 1.0)
+    :param lsTaxa: Taxa to highlight with this circle
+    :type: lsTaxa List of strings (taxa names)
+    :param strCircle: Circle the elements will be in, indicates color and circle level.
+    :type: strCircle String circle 
+    :param dBorder: Border size for the circle element border (between 0.0 and 1.0)
       can also be a list of dBorders.  If list, position must match lsTaxa.
-    :type dBorder Float of border size (or list of floats).
-    :param strShape String Indicator of shape or method to determine shape.
+    :type: dBorder Float of border size (or list of floats).
+    :param strShape: String Indicator of shape or method to determine shape.
       Can also be a list of shapes.  If list, position must match lsTaxa.
-    :type strShape String to indicate the shape (may also be a list of strings).
+    :type: strShape String to indicate the shape (may also be a list of strings).
         Default value is square.
         Valid shapes are R(Square), v(inward pointing triangle), ^(outward pointing triangle)
-    :param dAlpha The transparency of the circle element (between 0.0[clear] and 1.0[solid]).
+    :param dAlpha: The transparency of the circle element (between 0.0[clear] and 1.0[solid]).
       Can also be a list of floats.  If list, position must match lsTaxa.
-    :type dAlpha Float to indicate the transparency of the shape (may also be a list of strings).
+    :type: dAlpha Float to indicate the transparency of the shape (may also be a list of strings).
+    :param fForced: Forces item in the features in the circle to be displayed in the cladogram no matter thier passing filters.
+    :type: Boolean
     """
     if(self.ldictCircleData == None):
       self.ldictCircleData = list()
@@ -423,6 +446,9 @@ class Cladogram:
   def createCircleFile(self, lsIDs):
     """
     Write circle data to file.
+
+    :param lsIDs: Ids to include in the circle file
+    :type: lsIDs List of strings
     """
     #If there is circle data
     if(not self.ldictCircleData == None):
@@ -584,8 +610,8 @@ class Cladogram:
     """
     Write highlight data to file
 
-    :param lsIDs Ids to include in the highlight file
-    :type lsIDs List of strings
+    :param lsIDs: Ids to include in the highlight file
+    :type: lsIDs List of strings
     """
     lsHighLightData = list()
     #Each taxa name
@@ -625,8 +651,8 @@ class Cladogram:
     """
     Write size data to file
 
-    :param lsIDs Ids to include in the size file
-    :type lsIDs List of strings
+    :param lsIDs: Ids to include in the size file
+    :type: lsIDs List of strings
     """
     if self.npaAbundance is not None:
       dMinimumValue = (self.c_dMinLogSize*self.c_dLogScale)+1
@@ -652,8 +678,8 @@ class Cladogram:
     """
     Write tree data to file. The tree file defines the internal cladogram and all it's points.
 
-    :param lsIDs Ids to include in the tree file as well as their ancestors
-    :type lsIDs List of strings
+    :param lsIDs: Ids to include in the tree file as well as their ancestors
+    :type: lsIDs List of strings
     """
     lsFullTree = list()
     for sID in lsIDs:
@@ -679,8 +705,8 @@ class Cladogram:
     Filter by abundance. Specifically this version requires elements of
     the tree to have a certain percentage of a certain percentile in samples.
 
-    :param lsIDs Ids to filter
-    :type lsIDs List of strings
+    :param lsIDs: Ids to filter
+    :type: lsIDs List of strings
     """
     #list of ids to return that survived the filtering
     retls = list()
@@ -715,8 +741,8 @@ class Cladogram:
     """
     Filter by the count of individuals in the clade.
 
-    :param lsIDs Ids to filter
-    :type lsIDs List of strings
+    :param lsIDs: Ids to filter
+    :type: lsIDs List of strings
     """
     #First get terminal nodes
     lsTerminalNodes = AbundanceTable.funcGetTerminalNodesFromList(lsIDs,self.cFeatureDelimiter)
@@ -761,8 +787,8 @@ class Cladogram:
     Takes a string that is of the format 0-255,0-255,0-255 and converts it to the 
     color format of circlader _c_[0-1,0-1,0-1]
 
-    :param sColor String RGB format
-    :type sColor String
+    :param sColor: String RGB format
+    :type: sColor String
     """
     sCircladerColor = "_c_[1,1,1]"
     if(sColor is not None):
@@ -780,6 +806,9 @@ class Cladogram:
     Labels for visualization. 
     Changes unclassified to one_level_higher.unclassified and enables numeric labeling / relabeling.
     Will only rename, will not add the label. The key must exist for the value to be used in replacing.
+
+    :param lsIDs: Ids to include in the labels file
+    :type: lsIDs List of strings
     """
     dictRet = dict()
     for sID in lsIDs:
@@ -801,24 +830,25 @@ class Cladogram:
   def manageFilePaths(self, sTaxaFileName, strStyleFile, sColorFileName=None, sTickFileName=None, sHighlightFileName=None, sSizeFileName=None, sCircleFileName=None):
     """
     This method sets the naming to the files generated that Circlader acts on.
-    These files include the tree, color, highlight, tick, and size files.
+    These files include the tree, color, highlight, tick, circle, and size files.
     Checks to make sure the file path to the syle file provided is an existing file.
     Deletes any existing files with these generated names (except for the style files).
-    Private method
 
-    :param strStyleFile File path indicating the style file to use
-    :type strStyleFile File path (string)
-    :param strTaxaFile File path indicating the taxa file to use
-    :type strTaxaFile File path (string)
-    :param strColorFile File path indicating the color file to use
-    :type strColorFile File path (string)
-    :param strTickFile File path indicating the tick file to use
-    :type strTickFile File path (string)
-    :param strHighlightFile File path indicating the highlight file to use
-    :type strHighlightFile File path (string)
-    :param strSizeFile File path indicating the size file to use
-    :type strSizeFile File path (string)
-    :return boolean:	True indicates success, false indicates error
+    :param sStyleFile: File path indicating the style file to use
+    :type: String
+    :param strTaxaFile: File path indicating the taxa file to use
+    :type: String
+    :param sColorFile: File path indicating the color file to use
+    :type: String
+    :param sTickFile: File path indicating the tick file to use
+    :type: String
+    :param sHighlightFile: File path indicating the highlight file to use
+    :type: String
+    :param sSizeFile: File path indicating the size file to use
+    :type: String
+    :param sCircleFileName: File path for circle files
+    :type: String
+    :return boolean: True indicates success, false indicates error
     """
     #Do not remove the style file, it is static
     if strStyleFile is None:
@@ -849,18 +879,19 @@ class Cladogram:
     """
     Allows the relabeling of ids. Can be used to make numeric labeling of ids or renaming
 
-    :param dictLabels Should label (key) (after unclassified is modified) and new label (value)
-    :type dictLabels Dictionary of string (key:label to replace) string (value:new label to use in replacing)
+    :param dictLabels: Should label (key) (after unclassified is modified) and new label (value)
+    :type: dictLabels Dictionary of string (key:label to replace) string (value:new label to use in replacing)
     """
     self.dictRelabels = dictLabels
 
   #Happy path tested
   def updateToRoot(self, lsIDs):
-    """ Updates the clade to the root given. The clade must contain the root and the level of the 
+    """
+    Updates the clade to the root given. The clade must contain the root and the level of the 
     root in the clade will be rest to it's first level, ignoring the previous levels of the clade.
 
-    :param lsIDs List of Clades that will be reset to the root specified by setRoot
-    :type lsIDs List of strings. Each string representing a clade.
+    :param lsIDs: List of Clades that will be reset to the root specified by setRoot
+    :type: lsIDs List of strings. Each string representing a clade.
     """
 
     if(self.strRoot is None):
@@ -884,12 +915,12 @@ class Cladogram:
     """
     Helper function that writes a string to a file
 
-    :param strFileName File to write to
-    :type strFileName File path (string)
-    :param strDataToWrite Data to write to file
-    :type strDataToWrite String
-    :param fAppend Indicates if an append should occur (True == Append)
-    :type fAppend boolean
+    :param strFileName: File to write to
+    :type: strFileName File path (string)
+    :param strDataToWrite: Data to write to file
+    :type: strDataToWrite String
+    :param fAppend: Indicates if an append should occur (True == Append)
+    :type: fAppend boolean
     """
 
     cMode = 'w'

@@ -26,11 +26,14 @@ class CommandLine():
     #Contructor
     def __init__(self): pass
 
-    #Sends a command to command line interface
-    #@parameter tempCommand Must be an list of command key word and string arguments, no whitespaces
-    #Create new array elements instead of white spacing
-    #@return boolean indicator of success (True = Success)
     def runCommandLine(self,tempCommand = None):
+        """
+        Sends a command to command line interface.
+
+        :param tempCommand: Must be an list of command key word and string arguments, no whitespaces
+        :type: List of strings
+        :return: boolean indicator of success (True = Success)
+        """
 
         #Makes sure the the input data is a list of strings
         if(not ValidateData.funcIsValidStringList(tempCommand)):
@@ -53,14 +56,19 @@ class CommandLine():
                 return False
         return True
 
-    #Sends a command to command line interface
-    #@parameter tempCommand Must be an list of command key word and string arguments, no whitespaces
-    #Create new array of string elements instead of white spacing
-    #Put file names in escaped quotation marks.
-    #This uses shell == true so make sure the commandline is not malicious
-    #This should wait for process completion
-    #@return False = Failure or the return code from the subprocess
     def runPipedCommandLine(self,tempCommand = None):
+        """
+        Sends a command to command line interface.
+        Create new array of string elements instead of white spacing
+        Put file names in escaped quotation marks.
+        This uses shell == true so make sure the commandline is not malicious
+        This should wait for process completion
+
+        :param tempCommand: Must be an list of command key word and string arguments, no whitespaces.
+        :type: List of strings
+        :return: Boolean (False = Failure or the return code from the subprocess)
+        """
+
         #Makes sure the the input data is a list of strings
         if(not ValidateData.funcIsValidStringList(tempCommand)):
             print "Error:: tempCommand must be an array of strings. Received="+str(tempCommand)+"."
@@ -77,11 +85,15 @@ class CommandLine():
                 print "Error:: OS error: "+str(traceback.format_exc(e))+"."
                 return False
 
-    #Sends a an array of commands to the commandline
-    #@parameter tempCommand Must be an list of commands, parsing and removing whitespace is handled internally
-    #Do not send mkdir and rm commands, use the appropriate os.* method call
-    #@return boolean indicator of success (True = Success)
     def runBatchCommandline(self,tempArrayOfCommands = None):
+        """
+        Sends a an array of commands to the commandline.
+
+        :param tempArrayOfCommands: Must be an list of commands, parsing and removing whitespace is handled internally.
+         Do not send mkdir and rm commands, use the appropriate os.* method call
+        :type: List of strings
+        :return: boolean indicator of success (True = Success)
+        """
 
         #Holds commands
         parsedCommmands = []

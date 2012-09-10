@@ -49,7 +49,7 @@ class Metric:
         Note***: Assumes that the abundance measurements are already normalized by the total population N.
 
         :param	ldSampleTaxaAbundancies:	List of measurements to calculate metric on (a sample).
-        :type	List	List of doubles
+        :type:	List of doubles
         :return	Double:	Diversity metric
         """
 
@@ -65,7 +65,7 @@ class Metric:
         Note***: Assumes that the abundance measurements are already normalized by the total population N.
 
         :param	ldSampleTaxaAbundancies:	List of measurements to calculate metric on (a sample).
-        :type	List	List of doubles
+        :type:	List of doubles
         :return	Double:	Diversity metric
         """
 
@@ -84,7 +84,7 @@ class Metric:
         If not normalized, include N in the parameter tempTotalN and it will be.
 
         :param	ldSampleTaxaAbundancies:	List of measurements to calculate metric on (a sample).
-        :type	List	List of doubles
+        :type:	List of doubles
         :return	Double:	Richness metric
         """
 
@@ -103,9 +103,9 @@ class Metric:
         Note***: Not normalized by abundance.
 
         :param	ldSampleTaxaAbundancies:	List of measurements to calculate metric on (a sample).
-        :type	List	List of doubles
+        :type:	List of doubles
         :param	fCorrectForBias:	Indicator to use bias correction.
-        :type	Boolean	False indicates uncorrected for bias (uncorrected = Chao 1984, corrected = Chao 1987, Eq. 2)
+        :type:	Boolean	False indicates uncorrected for bias (uncorrected = Chao 1984, corrected = Chao 1987, Eq. 2)
         :return	Double:	Diversity metric
         """
 
@@ -137,9 +137,9 @@ class Metric:
         ****Do not normalize data if using the threshold.
 
         :param	ldSampleAbundances:	List of measurements to calculate metric on (a sample).
-        :type	List	List of doubles
+        :type:	List of doubles
         :param	dThreshold:	The lowest number the measurement can be to be counted as an observation.
-        :type	Double
+        :type:	Double
         :return	Count:	Number of features observed in a sample.
         """
 
@@ -155,7 +155,9 @@ class Metric:
         Note***: Assumes that the abundance measurements are already normalized by the total population N.
 
         :param	ldSampleTaxaAbundancies:
-        :type	List	List of doubles
+        :type:	List of doubles
+        :param	funcDistanceFunction: Distance function used to calculate distances
+        :type:	Function
         :return	Double:	Dissimilarity metric
         """
 
@@ -178,7 +180,7 @@ class Metric:
         Note***: Assumes that the abundance measurements are already normalized by the total population N.
 
         :param	ldSampleTaxaAbundancies:
-        :type	List	List of doubles
+        :type:	List of doubles
         :return	Double:	Dissimilarity metric
         """
 
@@ -201,7 +203,7 @@ class Metric:
         Note***: Assumes that the abundance measurements are already normalized by the total population N.
 
         :param	ldSampleTaxaAbundancies:	An np.array of samples (rows) x measurements (columns) in which distance is measured between rows
-        :type	List	List of doubles
+        :type:	List	List of doubles
         :return	Double	1 - Bray-Curtis dissimilarity.	
         """
 
@@ -217,9 +219,9 @@ class Metric:
         Get alpha abundance of the metric for the vector.
 
         :param	ldAbundancies:	List of values to compute metric (a sample).
-        :type	List	List of doubles.
+        :type:	List	List of doubles.
         :param	strMetric:	The metric to measure.
-        :type	String	Metric name (Use from constants above).
+        :type:	String	Metric name (Use from constants above).
         :return	Double:	Metric specified by strMetric derived from ldAbundancies.
         """
 
@@ -245,11 +247,11 @@ class Metric:
         Row = metric, column = sample
 
         :param	npaSampleAbundance:	Observations (Taxa (row) x sample (column))
-        :type	Numpy Array
+        :type:	Numpy Array
         :param	lsSampleNames:	List of sample names of samples to measure (do not include the taxa id column name or other column names which should not be read).
-        :type	List of strings	Strings being samples to measure from the npaSampleAbundance.
+        :type:	List of strings	Strings being samples to measure from the npaSampleAbundance.
         :param	lsDiversityMetricAlpha:	List of diversity metrics to use in measuring.
-        :type	List of strings	Strings being metrics to derived from the indicated samples.
+        :type:	List of strings	Strings being metrics to derived from the indicated samples.
         :return	List of List of doubles:	Each internal list is a list of (floats) indicating a specific metric measurement method measuring multiple samples
             [[metric1-sample1, metric1-sample2, metric1-sample3],[metric1-sample1, metric1-sample2, metric1-sample3]]
         """

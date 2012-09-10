@@ -31,12 +31,14 @@ class SVM:
         """
         Converts abundance files to input SVM files.
 
-        :param abndAbundanceTable    AbudanceTable object to turn to input SVM file.
-        :type    AbundanceTable
-        :param strOutputSVMFile: File to save SVM data to when converted from the abundance table.
-        :type	String
+        :param abndAbundanceTable:    AbudanceTable object to turn to input SVM file.
+        :type:	AbundanceTable
+        :param xOutputSVMFile: File to save SVM data to when converted from the abundance table.
+        :type:	FileStream or string file path
         :param	sMetadataLabel: The name of the last row in the abundance table representing metadata.
-        :type	String
+        :type:	String
+        :param	lsSampleOrdering: Order of samples to output to output file. If none, the order in the abundance table is used.
+        :type:	List of strings
         :return	lsUniqueLabels:	List of unique labels.
         """
 
@@ -77,12 +79,14 @@ class SVM:
         """
         Converts abundance files to input SVM files.
 
-        :param abndAbundanceTable    AbudanceTable object to turn to input SVM file.
-        :type    AbundanceTable
-        :param strOutputSVMFile: File to save SVM data to when converted from the abundance table.
-        :type	String
+        :param abndAbundanceTable:   AbudanceTable object to turn to input SVM file.
+        :type:    AbundanceTable
+        :param xOutputSVMFile: File to save SVM data to when converted from the abundance table.
+        :type:	FileStream or string file path
         :param	sMetadataLabel: The name of the last row in the abundance table representing metadata.
-        :type	String
+        :type:	String
+        :param	lsSampleOrdering: Order of samples in the output file.
+        :type:	List of strings
         :return	lsUniqueLabels:	List of unique labels.
         """
 
@@ -138,8 +142,8 @@ class SVM:
         """
         Given a list of metadata, labels are assigned. This is function represents a central location to make labels so all are consistent.
 
-        :param lsMetafdata:    List of metadata to turn into labels based on the metadata's values.
-        :type    List of labels:    List of integer labels
+        :param	lsMetafdata:    List of metadata to turn into labels based on the metadata's values.
+        :type:	List of integer labels
         """
         #Do not use a set to make elements unique. Need to preserve order.
         #First label should be 0
@@ -256,9 +260,9 @@ class SVM:
         as a leave one out method.
 
         :param	iTotalSampleCount:	Total Sample Count
-	    :type	Integer	Sample Count
-	    :param	fRandomise:	Random sample indices
-	    :type	Boolean	True indicates randomise (Default False)
+	:type	Integer	Sample Count
+	:param	fRandomise:	Random sample indices
+	:type	Boolean	True indicates randomise (Default False)
         """
         #Make indices and shuffle if needed
         liindices = range(iTotalSampleCount)
