@@ -790,6 +790,7 @@ class AbundanceTable:
 
 		return True
 
+        #Happy path tested 2 tests
 	def funcGetWithoutOTUs(self):
 		"""
 		Remove features that are terminal otus. Terminal otus are identified as being an integer.
@@ -799,6 +800,8 @@ class AbundanceTable:
 		lsFeatures = self.funcGetFeatureNames()
 
 		#Reduce, filter the feature names
+		print "lsFeatures"
+		print lsFeatures
 		lsFeatures = [sFeature for sFeature in lsFeatures if not (ValidateData.funcIsValidStringInt(sFeature.split(self.funcGetFeatureDelimiter())[-1]))]
 
 		return self.funcGetFeatureAbundanceTable(lsFeatures)

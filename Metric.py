@@ -145,6 +145,7 @@ class Metric:
 
         return sum([1 for observation in ldSampleAbundances if observation > dThreshold])
 
+    #Happy path tested 1
     @staticmethod
     def funcGetDissimilarity(ldSampleTaxaAbundancies, funcDistanceFunction):
         """

@@ -77,14 +77,17 @@ class SVM:
     @staticmethod
     def funcUpdateSVMFileWithAbundanceTable(abndAbundanceTable, xOutputSVMFile, lsOriginalLabels, lsSampleOrdering):
         """
-        Converts abundance files to input SVM files.
+        Takes a SVM input file and updates it with an abundance table.
+        lsOriginalLabels and lsSampleOrdering should be consistent to the input file.
+        Samples in the abundance table will be used to update the file if the sample name in the abundace table is also in the lsSampleOrdering.
+        lsOriginalLabels and lsSampleOrdering should be in the same order.
 
         :param abndAbundanceTable:   AbudanceTable object to turn to input SVM file.
         :type:    AbundanceTable
         :param xOutputSVMFile: File to save SVM data to when converted from the abundance table.
         :type:	FileStream or string file path
-        :param	sMetadataLabel: The name of the last row in the abundance table representing metadata.
-        :type:	String
+        :param	lsOriginalLabels: The list of the original labels (as numerics 0,1,2,3,4...as should be in the file).
+        :type:	List of strings
         :param	lsSampleOrdering: Order of samples in the output file.
         :type:	List of strings
         :return	lsUniqueLabels:	List of unique labels.
@@ -118,7 +121,7 @@ class SVM:
 	ostm = open(xOutputSVMFile,"w") if isinstance(xOutputSVMFile, str) else xOutputSVMFile
         f = csv.writer(ostm, csv.excel_tab, delimiter = ConstantsBreadCrumbs.c_strBreadCrumbsSVMSpace)
 
-	#This allows to know what position to place te new lines
+	#This allows to know what position to place the new lines
 	lsCurrentSamples = abndAbundanceTable.funcGetSampleNames()
 
 	iSize = len(dataMatrix[0])
