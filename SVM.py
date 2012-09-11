@@ -27,7 +27,7 @@ class SVM:
 
     #1 Happy Path tested
     @staticmethod
-    def funcConvertAbundanceTableToSVMFile(abndAbundanceTable, xOutputSVMFile, sMetadataLabel, lsOriginalLabels, lsSampleOrdering = None):
+    def funcConvertAbundanceTableToSVMFile(abndAbundanceTable, xOutputSVMFile, sMetadataLabel, lsOriginalLabels = None, lsSampleOrdering = None):
         """
         Converts abundance files to input SVM files.
 
