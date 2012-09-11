@@ -27,7 +27,7 @@ class SVM:
 
     #1 Happy Path tested
     @staticmethod
-    def funcConvertAbundanceTableToSVMFile(abndAbundanceTable, xOutputSVMFile, sMetadataLabel, lsSampleOrdering = None):
+    def funcConvertAbundanceTableToSVMFile(abndAbundanceTable, xOutputSVMFile, sMetadataLabel, lsOriginalLabels, lsSampleOrdering = None):
         """
         Converts abundance files to input SVM files.
 
@@ -37,6 +37,8 @@ class SVM:
         :type:	FileStream or string file path
         :param	sMetadataLabel: The name of the last row in the abundance table representing metadata.
         :type:	String
+	:param:	lsOriginalLabels The original labels.
+	:type:	List of strings
         :param	lsSampleOrdering: Order of samples to output to output file. If none, the order in the abundance table is used.
         :type:	List of strings
         :return	lsUniqueLabels:	List of unique labels.
@@ -47,7 +49,7 @@ class SVM:
 
         #Add labels
         llData = []
-        lsLabels = SVM.funcMakeLabels(abndAbundanceTable.funcGetMetadata(sMetadataLabel))
+        lsLabels = lsOriginalLabels if lsOriginalLabels else SVM.funcMakeLabels(abndAbundanceTable.funcGetMetadata(sMetadataLabel))
         if not isinstance(xOutputSVMFile,str):
             if xOutputSVMFile.closed:
                 xOutputSVMFile = open(xOutputSVMFile.name,"w")
@@ -71,6 +73,8 @@ class SVM:
 		else:
 			f.writerow([ConstantsBreadCrumbs.c_strSVMNoSample]+[ConstantsBreadCrumbs.c_strColon.join([str(tpleNas[0]+1),str(tpleNas[1])])
 						for tpleNas in enumerate([ConstantsBreadCrumbs.c_strSVMNoSample]*iSize)])
+			if lsOriginalLabels:
+				iLabelIndex += 1
 	ostm.close()
         return set(lsLabels)
 
