@@ -800,8 +800,6 @@ class AbundanceTable:
 		lsFeatures = self.funcGetFeatureNames()
 
 		#Reduce, filter the feature names
-		print "lsFeatures"
-		print lsFeatures
 		lsFeatures = [sFeature for sFeature in lsFeatures if not (ValidateData.funcIsValidStringInt(sFeature.split(self.funcGetFeatureDelimiter())[-1]))]
 
 		return self.funcGetFeatureAbundanceTable(lsFeatures)
