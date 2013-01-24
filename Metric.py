@@ -33,14 +33,16 @@ __email__ = "ttickle@sph.harvard.edu"
 __status__ = "Development"
 
 #Update path
+from ConstantsBreadCrumbs import ConstantsBreadCrumbs
+import csv
 import numpy as np
 from types import *
 from ValidateData import ValidateData
 
 #External libraries
 from cogent.maths.unifrac.fast_unifrac import fast_unifrac_file
-from cogent.maths.stats.alpha_diversity import chao1_uncorrected, chao1_bias_corrected
-from scipy.spatial.distance import pdist
+import cogent.maths.stats.alpha_diversity
+import scipy.spatial.distance
 
 class Metric:
     """
@@ -65,14 +67,14 @@ class Metric:
     c_strObservedCount = "Observed_Count"
 
     #Different count-based alpha diversity metrics
-    setCogentAlphaDiversities = set("observed_species","margalef","menhinick",
-	"dominance","simpson","shannon","equitability","berger_parker_d",
+    setAlphaDiversities = set(["observed_species","margalef","menhinick",
+	"dominance","reciprocal_simpson","shannon","equitability","berger_parker_d",
 	"mcintosh_d","brillouin_d","kempton_taylor_q","strong","fisher_alpha",
-	"mcintosh_e","heip_e","simpson_e","robbins","michaelis_menten_fit","chao1","ACE")
+	"mcintosh_e","heip_e","simpson_e","robbins","michaelis_menten_fit","chao1","ACE"])
 
     #Different count-based beta diversity metrics
-    setCogentBetaDiversities = set("braycurtis","canberra","chebyshev","cityblock",
-	"correlation","cosine","euclidean","hamming","sqeuclidean") + set([c_strUnifracUnweighted, c_strUnifracWeighted])
+    setBetaDiversities = set(["braycurtis","canberra","chebyshev","cityblock",
+	"correlation","cosine","euclidean","hamming","sqeuclidean"])
 
     #Tested 4
     @staticmethod
@@ -115,6 +117,8 @@ class Metric:
         Calculates the Shannon richness index.
         Note***: Assumes that the abundance measurements are already normalized by the total population N.
         If not normalized, include N in the parameter tempTotalN and it will be.
+	This is in base exp(1) like the default R Vegan package. Cogent is by defaul in bits (base=2)
+	Both options are here for your use. See Metric.funcGetAlphaDiversity() to access cogent
 
         :param	ldSampleTaxaAbundancies:	List of measurements to calculate metric on (a sample).
         :type:	List of doubles
@@ -141,6 +145,8 @@ class Metric:
         :type:	Boolean	False indicates uncorrected for bias (uncorrected = Chao 1984, corrected = Chao 1987, Eq. 2)
         :return	Double:	Diversity metric
         """
+        #If not counts return false
+        if [num for num in ldSampleTaxaAbundancies if((num<1) and (not num==0))]: return False
 
         #Observed = total number of species observed in all samples pooled
         totalObservedSpecies = len(ldSampleTaxaAbundancies)-len(ldSampleTaxaAbundancies[ldSampleTaxaAbundancies == 0])
@@ -157,9 +163,9 @@ class Metric:
 
         #Calculate metric
         if fCorrectForBias:
-            return chao1_bias_corrected(observed = totalObservedSpecies, singles = singlesObserved, doubles = doublesObserved)
+            return cogent.maths.stats.alpha_diversity.chao1_bias_corrected(observed = totalObservedSpecies, singles = singlesObserved, doubles = doublesObserved)
         else:
-            return chao1_uncorrected(observed = totalObservedSpecies, singles = singlesObserved, doubles = doublesObserved)
+            return cogent.maths.stats.alpha_diversity.chao1_uncorrected(observed = totalObservedSpecies, singles = singlesObserved, doubles = doublesObserved)
 
     #Test 3
     @staticmethod
@@ -178,19 +184,19 @@ class Metric:
 
         return sum([1 for observation in ldSampleAbundances if observation > dThreshold])
 
-    #TODO
+    #Test Cases 6
     @staticmethod
-    def funcGetCogentAlphaDiversity(liCount):
+    def funcGetAlphaDiversity(liCounts,strMetric):
         """
-        Passes counts to the cogent for an alpha diversity metric.
-        ****Should not be relative abundances.
+        Passes counts to cogent for an alpha diversity metric.
+	setAlphaDiversities are the names supported
 
         :param	liCount:	List of counts to calculate metric on (a sample).
         :type:	List of ints
         :return	Diversity:	Double diversity metric.
         """
 
-        return sum([1 for observation in ldSampleAbundances if observation > dThreshold])
+        return getattr(cogent.maths.stats.alpha_diversity,strMetric)(liCounts)
 
     #Happy path tested 1
     @staticmethod
@@ -211,14 +217,30 @@ class Metric:
 
         #Calculate metric
         try:
-            return pdist(ldSampleTaxaAbundancies, funcDistanceFunction)
+            return scipy.spatial.distance.pdist(ldSampleTaxaAbundancies, funcDistanceFunction)
         except ValueError as error:
             print "".join(["Metric.funcGetDissimilarity. Error=",str(error)])
             return False
 
+    #Test case 1
+    @staticmethod
+    def funcGetDissimilarityByName(ldSampleTaxaAbundancies, strMetric):
+        """
+        Calculates beta-diversity metrics between lists of abundances
+	setBetaDiversities are the names supported
+
+        :param	ldSampleTaxaAbundancies:
+        :type:	List of doubles
+        :param	strMetric: Name of the distance function used to calculate distances
+        :type:	String
+        :return	list double:	Dissimilarity metrics between each sample
+        """
+
+        return scipy.spatial.distance.pdist(ldSampleTaxaAbundancies,strMetric)
+
     #Test 3
     @staticmethod
-    def funcGetBrayCurtisDissimilarity(ldSampleTaxaAbundancies=None):
+    def funcGetBrayCurtisDissimilarity(ldSampleTaxaAbundancies):
         """
         Calculates the BrayCurtis Beta dissimilarity index.
         d(u,v)=sum(abs(row1-row2))/sum(row1+row2).
@@ -234,14 +256,14 @@ class Metric:
 
         #Calculate metric
         try:
-            return pdist(X=ldSampleTaxaAbundancies, metric='braycurtis')
+            return scipy.spatial.distance.pdist(X=ldSampleTaxaAbundancies, metric='braycurtis')
         except ValueError as error:
             print "".join(["Metric.getBrayCurtisDissimilarity. Error=",str(error)])
             return False
 
     #Test 3
     @staticmethod
-    def funcGetInverseBrayCurtisDissimilarity(ldSampleTaxaAbundancies=None):
+    def funcGetInverseBrayCurtisDissimilarity(ldSampleTaxaAbundancies):
         """
         Calculates 1 - the BrayCurtis Beta dissimilarity index.
         d(u,v)=1-(sum(abs(row1-row2))/sum(row1+row2)).
@@ -261,18 +283,20 @@ class Metric:
         return False
 
     #TODO
+    @staticmethod
     def funcGetUnifracDistance(istrmTree,istrmEnvr,fWeighted=True):
 	"""
 	Gets a unifrac distance
 	"""
 	return fast_unifrac_file(open(istrmTree,"r") if isinstance(istrmTree, str) else istrmTree,
-			open(istrmEnvr,"r") if isinstance(istrmEnvr, str) else istrmEnvr, weighted=fWeighted).get('distance_matrixÕ,default=False)
+			open(istrmEnvr,"r") if isinstance(istrmEnvr, str) else istrmEnvr, weighted=fWeighted).get("distance_matrix",default=False)
 
-    #Test 4
+    #Test 7
     @staticmethod
-    def funcGetAlphaMetric(ldAbundancies=None, strMetric=None):
+    def funcGetAlphaMetric(ldAbundancies, strMetric):
         """
         Get alpha abundance of the metric for the vector.
+        Note: Shannon is measured with base 2 ("shannon") or base exp(1) (Metric.c_strShannonRichness) depending which method is called.
 
         :param	ldAbundancies:	List of values to compute metric (a sample).
         :type:	List	List of doubles.
@@ -288,17 +312,16 @@ class Metric:
         elif(strMetric == Metric.c_strInvSimpsonDiversity):
             return Metric.funcGetInverseSimpsonsDiversityIndex(ldSampleTaxaAbundancies=ldAbundancies)
         elif(strMetric == Metric.c_strObservedCount):
-            return Metric.funcGetObservedCount(npaSampleAbundances=ldAbundancies)
-        #Needs NOT Normalized Abundance (Counts)
+            return Metric.funcGetObservedCount(ldSampleAbundances=ldAbundancies)
+        #Chao1 Needs NOT Normalized Abundance (Counts)
         elif(strMetric == Metric.c_strChao1Diversity):
             return Metric.funcGetChao1DiversityIndex(ldSampleTaxaAbundancies=ldAbundancies)
-        #Needs NOT Normalized Abundance (Counts)
-        elif(strMetric in setCogentAlphaDiversities):
-            return getattr(cogent.maths.stats.alpha_diversity,strMetric)(liCounts=ldAbudancies)
+        elif(strMetric in Metric.setAlphaDiversities):
+            return Metric.funcGetAlphaDiversity(liCounts=ldAbundancies, strMetric=strMetric)
         else:
             return False
 
-    #Test 3
+    #Test 5
     @staticmethod
     def funcBuildAlphaMetricsMatrix(npaSampleAbundance = None, lsSampleNames = None, lsDiversityMetricAlpha = None):
         """
@@ -333,7 +356,7 @@ class Metric:
                 returnMetricsMatrixRet[metricIndex].append(Metric.funcGetAlphaMetric(ldAbundancies = sampleAbundance, strMetric = lsDiversityMetricAlpha[metricIndex]))
         return returnMetricsMatrixRet
 
-    #Testing: Happy Path Tested for BrayCurtis and Inverse BrayCurtis
+    #Testing 6 cases
     @staticmethod
     def funcGetBetaMetric(npadAbundancies=None, sMetric=None, istrmTree=None, istrmEnvr=None):
         """
@@ -350,17 +373,17 @@ class Metric:
             return Metric.funcGetBrayCurtisDissimilarity(ldSampleTaxaAbundancies=npadAbundancies)
         elif sMetric == Metric.c_strInvBrayCurtisDissimilarity:
             return Metric.funcGetInverseBrayCurtisDissimilarity(ldSampleTaxaAbundancies=npadAbundancies)
-        elif sMetric in setCogentBetaDiversities:
-            return getattr(scipy.spatial.distance,pdist)(X=ldSampleTaxaAbundancies, metric=sMetric)
+        elif sMetric in Metric.setBetaDiversities:
+            return Metric.funcGetDissimilarityByName(ldSampleTaxaAbundancies=npadAbundancies, strMetric=sMetric)
         elif sMetric == Metric.c_strUnifracUnweighted:
-            return funcGetUnifracDistance(istrmTree=istrmTree,istrmEnvr=istrmEnvr,fWeighted=True)
+            return Metric.funcGetUnifracDistance(istrmTree=istrmTree,istrmEnvr=istrmEnvr,fWeighted=False)
         elif sMetric == Metric.c_strUnifracWeighted:
-            return funcGetUnifracDistance(istrmTree=istrmTree,istrmEnvr=istrmEnvr,fWeighted=False)
+            return Metric.funcGetUnifracDistance(istrmTree=istrmTree,istrmEnvr=istrmEnvr,fWeighted=True)
         else:
             return False
 
+    # Test Cases 8
     @staticmethod
-    #TODO
     def funcReadBetaMatrixFile(istmBetaMatrixFile, lsSampleOrder):
 	"""
 	Reads in a file with a precalculated beta-diversty matrix.
@@ -369,13 +392,27 @@ class Metric:
 	:type:	FileStream of String file path
 	"""
 
-	#Open file
-        mtrxData = numpy.zeros(shape=(len(lsSampleOrder),len(lsSampleOrder)))
-	f = csv.writer(open(istmBetaMatrixFile,"r") if isinstance(istmBetaMatrixFile, str) else istmBetaMatrixFile, delimiter=ConstantsMicropita.c_outputFileDelim )
+        if not lsSampleOrder: return []
+
+        #Precalculate matrix
+        mtrxData = np.zeros(shape=(len(lsSampleOrder),len(lsSampleOrder)))
+	f = csv.reader(open(istmBetaMatrixFile,"r") if isinstance(istmBetaMatrixFile, str) else istmBetaMatrixFile, delimiter=ConstantsBreadCrumbs.c_betaMatrixFileDelim )
+
+        #Get header
+        lsHeader = f.next()
+        lsHeaderReducedToSamples = [sHeader for sHeader in lsHeader if sHeader in lsSampleOrder]
+
+        #Make sure all samples requested are in the file
+        if(not len(lsSampleOrder) == len(lsHeaderReducedToSamples)): return False
+
 	for lsLine in f:
-            iRowIndex = lsSampleOrder.index(lsLine[0])
-            for i in [1:len(lsSampleOrder)]:
-                iColumnIndex = lsSampleOrder.index(lsSampleOrder[i])
-                mtrxData[iRowIndex,iColumnIndex] = lsLine[i+1]
-                mtrxData[iColumnIndex,iRowIndex] = lsLine[i+1]
-        return mtrxData
+            if lsLine[0] in lsSampleOrder:
+                iRowIndex = lsSampleOrder.index(lsLine[0])
+
+                for i in xrange(1,len(lsSampleOrder)):
+                    iColumnIndexComing = lsHeader.index(lsSampleOrder[i])
+                    iColumnIndexGoing = lsSampleOrder.index(lsSampleOrder[i])
+                    mtrxData[iRowIndex,iColumnIndexGoing] = lsLine[iColumnIndexComing]
+                    mtrxData[iColumnIndexGoing,iRowIndex] = lsLine[iColumnIndexComing]
+        tpleMData = mtrxData.shape
+        return mtrxData if any(sum(ld)>0 for ld in mtrxData) or ((tpleMData[0]==1) and (tpleMData[1]==1)) else []

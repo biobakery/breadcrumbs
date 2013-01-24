@@ -52,6 +52,7 @@ class ConstantsBreadCrumbs():
     c_cQuote = '\"'
     c_cTab = '\t'
     c_strWhiteSpace = ' '
+    c_betaMatrixFileDelim = '\t'
 
     c_strBreadCrumbsSVMSpace = c_strWhiteSpace
 
