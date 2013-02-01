@@ -284,12 +284,39 @@ class Metric:
 
     #TODO
     @staticmethod
-    def funcGetUnifracDistance(istrmTree,istrmEnvr,fWeighted=True):
+    def funcGetUnifracDistance(istrmTree,istrmEnvr,lsSampleOrder=None,fWeighted=True):
 	"""
-	Gets a unifrac distance
+	Gets a unifrac distance from files/filestreams.
+
+        :param	istrmTree:	File path or stream which is a Newick format file
+        :type:	String of file stream
+        :param	istrmEnvr:	File path or stream which is a Newick format file
+        :type:	String of file stream
 	"""
-	return fast_unifrac_file(open(istrmTree,"r") if isinstance(istrmTree, str) else istrmTree,
-			open(istrmEnvr,"r") if isinstance(istrmEnvr, str) else istrmEnvr, weighted=fWeighted).get("distance_matrix",default=False)
+	npaDist, lsSampleNames = fast_unifrac_file(open(istrmTree,"r") if isinstance(istrmTree, str) else istrmTree,
+			open(istrmEnvr,"r") if isinstance(istrmEnvr, str) else istrmEnvr, weighted=fWeighted).get("distance_matrix",False)
+
+        #Was trying to avoid preallocating a matrix but if you only need a subset of the samples then it
+        #is simpler to preallocate so this is what I am doing but making a condensed matrix and not a full matrix
+        
+        #Dictionary to translate the current order of the samples to what is expected if given an input order
+        if lsSampleOrder:
+            #{NewOrder:OriginalOrder} way to convert from old to new sample location
+            dictTranslate = dict([[lsSampleOrder.index(sSampleName),lsSampleNames.index(sSampleName)] for sSampleName in lsSampleNames if sSampleName in lsSampleOrder])
+            
+            #Length of data
+            iLengthOfData = len(lsSampleOrder)
+
+            #Preallocate matrix and shuffle
+            mtrxData = np.zeros(shape=(iLengthOfData,iLengthOfData))
+            for x in xrange(iLengthOfData):
+                for y in xrange(iLengthOfData):
+                    mtrxData[x,y] = npaDist[dictTranslate[x],dictTranslate[y]]
+            npaDist = mtrxData
+
+        #If no sample order is given, condense the matrix and return
+        return scipy.spatial.distance.squareform(npaDist)
+
 
     #Test 7
     @staticmethod
@@ -382,7 +409,7 @@ class Metric:
         else:
             return False
 
-    # Test Cases 8
+    # Test Cases 10
     @staticmethod
     def funcReadBetaMatrixFile(istmBetaMatrixFile, lsSampleOrder):
 	"""
@@ -394,7 +421,7 @@ class Metric:
 
         if not lsSampleOrder: return []
 
-        #Precalculate matrix
+        #Preallocate matrix
         mtrxData = np.zeros(shape=(len(lsSampleOrder),len(lsSampleOrder)))
 	f = csv.reader(open(istmBetaMatrixFile,"r") if isinstance(istmBetaMatrixFile, str) else istmBetaMatrixFile, delimiter=ConstantsBreadCrumbs.c_betaMatrixFileDelim )
 
