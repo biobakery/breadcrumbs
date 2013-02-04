@@ -27,7 +27,7 @@ argp.add_argument("-id", dest="sIDName", default="ID", help="Abundance Table ID"
 argp.add_argument("-meta", dest="sLastMetadataName", help="Last metadata name")
 argp.add_argument("-fDelim", dest= "cFileDelimiter", action= "store", default="\t", help="File delimiter, default tab")
 argp.add_argument("-norm", dest="fNormalize", action="store_true", default=False, help="Flag to turn on normalization")
-argp.add_argument("-sum", dest="fSum", action="store_true", default=False, help="Flage to turn on summation")
+argp.add_argument("-sum", dest="fSum", action="store_true", default=False, help="Flag to turn on summation")
 argp.add_argument("strFileAbund", help ="Input data file")
 argp.add_argument("strOutFile", help ="Output file")
 

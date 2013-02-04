@@ -480,7 +480,7 @@ class AbundanceTable:
 				  On an error None is returned.
 		"""
 		
-		if ( self._npaFeatureAbundance == None ) or ( not lsFeatures ):
+		if ( self._npaFeatureAbundance == None ) or ( lsFeatures == None ):
 			return None
 
 		#Get a list of boolean indicators that the row is from the features list
