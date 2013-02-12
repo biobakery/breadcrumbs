@@ -435,7 +435,7 @@ class Metric:
         try:
             lsHeader = f.next()
         except StopIteration:
-            return []
+            return ([],[])
         lsHeaderReducedToSamples = [sHeader for sHeader in lsHeader if sHeader in lsSampleOrder] if lsSampleOrder else lsHeader[1:]
 
         #If no sample ordering is given, set the ordering to what is in the file
@@ -458,7 +458,8 @@ class Metric:
                     mtrxData[iRowIndex,iColumnIndexGoing] = lsLine[iColumnIndexComing]
                     mtrxData[iColumnIndexGoing,iRowIndex] = lsLine[iColumnIndexComing]
         tpleMData = mtrxData.shape
-        return mtrxData if any(sum(ld)>0 for ld in mtrxData) or ((tpleMData[0]==1) and (tpleMData[1]==1)) else []
+        mtrxData = mtrxData if any(sum(ld)>0 for ld in mtrxData) or ((tpleMData[0]==1) and (tpleMData[1]==1)) else []
+        return (mtrxData,lsSampleOrder)
 
     #Test cases 2
     @staticmethod
