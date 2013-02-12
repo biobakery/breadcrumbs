@@ -729,25 +729,6 @@ class PCoA:
             atupldLabelColors = charForceColor
 
         #Call plot
-	print("##########PCOA")
-	print("strOutputFileName")
-	print(strOutputFileName)
-	print("atupldLabelColors")
-	print(atupldLabelColors)
-	print("alLabelShapes")
-	print(alLabelShapes)
-	print("lsLabelList")
-	print(lsLabelList)
-	print("iSize")
-	print(iSize)
-	print("dAlpha")
-	print(dAlpha)
-	print("fInvert")
-	print(fInvert)
-	print("iDim1")
-	print(iDim1)
-	print("iDim2")
-	print(iDim2)
         self.plot(tempPlotName=strOutputFileName, tempColorGrouping=atupldLabelColors, tempShape=alLabelShapes, tempLabels=lsLabelList, tempShapeSize = iSize, tempAlpha=dAlpha, tempInvert = fInvert, iDim1=iDim1, iDim2=iDim2)
 
     def funcForceXAxis(self, dList):

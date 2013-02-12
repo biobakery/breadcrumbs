@@ -282,7 +282,7 @@ class Metric:
             return 1.0-bcValue
         return False
 
-    #TODO
+    #Test cases 8
     @staticmethod
     def funcGetUnifracDistance(istrmTree,istrmEnvr,lsSampleOrder=None,fWeighted=True):
 	"""
@@ -303,7 +303,12 @@ class Metric:
         if lsSampleOrder:
             #{NewOrder:OriginalOrder} way to convert from old to new sample location
             dictTranslate = dict([[lsSampleOrder.index(sSampleName),lsSampleNames.index(sSampleName)] for sSampleName in lsSampleNames if sSampleName in lsSampleOrder])
-            
+
+            #Check to make sure all samples requested were found
+            if not len(dictTranslate.keys()) == len(lsSampleOrder):
+                print "Metric.funcGetUnifracDistance. Error= The some or all sample names given (lsSampleOrder) were not contained in the matrix."
+                return False
+
             #Length of data
             iLengthOfData = len(lsSampleOrder)
 
@@ -314,8 +319,10 @@ class Metric:
                     mtrxData[x,y] = npaDist[dictTranslate[x],dictTranslate[y]]
             npaDist = mtrxData
 
+            lsSampleNames = lsSampleOrder
+
         #If no sample order is given, condense the matrix and return
-        return scipy.spatial.distance.squareform(npaDist)
+        return (scipy.spatial.distance.squareform(npaDist),lsSampleNames)
 
 
     #Test 7
@@ -385,7 +392,7 @@ class Metric:
 
     #Testing 6 cases
     @staticmethod
-    def funcGetBetaMetric(npadAbundancies=None, sMetric=None, istrmTree=None, istrmEnvr=None):
+    def funcGetBetaMetric(npadAbundancies=None, sMetric=None, istrmTree=None, istrmEnvr=None, lsSampleOrder=None):
         """
         Takes a matrix of values and returns a beta metric matrix. The metric returned is indicated by name (sMetric).
 		
@@ -403,31 +410,40 @@ class Metric:
         elif sMetric in Metric.setBetaDiversities:
             return Metric.funcGetDissimilarityByName(ldSampleTaxaAbundancies=npadAbundancies, strMetric=sMetric)
         elif sMetric == Metric.c_strUnifracUnweighted:
-            return Metric.funcGetUnifracDistance(istrmTree=istrmTree,istrmEnvr=istrmEnvr,fWeighted=False)
+            xReturn = Metric.funcGetUnifracDistance(istrmTree=istrmTree,istrmEnvr=istrmEnvr,lsSampleOrder=lsSampleOrder,fWeighted=False)
+            return xReturn[0] if not False else xReturn
         elif sMetric == Metric.c_strUnifracWeighted:
-            return Metric.funcGetUnifracDistance(istrmTree=istrmTree,istrmEnvr=istrmEnvr,fWeighted=True)
+            xReturn = Metric.funcGetUnifracDistance(istrmTree=istrmTree,istrmEnvr=istrmEnvr,lsSampleOrder=lsSampleOrder,fWeighted=True)
+            return xReturn[0] if not False else xReturn
         else:
             return False
 
-    # Test Cases 10
+    #Test Cases 11
     @staticmethod
-    def funcReadBetaMatrixFile(istmBetaMatrixFile, lsSampleOrder):
+    def funcReadMatrixFile(istmMatrixFile, lsSampleOrder=None):
 	"""
 	Reads in a file with a precalculated beta-diversty matrix.
 
-	:param istmBetaMatrixFile:	File with beta-diversity matrix
+	:param istmMatrixFile:	File with beta-diversity matrix
 	:type:	FileStream of String file path
 	"""
 
-        if not lsSampleOrder: return []
+        #Read in data
+        f = csv.reader(open(istmMatrixFile,"r") if isinstance(istmMatrixFile, str) else istmMatrixFile, delimiter=ConstantsBreadCrumbs.c_matrixFileDelim )
+
+        #Get header
+        try:
+            lsHeader = f.next()
+        except StopIteration:
+            return []
+        lsHeaderReducedToSamples = [sHeader for sHeader in lsHeader if sHeader in lsSampleOrder] if lsSampleOrder else lsHeader[1:]
+
+        #If no sample ordering is given, set the ordering to what is in the file
+        if not lsSampleOrder:
+	    lsSampleOrder = lsHeaderReducedToSamples
 
         #Preallocate matrix
         mtrxData = np.zeros(shape=(len(lsSampleOrder),len(lsSampleOrder)))
-	f = csv.reader(open(istmBetaMatrixFile,"r") if isinstance(istmBetaMatrixFile, str) else istmBetaMatrixFile, delimiter=ConstantsBreadCrumbs.c_betaMatrixFileDelim )
-
-        #Get header
-        lsHeader = f.next()
-        lsHeaderReducedToSamples = [sHeader for sHeader in lsHeader if sHeader in lsSampleOrder]
 
         #Make sure all samples requested are in the file
         if(not len(lsSampleOrder) == len(lsHeaderReducedToSamples)): return False
@@ -443,3 +459,39 @@ class Metric:
                     mtrxData[iColumnIndexGoing,iRowIndex] = lsLine[iColumnIndexComing]
         tpleMData = mtrxData.shape
         return mtrxData if any(sum(ld)>0 for ld in mtrxData) or ((tpleMData[0]==1) and (tpleMData[1]==1)) else []
+
+    #Test cases 2
+    @staticmethod
+    def funcWriteMatrixFile(mtrxMatrix, ostmMatrixFile, lsSampleNames=None):
+        """
+        Writes a square matrix to file.
+        
+        :param mtrxMatrix:	Matrix to write to file
+        :type:	Numpy array
+        :lsSampleNames:	The names of the samples in the order of the matrix
+        :type:	List of strings
+        :ostmBetaMatrixFile:	File to write to
+        :type:	String or file stream
+        """
+
+        if not sum(mtrxMatrix.shape)>0 or not ostmMatrixFile:
+            return False
+
+        #Check to make sure the sample names are the correct length
+        tpleiShape = mtrxMatrix.shape
+        if not lsSampleNames:
+            lsSampleNames = range(tpleiShape[0])
+        if not(len(lsSampleNames) == tpleiShape[0]):
+            print "".join(["Metric.funcWriteMatrixFile. Error= Length of sample names ("+str(len(lsSampleNames))+") and matrix ("+str(mtrxMatrix.shape)+") not equal."])
+            return False
+
+        #Write to file
+        ostmOut = csv.writer(open(ostmMatrixFile,"w") if isinstance(ostmMatrixFile,str) else ostmMatrixFile, delimiter=ConstantsBreadCrumbs.c_matrixFileDelim )
+
+        #Add the additional space at the beginning of the sample names to represent the id row/column
+        lsSampleNames = [""]+lsSampleNames
+
+        #Write header and each row to file
+        ostmOut.writerow(lsSampleNames)
+        [ostmOut.writerow([lsSampleNames[iIndex+1]]+mtrxMatrix[iIndex,].tolist()) for iIndex in xrange(tpleiShape[0])]
+        return True

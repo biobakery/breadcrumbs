@@ -66,8 +66,8 @@ class AbundanceTable:
 
 		:param	npaAbundance:	Structured Array of abundance data (Row=Features, Columns=Samples)
 		:type:	Numpy Structured Array abundance data (Row=Features, Columns=Samples)
-		:param	dictMetadata:	Structured Array of abundance data (Row=Features, Columns=Samples)
-		:type:	Dictionary	Dictionary of metadata {"String ID":["strValue","strValue","strValue","strValue","strValue"]}
+		:param	dictMetadata:	Dictionary of metadata {"String ID":["strValue","strValue","strValue","strValue","strValue"]}
+		:type:	Dictionary	Dictionary
 	 	:param	strName:	The name of the metadata that serves as the ID for the columns (For example a sample ID)
 		:type:	string
 		:param	strLastMetadata: The string last metadata name
@@ -109,6 +109,9 @@ class AbundanceTable:
 
 		#The lastmetadata name (which should be preserved when writing the file)
 		self._strLastMetadataName = strLastMetadata
+
+		#Clade prefixes for biological samples
+		self._lsCladePrefixes = ["k__","p__","c__","o__","f__","g__","s__"]
 
 		self._fIsNormalized = self._fIsSummed = None
 		#If contents is not a false then set contents to appropriate objects
@@ -374,6 +377,101 @@ class AbundanceTable:
 
 		return [taxData,metadata]
 
+#	def funcAdd(self,abndTwo,strFileName=None):
+#		"""
+#		Allows one to add an abundance table to an abundance table. They both must be the same state of normalization or summation
+#		or they will be summed or normalized if one of the two are.
+#
+#		:param	abndTwo:	AbundanceTable object 2
+#		:type:	AbundanceTable
+#		:return	AbudanceTable:
+#		"""
+#
+#		#Check summation and normalization
+#		if(self.funcIsSummed() or abndTwo.funcIsSummed()):
+#			self.funcSum()
+#			abndTwo.funcSum()
+#		if(self.funcIsNormalized() or abndTwo.funcIsNormalized()):
+#			self.funcNormalize()
+#			abndTwo.funcNormalize()
+#
+#		#Normalize Feature names
+#    		#Get if the abundance tables have clades
+#    		fAbndInputHasClades = self.funcHasFeatureHeirachy()
+#    		fAbndCompareHasClades = abndTwo.funcHasFeatureHeirachy()
+#
+#    		if(fAbndInputHasClades or fAbndCompareHasClades):
+#			#If feature delimiters do not match, switch
+#			if not self.funcGetFeatureDelimiter() == abndTwo.funcGetFeatureDelimiter():
+#				abndTwo.funcSetFeatureDelimiter(self.funcGetFeatureDelimiter())
+#
+#			#Add prefixes if needed.
+#            		self.funcAddCladePrefixToFeatures()
+#        		abndTwo.funcAddCladePrefixToFeatures()
+#
+#		#Get feature Names
+#		lsFeatures1 = self.funcGetFeatureNames()
+#		lsFeatures2 = abndTwo.funcGetFeatureNames()
+#
+#		#Make one feature name list
+#		lsFeaturesCombined = list(set(lsFeatures1+lsFeature2))
+#
+#		#Add samples by features (Use 0.0 for empty data features, use NA for empty metadata features)
+#		
+#
+#		#Combine metadata
+#		dictMetadata1 = self.funcGetMetadataCopy()
+#		dictMetadata2 = abndTwo.funcGetMetadataCopy()
+#
+#		#Get first table metadata and add NA for metadata it is missing for the length of the current metadata
+#		lsMetadataOnlyInTwo = list(set(dictMetadata2.keys())-set(dictMetadata1.keys()))
+#		dictCombinedMetadata = dictMetadata1
+#		lsEmptyMetadata = ["NA" for i in xrange(self.funcGetSampleCount())]
+#		for sKey in lsMetadataOnlyInTwo:
+#			dictCombinedMetadata[sKey]=lsEmptyMetadata
+#		#Add in the other metadata dictionary
+#		lsCombinedKeys = dictCombinedMetadata.keys()
+#		lsEmptyMetadata = ["NA" for i in xrange(abndTwo.funcGetSampleCount())]
+#		for sKey in lsCombinedKeys():
+#			if sKey in dictMetadata2:
+#				dictCombinedMetadata[sKey] = dictCombinedMetadata[sKey]+dictMetadata2[sKey]
+#			else:
+#				dictCombinedMetadata[sKey] = dictCombinedMetadata[sKey]+lsEmptyMetadata
+#
+#		#Make Abundance table
+#		return AbundanceTable(npaAbundance=npaAbundance,
+#				dictMetadata = dictCombinedMetadata,
+#				strName = strFileName if strFileName else os.path.splitext(self)[0]+"_combined_"+os.path.splitext(abndTwo)[0],
+#				strLastMetadata = self.funcGetLastMetadataName(),
+#				cFileDelimiter = self.funcGetFileDelimiter(), cFeatureNameDelimiter=self.funcGetFeatureDelimiter())
+
+	#2 test Cases
+	def funcSetFeatureDelimiter(self, cDelimiter):
+		"""
+		Changes the feature delimiter to the one provided.
+		Updates the feature names.
+
+		:param	cDelimiter:	Character feature delimiter
+		:type:	Character
+		:return	Boolean:	Indicator of success or not (false)
+		"""
+		if ( self._npaFeatureAbundance == None ):
+			return False
+		cDelimiterCurrent = self.funcGetFeatureDelimiter()
+		if ( not cDelimiter or not cDelimiterCurrent):
+			return False
+
+		#Make new feature names
+		lsNewFeatureNames = [sFeatureName.replace(cDelimiterCurrent,cDelimiter) for sFeatureName in self.funcGetFeatureNames()]
+		
+		#Update new feature names to abundance table
+		if (not self.funcGetIDMetadataName() == None):
+			self._npaFeatureAbundance[self.funcGetIDMetadataName()] = np.array(lsNewFeatureNames)
+
+		#Update delimiter
+		self._cFeatureDelimiter = cDelimiter
+		return True
+
 	#Happy path tested
 	def funcGetSampleNames(self):
 		"""
@@ -469,6 +567,71 @@ class AbundanceTable:
 
 		return ldAverageSample
 
+	#Tested 2 cases
+	def funcHasFeatureHeirachy(self):
+		"""
+		Returns an indicator of having a heirarchy in the features indicated by the existance of the
+		feature delimiter.
+
+		:return	Boolean:	True (Has a heirarchy) or False (Does not have a heirarchy)
+		"""
+
+		if ( self._npaFeatureAbundance == None ):
+			return None
+		cDelimiter = self.funcGetFeatureDelimiter()
+		if ( not cDelimiter ):
+			return False
+
+		#For each feature name, check to see if the delimiter is in the name
+		for sFeature in self.funcGetFeatureNames():
+			if cDelimiter in sFeature:
+				return True
+		return False
+
+	def funcGetCladePrefixes(self):
+		"""
+		Returns the list of prefixes to use on biological sample heirarchy
+
+		:return	List:	List of strings
+		"""
+		return self._lsCladePrefixes
+
+	#3 test cases
+	def funcAddCladePrefixToFeatures(self):
+		"""
+		As a standardized clade prefix to indicate biological clade given heirarchy.
+		Will not add a prefix to already prefixes feature names.
+		Will add prefix to feature names that do not have them or clades in a feature name that
+		do not have them while leaving ones that do as is.
+
+		:return	Boolean:	True (Has a heirarchy) or False (Does not have a heirarchy)
+		"""
+
+		if ( self._npaFeatureAbundance == None ):
+			return None
+		cDelimiter = self.funcGetFeatureDelimiter()
+		lsPrefixes = self.funcGetCladePrefixes()
+		iPrefixLength = len(lsPrefixes)
+		if ( not cDelimiter ):
+			return False
+
+		#Append prefixes to feature names
+		lsUpdatedFeatureNames = []
+		lsFeatureNames = self.funcGetFeatureNames()
+
+		for sFeatureName in lsFeatureNames:
+			lsClades = sFeatureName.split(cDelimiter)
+			#If there are not enough then error
+			if(len(lsClades) > iPrefixLength):
+				return False
+			lsUpdatedFeatureNames.append(cDelimiter.join([lsPrefixes[iClade]+lsClades[iClade] if not(lsClades[iClade][0:len(lsPrefixes[iClade])]==lsPrefixes[iClade]) else lsClades[iClade] for iClade in xrange(len(lsClades))]))
+
+		#Update new feature names to abundance table
+		if not self.funcGetIDMetadataName() == None:
+			self._npaFeatureAbundance[self.funcGetIDMetadataName()] = np.array(lsUpdatedFeatureNames)
+
+		return True
+
 	#Happy Path Tested
 	def funcGetFeatureAbundanceTable(self, lsFeatures):
 		"""
@@ -487,11 +650,14 @@ class AbundanceTable:
 		lfFeatureData = [sRowID in lsFeatures for sRowID in self.funcGetFeatureNames()]
 		#compressed version as an Abundance table
 		lsNamePieces = os.path.splitext(self._strOriginalName)
-		return AbundanceTable(npaAbundance=np.compress(lfFeatureData, self._npaFeatureAbundance, axis = 0),
+		abndFeature = AbundanceTable(npaAbundance=np.compress(lfFeatureData, self._npaFeatureAbundance, axis = 0),
 					dictMetadata = self.funcGetMetadataCopy(),
 					strName = lsNamePieces[0] + "-" + str(len(lsFeatures)) +"-Features"+lsNamePieces[1],
 					strLastMetadata=self.funcGetLastMetadataName(),
 					cFileDelimiter = self.funcGetFileDelimiter(), cFeatureNameDelimiter= self.funcGetFeatureDelimiter())
+		#Table is no longer normalized
+		abndFeature._fIsNormalized = False
+		return abndFeature
 
 	#Happy path tested
 	def funcGetFeatureDelimiter(self):
@@ -673,7 +839,7 @@ class AbundanceTable:
 	#Happy path tested
 	def funcIsPrimaryIdMetadata(self,sMetadataName):
 		"""
-		Checks the metadata data associatd with the sMetadatName and returns if the metadata is unique.
+		Checks the metadata data associated with the sMetadatName and returns if the metadata is unique.
 		This is important to some of the functions in the Abundance Table specifically when translating from one metadata to another.
 		
 		:param	sMetadataName:	ID of metadata to check for uniqueness.
@@ -742,6 +908,9 @@ class AbundanceTable:
 		#Update filter state
 		self._strCurrentFilterState += ":dPercentileCutOff=" + str(dPercentileCutOff) + ",dPercentageAbovePercentile=" + str(dPercentageAbovePercentile)
 
+		#Table is no longer normalized
+		self._fIsNormalized = False
+
 		return True
 
 	#Happy path tested
@@ -807,6 +976,9 @@ class AbundanceTable:
 
 		#Update filter state
 		self._strCurrentFilterState += ":dMinSDCuttOff=" + str(dMinSDCuttOff)
+
+		#Table is no longer normalized
+		self._fIsNormalized = False
 
 		return True
 
@@ -964,11 +1136,21 @@ class AbundanceTable:
 					aaTodo = [a]
 			self._funcRankAbundanceHelper( aaTodo, i + 1, npRankAbundance[sName] )
 
-		return AbundanceTable(npaAbundance=npRankAbundance, dictMetadata=self.funcGetMetadataCopy(),
+		abndRanked = AbundanceTable(npaAbundance=npRankAbundance, dictMetadata=self.funcGetMetadataCopy(),
 			strName= self.funcGetName() + "-Ranked",
 			strLastMetadata=self.funcGetLastMetadataName(),
 			cFileDelimiter=self.funcGetFileDelimiter(),
 			cFeatureNameDelimiter=self.funcGetFeatureDelimiter())
+
+		#Table is no longer normalized
+		abndRanked._fIsNormalized = False
+		return abndRanked
+
+	def funcGetSampleCount(self):
+		"""
+		Returns the sample count of the abundance table.
+		"""
+		return len(self.funcGetSampleNames())
 
 	#Happy Path Tested
 	def funcReduceFeaturesToCladeLevel(self, iCladeLevel):
