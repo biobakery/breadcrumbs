@@ -203,7 +203,7 @@ class AbundanceTable:
 		#Read input file lines
 		#Drop blank lines
 		readData = ""
-		with open(strReadDataFileName,'r') as f:
+		with open(strReadDataFileName,'rU') as f:
 			readData = f.read()
 		readData = filter(None,readData.split(ConstantsBreadCrumbs.c_strEndline))
 
@@ -326,7 +326,7 @@ class AbundanceTable:
 										[Numpy structured Array, Dictionary]
 		"""
 
-		istmInput = open( xInputFile ) if isinstance(xInputFile, str) else xInputFile
+		istmInput = open( xInputFile, 'rU' ) if isinstance(xInputFile, str) else xInputFile
 		iFirstDataRow = -1
 		namesRow = None
 		metadata = dict()
@@ -1480,7 +1480,7 @@ class AbundanceTable:
 
 		#Make file one
 		#Read in file
-		istm = csv.reader(open(strFileOne,'r'), csv.excel_tab, delimiter=cDelimiter)
+		istm = csv.reader(open(strFileOne,'rU'), csv.excel_tab, delimiter=cDelimiter)
 		lsContentsOne = [lsRow for lsRow in istm]
 
 		#Get the file identifier for file one
@@ -1492,7 +1492,7 @@ class AbundanceTable:
 
 		#Make file two
 		#Read in file
-		istm = csv.reader(open(strFileTwo,'r'), csv.excel_tab, delimiter=cDelimiter)
+		istm = csv.reader(open(strFileTwo,'rU'), csv.excel_tab, delimiter=cDelimiter)
 		lsContentsTwo = [lsRow for lsRow in istm]
 
 		#Get the file identifier for file two
@@ -1572,7 +1572,7 @@ class AbundanceTable:
 			baseFilePath = lsFilePiecesExt[0]
 
 		#Read in file
-		istm = csv.reader(open(strInputFile,'r'), csv.excel_tab, delimiter=cDelimiter)
+		istm = csv.reader(open(strInputFile,'rU'), csv.excel_tab, delimiter=cDelimiter)
 		sFileContents = [lsRow for lsRow in istm]
 
 		#Collect metadata

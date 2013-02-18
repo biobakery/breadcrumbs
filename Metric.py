@@ -56,8 +56,8 @@ class Metric:
 
     #Diversity metrics Beta
     c_strBrayCurtisDissimilarity = "B_Curtis"
-    c_strUnifracUnweighted = "U_unifrac"
-    c_strUnifracWeighted = "W_unifrac"
+    c_strUnifracUnweighted = "unifrac_unweighted"
+    c_strUnifracWeighted = "unifrac_weighted"
 
     #Additive inverses of beta metrics
     c_strInvBrayCurtisDissimilarity = "InB_Curtis"
@@ -66,13 +66,13 @@ class Metric:
     c_strShannonRichness = "ShannonR"
     c_strObservedCount = "Observed_Count"
 
-    #Different count-based alpha diversity metrics
+    #Different alpha diversity metrics
     setAlphaDiversities = set(["observed_species","margalef","menhinick",
 	"dominance","reciprocal_simpson","shannon","equitability","berger_parker_d",
-	"mcintosh_d","brillouin_d","kempton_taylor_q","strong","fisher_alpha",
+	"mcintosh_d","brillouin_d","strong","fisher_alpha",
 	"mcintosh_e","heip_e","simpson_e","robbins","michaelis_menten_fit","chao1","ACE"])
 
-    #Different count-based beta diversity metrics
+    #Different beta diversity metrics
     setBetaDiversities = set(["braycurtis","canberra","chebyshev","cityblock",
 	"correlation","cosine","euclidean","hamming","sqeuclidean"])
 
@@ -392,7 +392,7 @@ class Metric:
 
     #Testing 6 cases
     @staticmethod
-    def funcGetBetaMetric(npadAbundancies=None, sMetric=None, istrmTree=None, istrmEnvr=None, lsSampleOrder=None):
+    def funcGetBetaMetric(npadAbundancies=None, sMetric=None, istrmTree=None, istrmEnvr=None, lsSampleOrder=None, fAdditiveInverse = False):
         """
         Takes a matrix of values and returns a beta metric matrix. The metric returned is indicated by name (sMetric).
 		
@@ -404,19 +404,22 @@ class Metric:
         """
 	
         if sMetric == Metric.c_strBrayCurtisDissimilarity:
-            return Metric.funcGetBrayCurtisDissimilarity(ldSampleTaxaAbundancies=npadAbundancies)
+            mtrxDistance = Metric.funcGetBrayCurtisDissimilarity(ldSampleTaxaAbundancies=npadAbundancies)
         elif sMetric == Metric.c_strInvBrayCurtisDissimilarity:
-            return Metric.funcGetInverseBrayCurtisDissimilarity(ldSampleTaxaAbundancies=npadAbundancies)
+            mtrxDistance = Metric.funcGetInverseBrayCurtisDissimilarity(ldSampleTaxaAbundancies=npadAbundancies)
         elif sMetric in Metric.setBetaDiversities:
-            return Metric.funcGetDissimilarityByName(ldSampleTaxaAbundancies=npadAbundancies, strMetric=sMetric)
+            mtrxDistance = Metric.funcGetDissimilarityByName(ldSampleTaxaAbundancies=npadAbundancies, strMetric=sMetric)
         elif sMetric == Metric.c_strUnifracUnweighted:
             xReturn = Metric.funcGetUnifracDistance(istrmTree=istrmTree,istrmEnvr=istrmEnvr,lsSampleOrder=lsSampleOrder,fWeighted=False)
-            return xReturn[0] if not False else xReturn
+            mtrxDistance = xReturn[0] if not type(xReturn) is BooleanType else xReturn
         elif sMetric == Metric.c_strUnifracWeighted:
             xReturn = Metric.funcGetUnifracDistance(istrmTree=istrmTree,istrmEnvr=istrmEnvr,lsSampleOrder=lsSampleOrder,fWeighted=True)
-            return xReturn[0] if not False else xReturn
+            mtrxDistance = xReturn[0] if not type(xReturn) is BooleanType else xReturn
         else:
-            return False
+            mtrxDistance = False
+        if fAdditiveInverse and not type(mtrxDistance) is BooleanType:
+            mtrxDistance = 1.0 - mtrxDistance
+	return mtrxDistance
 
     #Test Cases 11
     @staticmethod
@@ -435,7 +438,7 @@ class Metric:
         try:
             lsHeader = f.next()
         except StopIteration:
-            return ([],[])
+            return (False,False)
         lsHeaderReducedToSamples = [sHeader for sHeader in lsHeader if sHeader in lsSampleOrder] if lsSampleOrder else lsHeader[1:]
 
         #If no sample ordering is given, set the ordering to what is in the file
@@ -490,7 +493,7 @@ class Metric:
         ostmOut = csv.writer(open(ostmMatrixFile,"w") if isinstance(ostmMatrixFile,str) else ostmMatrixFile, delimiter=ConstantsBreadCrumbs.c_matrixFileDelim )
 
         #Add the additional space at the beginning of the sample names to represent the id row/column
-        lsSampleNames = [""]+lsSampleNames
+        lsSampleNames = [""]+list(lsSampleNames)
 
         #Write header and each row to file
         ostmOut.writerow(lsSampleNames)

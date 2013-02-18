@@ -16,6 +16,7 @@ __status__ = "Development"
 import sys
 import argparse
 from AbundanceTable import AbundanceTable
+import os
 from PCoA import PCoA
 
 #Set up arguments reader
@@ -53,14 +54,22 @@ if args.fDoNormData:
   abndTable.funcNormalize()
 
 #Get the metadata to paint
-lsMetadata = abndTable.funcGetMetadata(args.sLabel)
+lsKeys = abndTable.funcGetMetadataCopy().keys() if not args.sLabel else [args.sLabel]
 
-#Get PCoA object and plot
-pcoa = PCoA()
-pcoa.loadData(abndTable,True)
-pcoa.run(tempDistanceMetric=args.strMetric, iDims=2)
-pcoa.plotList(lsLabelList = lsMetadata,
-              strOutputFileName = args.strOutFile,
+#Get pieces of output file
+lsFilePieces = os.path.splitext(args.strOutFile)
+
+lsOutputFiles = [lsFilePieces[0]+"-"+sKey+lsFilePieces[1] for sKey in lsKeys] if not args.sLabel else [args.strOutFile]
+
+for iIndex in xrange(len(lsKeys)):
+	lsMetadata = abndTable.funcGetMetadata(lsKeys[iIndex])
+
+	#Get PCoA object and plot
+	pcoa = PCoA()
+	pcoa.loadData(abndTable,True)
+	pcoa.run(tempDistanceMetric=args.strMetric, iDims=2)
+	pcoa.plotList(lsLabelList = lsMetadata,
+              strOutputFileName = lsOutputFiles[iIndex],
               iSize=20,
               dAlpha=1.0,
               charForceColor=None,
