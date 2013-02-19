@@ -69,7 +69,7 @@ class Metric:
     #Different alpha diversity metrics
     setAlphaDiversities = set(["observed_species","margalef","menhinick",
 	"dominance","reciprocal_simpson","shannon","equitability","berger_parker_d",
-	"mcintosh_d","brillouin_d","strong","fisher_alpha",
+	"mcintosh_d","brillouin_d","strong","fisher_alpha","simpson",
 	"mcintosh_e","heip_e","simpson_e","robbins","michaelis_menten_fit","chao1","ACE"])
 
     #Different beta diversity metrics

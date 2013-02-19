@@ -335,7 +335,7 @@ class AbundanceTable:
 		csvw = None
 		if ostmOutputFile:
 			csvw = csv.writer( open(ostmOutputFile,'w') if isinstance(ostmOutputFile, str) else ostmOutputFile, csv.excel_tab, delimiter = cDelimiter )
-		for lsLineElements in csv.reader( istmInput, csv.excel_tab, delimiter = cDelimiter ):
+		for lsLineElements in csv.reader( istmInput, dialect = csv.excel_tab, delimiter = cDelimiter ):
 			iIndex += 1
 			taxId, sampleReads = lsLineElements[0], lsLineElements[1:]
 			#Data
