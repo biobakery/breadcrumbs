@@ -140,7 +140,7 @@ class AbundanceTable:
 		:param	xInputFile:	Path to input file.
 		:type:	String		String path.
 		:param	cDelimiter:	Delimiter for parsing the input file.
-		:type:	Character	Character.
+		:type:	Character	Character
 		:param	sMetadataID:	String ID that is a metadata row ID (found on the first column) and used as an ID for samples
 		:type:	String		String ID
 		:param	sLastMetadata:	The ID of the metadata that is the last metadata before measurement or feature rows.
@@ -156,7 +156,7 @@ class AbundanceTable:
 		"""
 		
 		#Get output file and remove if existing
-		outputFile = open( strOutputFileName, "w" ) if isinstance(xOutputFile, str) else xOutputFile
+		outputFile = open( xOutputFile, "w" ) if isinstance(xOutputFile, str) else xOutputFile
 		#Read in from text file to create the abundance and metadata structures
 		lContents = AbundanceTable._funcTextToStructuredArray(xInputFile=xInputFile, cDelimiter=cDelimiter,
 				sMetadataID = sMetadataID, sLastMetadata = sLastMetadata, ostmOutputFile = outputFile)
@@ -689,10 +689,20 @@ class AbundanceTable:
 		:type:	String.
 		:return	Double:	Sum of one feature across samples.
 		"""
+		return sum(self.funcGetFeature(sFeatureName))
+
+	def funcGetFeature(self,sFeatureName):
+		"""
+		Returns feature values across the samples.
+
+		:param	sFeatureName: The feature ID to get the sum from.
+		:type:	String.
+		:return	Double:	Feature across samples.
+		"""
 
 		for sFeature in self._npaFeatureAbundance:
 			if sFeature[0] == sFeatureName:
-				return sum(list(sFeature)[1:])
+				return list(sFeature)[1:]
 		return None
 
 	#Happy path tested
