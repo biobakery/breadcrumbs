@@ -20,21 +20,25 @@ import os
 from PCoA import PCoA
 
 #Set up arguments reader
-argp = argparse.ArgumentParser( prog = "PCoAAbundance.py",
-    description = """PCoAs an abundance file given a metadata.""" )
+argp = argparse.ArgumentParser( prog = "scriptPcoa.py",
+    description = """PCoAs an abundance file given a metadata.\nExample:python scriptPcoa.py -i TID -l STSite""" )
 
 #Arguments
 #For table
-argp.add_argument("-id", dest="sIDName", metavar= "Sample ID Metadata Name", default="ID", help="Abundance Table ID")
-argp.add_argument("-meta", dest="sLastMetadataName", metavar= "Last Metadata Name", help="Last metadata name")
-argp.add_argument("-fDelim", dest= "cFileDelimiter", action= "store", metavar="File Delimiter", default="\t", help="File delimiter, default tab") 
-argp.add_argument("-featureDelim", dest="cFeatureNameDelimiter", action= "store", metavar="Feature Name Delimiter", default="|", help="Feature delimiter") 
-argp.add_argument("-label", dest="sLabel", metavar= "Label", default=None, help="Label to paint in the PCoA")
-argp.add_argument("-doNorm", dest="fDoNormData", action = "store_true", help="Do Normalize Data")
-argp.add_argument("-doSum", dest="fDoSumData", action = "store_true", help="Do Sum Data")
-argp.add_argument("-m", dest="strMetric", metavar = "distance", default = PCoA.c_BRAY_CURTIS, help ="Distance metric to use.")
+argp.add_argument("-i","--id", dest="sIDName", default="ID", help="Abundance Table ID")
+argp.add_argument("-l","--meta", dest="sLastMetadataName", help="Last metadata name")
+argp.add_argument("-d","--fDelim", dest= "cFileDelimiter", action= "store", default="\t", help="File delimiter, default tab")
+argp.add_argument("-f","-featureDelim", dest="cFeatureNameDelimiter", action= "store", metavar="Feature Name Delimiter", default="|", help="Feature delimiter") 
+
+argp.add_argument("-n","--doNorm", dest="fNormalize", action="store_true", default=False, help="Flag to turn on normalization")
+argp.add_argument("-s","--doSum", dest="fSum", action="store_true", default=False, help="Flag to turn on summation")
+
+argp.add_argument("p","-paint", dest="sLabel", metavar= "Label", default=None, help="Label to paint in the PCoA")
+argp.add_argument("-m","-metric", dest="strMetric", metavar = "distance", default = PCoA.c_BRAY_CURTIS, help ="Distance metric to use.")
+argp.add_argument("-o","-outputFile", dest="strOutFile", metavar= "outputFile", default=None, help="Specify the path for the output figure.")
+
 argp.add_argument("strFileAbund", metavar = "Abundance file", help ="Input data file")
-argp.add_argument("strOutFile", metavar = "Selection Output File", help ="Output file")
+
 
 args = argp.parse_args( )
 
@@ -57,6 +61,8 @@ if args.fDoNormData:
 lsKeys = abndTable.funcGetMetadataCopy().keys() if not args.sLabel else [args.sLabel]
 
 #Get pieces of output file
+if not args.strOutFile:
+  args.strOutFile = os.path.splitext(args.strFileAbund)[0]+"-pcoa.pdf"
 lsFilePieces = os.path.splitext(args.strOutFile)
 
 lsOutputFiles = [lsFilePieces[0]+"-"+sKey+lsFilePieces[1] for sKey in lsKeys] if not args.sLabel else [args.strOutFile]

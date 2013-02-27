@@ -19,8 +19,8 @@ import os
 from AbundanceTable import AbundanceTable
 
 #Set up arguments reader
-argp = argparse.ArgumentParser( prog = "manipulateTable.py",
-    description = """Performs comman manipulations on tables.""" )
+argp = argparse.ArgumentParser( prog = "scriptManipulateTable.py",
+    description = """Performs common manipulations on tables.\nExample: python scriptManipulateTable.py -i TID -l STSite Test.pcl""" )
 
 #Arguments
 #Describe table
@@ -33,7 +33,7 @@ argp.add_argument("-s","--doSum", dest="fSum", action="store_true", default=Fals
 
 #Unsupervised filtering
 argp.add_argument("-p","--doFilterPercentile", dest="strFilterPercentile", action="store", default=False, help="Flag to turn on filtering by percentile Should be two numbers between 0 and 1 in the form 'percentile,percentage'. (should be performed on a normalized file).")
-argp.add_argument("-o","--doFilterOccurrence", dest="strFilterOccurence", action="store", default=None, help="Flag to turn on filtering by occurence. Should be two integers in the form 'minSequence,minSample' (should NOT be performed on a normalized file).")
+argp.add_argument("-u","--doFilterOccurrence", dest="strFilterOccurence", action="store", default=None, help="Flag to turn on filtering by occurence. Should be two integers in the form 'minSequence,minSample' (should NOT be performed on a normalized file).")
 argp.add_argument("-v","--doFilterDeviation", dest="dCuttOff", action="store", type=float, default=None, help="Flag to turn on filtering by standard deviation (should NOT be performed on a normalized file).")
 
 #Change bug membership
@@ -53,14 +53,16 @@ argp.add_argument("-x","--doPrefixClades", dest="fPrefixClades", action="store_t
 argp.add_argument("-m","--combineIntersect", dest="fCombineIntersect", action="store_true", default=False, help="Combine two tables including only common features/metadata (intersection).")
 argp.add_argument("-e","--combineUnion", dest="fCombineUnion", action="store_true", default=False, help="Combine two tables (union).")
 
-#Misc
-argp.add_argument("-a","--returnAverageSample", dest="fAverage", action="store_true", default=False, help="If selected a synthetic average sample will be returned, this is a last step so if stratification or reduction to features is selected then average samples will be given for those tables.")
-
-
+argp.add_argument("-o","--output", dest="strOutFile", action="store", default=None, help="Indicate output pcl file.")
 argp.add_argument("strFileAbund", help ="Input data file")
-argp.add_argument("strOutFile", help ="Output file")
+
 
 args = argp.parse_args( )
+
+# Creat output file if needed.
+if not args.strOutFile:
+  args.strOutFile = os.path.splitext(args.strOutFile)[0]+"-mod.pcl"
+lsPieces = os.path.splitext(args.strOutFile)
 
 #List of abundance tables
 lsTables = []
@@ -88,14 +90,7 @@ if args.strFeatures:
     for lsLine in csvr:
       lsFeatures.extend(lsLine)
 
-# Combine tables
-#if fCombineIntersect:
-#
-#if fCombineUnion:
-#
 lsTables.append(abndTable)
-
-lsPieces = os.path.splitext(args.strOutFile)
 
 #Manipulate lineage
 if args.fPrefixClades:
@@ -208,12 +203,6 @@ if args.strStratifyBy:
     print "ManipulateTable::"+abndTable.funcGetName()+" was stratified by "+args.strStratifyBy+" in to "+str(len(labndResult))+" tables."
     labndStratifiedTables.extend(labndResult)
   lsTables = labndStratifiedTables
-
-# Misc
-#TODO
-#if fAverage:
-#  for abndTable in lsTables:
-#    abndTable.funcGetAverageSample()
 
 if len(lsTables) == 1:
   lsTables[0].funcWriteToFile(args.strOutFile)
