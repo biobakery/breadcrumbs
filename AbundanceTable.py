@@ -120,6 +120,7 @@ class AbundanceTable:
 			self._iOriginalSampleCount = len(self.funcGetSampleNames())
 		
 			self._fIsNormalized = ( max( [max( list(a)[1:] or [0] ) for a in self._npaFeatureAbundance] or [0] ) <= 1 )
+
 			lsLeaves = AbundanceTable.funcGetTerminalNodesFromList( [a[0] for a in self._npaFeatureAbundance], self._cFeatureDelimiter )
 			self._fIsSummed = ( len( lsLeaves ) != len( self._npaFeatureAbundance ) )
 
@@ -1030,7 +1031,7 @@ class AbundanceTable:
 		"""
 
 		if self._fIsNormalized:
-#			sys.stderr.write( "This table is already normalized, did not perform new normalization request.\n" )
+			sys.stderr.write( "This table is already normalized, did not perform new normalization request.\n" )
 			return False
 
 		if self._fIsSummed:
@@ -1062,11 +1063,11 @@ class AbundanceTable:
 		"""
 
 		if self._fIsNormalized:
-#			sys.stderr.write( "This table is already normalized, did not perform new normalization request.\n" )
+			sys.stderr.write( "This table is already normalized, did not perform new normalization request.\n" )
 			return False
 
 		if not self._fIsSummed:
-#			sys.stderr.write( "This table does not have clades summed, this normalization is not appropriate until the clades are summed. The clades are being summed now before normalization.\n" )
+			sys.stderr.write( "This table does not have clades summed, this normalization is not appropriate until the clades are summed. The clades are being summed now before normalization.\n" )
 			self.funcSumClades()
 
 		#Load a hash table with root data {sKey: npaAbundances}

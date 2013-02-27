@@ -26,15 +26,16 @@ argp = argparse.ArgumentParser( prog = "scriptManipulateTable.py",
 #Describe table
 argp.add_argument("-i","--id", dest="sIDName", default="ID", help="Abundance Table ID")
 argp.add_argument("-l","--meta", dest="sLastMetadataName", help="Last metadata name")
-argp.add_argument("-d","--fDelim", dest= "cFileDelimiter", action= "store", default="\t", help="File delimiter, default tab")
+argp.add_argument("-d","--fileDelim", dest= "cFileDelimiter", action= "store", default="\t", help="File delimiter, default tab")
+argp.add_argument("-F","--featureDelim", dest= "cFeatureDelimiter", action= "store", default="|", help="Feature (eg. bug or function) delimiter, default '|'")
 
 argp.add_argument("-n","--doNorm", dest="fNormalize", action="store_true", default=False, help="Flag to turn on normalization")
 argp.add_argument("-s","--doSum", dest="fSum", action="store_true", default=False, help="Flag to turn on summation")
 
 #Unsupervised filtering
-argp.add_argument("-p","--doFilterPercentile", dest="strFilterPercentile", action="store", default=False, help="Flag to turn on filtering by percentile Should be two numbers between 0 and 1 in the form 'percentile,percentage'. (should be performed on a normalized file).")
-argp.add_argument("-u","--doFilterOccurrence", dest="strFilterOccurence", action="store", default=None, help="Flag to turn on filtering by occurence. Should be two integers in the form 'minSequence,minSample' (should NOT be performed on a normalized file).")
-argp.add_argument("-v","--doFilterDeviation", dest="dCuttOff", action="store", type=float, default=None, help="Flag to turn on filtering by standard deviation (should NOT be performed on a normalized file).")
+argp.add_argument("-P","--doFilterPercentile", dest="strFilterPercentile", action="store", default=False, help="Flag to turn on filtering by percentile Should be two numbers between 0 and 1 in the form 'percentile,percentage'. (should be performed on a normalized file).")
+argp.add_argument("-U","--doFilterOccurrence", dest="strFilterOccurence", action="store", default=None, help="Flag to turn on filtering by occurence. Should be two integers in the form 'minSequence,minSample' (should NOT be performed on a normalized file).")
+argp.add_argument("-V","--doFilterDeviation", dest="dCuttOff", action="store", type=float, default=None, help="Flag to turn on filtering by standard deviation (should NOT be performed on a normalized file).")
 
 #Change bug membership
 argp.add_argument("-t","--makeTerminal", dest="fMakeTerminal", action="store_true", default=False, help="Works reduces the file to teminal features in the original file.")
@@ -61,7 +62,7 @@ args = argp.parse_args( )
 
 # Creat output file if needed.
 if not args.strOutFile:
-  args.strOutFile = os.path.splitext(args.strOutFile)[0]+"-mod.pcl"
+  args.strOutFile = os.path.splitext(args.strFileAbund)[0]+"-mod.pcl"
 lsPieces = os.path.splitext(args.strOutFile)
 
 #List of abundance tables
@@ -73,7 +74,7 @@ abndTable = AbundanceTable.funcMakeFromFile(xInputFile=args.strFileAbund,
                                             sMetadataID = args.sIDName,
                                             sLastMetadata = args.sLastMetadataName,
                                             lOccurenceFilter = None,
-                                            cFeatureNameDelimiter="_",
+                                            cFeatureNameDelimiter=args.cFeatureDelimiter,
                                             xOutputFile = args.strOutFile)
 
 #TODO Check filtering, can not have some filtering together
@@ -132,7 +133,6 @@ if args.fMakeTerminal:
 
 if args.fRemoveOTUs:
   for abndTable in lsTables:
-    #TODO check if this persists in list
     abndTable = abndTable.funcGetWithoutOTUs()
     if abndTable:
       print "ManipulateTable::"+abndTable.funcGetName()+" had OTUs removed and now has "+str(len(abndTable.funcGetFeatureNames()))+" features."
@@ -167,7 +167,6 @@ if args.strRemoveMetadata:
 # Normalize if needed
 if args.fNormalize:
   for abndTable in lsTables:
-    #TODO
     fResult = abndTable.funcNormalize()
     if fResult:
       print "ManipulateTable::"+abndTable.funcGetName()+" was normalized."
