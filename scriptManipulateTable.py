@@ -27,15 +27,16 @@ argp = argparse.ArgumentParser( prog = "scriptManipulateTable.py",
 argp.add_argument("-i","--id", dest="sIDName", default="ID", help="Abundance Table ID")
 argp.add_argument("-l","--meta", dest="sLastMetadataName", help="Last metadata name")
 argp.add_argument("-d","--fileDelim", dest= "cFileDelimiter", action= "store", default="\t", help="File delimiter, default tab")
-argp.add_argument("-F","--featureDelim", dest= "cFeatureDelimiter", action= "store", default="|", help="Feature (eg. bug or function) delimiter, default '|'")
+argp.add_argument("-f","--featureDelim", dest= "cFeatureDelimiter", action= "store", default="|", help="Feature (eg. bug or function) delimiter, default '|'")
 
+#Checked x 2
 argp.add_argument("-n","--doNorm", dest="fNormalize", action="store_true", default=False, help="Flag to turn on normalization")
 argp.add_argument("-s","--doSum", dest="fSum", action="store_true", default=False, help="Flag to turn on summation")
 
 #Unsupervised filtering
-argp.add_argument("-P","--doFilterPercentile", dest="strFilterPercentile", action="store", default=False, help="Flag to turn on filtering by percentile Should be two numbers between 0 and 1 in the form 'percentile,percentage'. (should be performed on a normalized file).")
-argp.add_argument("-U","--doFilterOccurrence", dest="strFilterOccurence", action="store", default=None, help="Flag to turn on filtering by occurence. Should be two integers in the form 'minSequence,minSample' (should NOT be performed on a normalized file).")
-argp.add_argument("-V","--doFilterDeviation", dest="dCuttOff", action="store", type=float, default=None, help="Flag to turn on filtering by standard deviation (should NOT be performed on a normalized file).")
+argp.add_argument("-P","--doFilterPercentile", dest="strFilterPercentile", action="store", default=None, help="Flag to turn on filtering by percentile Should be two numbers between 0 and 1 in the form 'percentile,percentage'. (should be performed on a normalized file).")
+argp.add_argument("-O","--doFilterOccurrence", dest="strFilterOccurence", action="store", default=None, help="Flag to turn on filtering by occurence. Should be two integers in the form 'minSequence,minSample' (should NOT be performed on a normalized file).")
+argp.add_argument("-D","--doFilterDeviation", dest="dCuttOff", action="store", type=float, default=None, help="Flag to turn on filtering by standard deviation (should NOT be performed on a normalized file).")
 
 #Change bug membership
 argp.add_argument("-t","--makeTerminal", dest="fMakeTerminal", action="store_true", default=False, help="Works reduces the file to teminal features in the original file.")
@@ -44,16 +45,19 @@ argp.add_argument("-c","--reduceToClade", dest="iClade", action="store", type=in
 argp.add_argument("-b","--reduceToFeatures", dest="strFeatures", action="store", default=None, help="Reduce measurements to certain features (bugs or functions). This can be a comma delimited string or a file.")
 
 #Manipulate based on metadata
+#Checked
 argp.add_argument("-y","--stratifyBy", dest="strStratifyBy", action="store", default=None, help="Metadata to stratify tables by.")
 argp.add_argument("-r","--removeMetadata", dest="strRemoveMetadata", action="store", default=None, help="Remove samples of this metadata and value (format comma delimited string with metadata id first and the values to remove after 'id,lvalue1,value2').")
 
 #Manipulate lineage
+#Checked
 argp.add_argument("-x","--doPrefixClades", dest="fPrefixClades", action="store_true", default=False, help="Flag to turn on adding prefixes to clades to better identify them, for example s__ will be placed infront of each species.")
 
 #Combine tables
-argp.add_argument("-m","--combineIntersect", dest="fCombineIntersect", action="store_true", default=False, help="Combine two tables including only common features/metadata (intersection).")
-argp.add_argument("-e","--combineUnion", dest="fCombineUnion", action="store_true", default=False, help="Combine two tables (union).")
+#argp.add_argument("-m","--combineIntersect", dest="fCombineIntersect", action="store_true", default=False, help="Combine two tables including only common features/metadata (intersection).")
+#argp.add_argument("-e","--combineUnion", dest="fCombineUnion", action="store_true", default=False, help="Combine two tables (union).")
 
+#Checked
 argp.add_argument("-o","--output", dest="strOutFile", action="store", default=None, help="Indicate output pcl file.")
 argp.add_argument("strFileAbund", help ="Input data file")
 
