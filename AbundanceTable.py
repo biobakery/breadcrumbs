@@ -625,6 +625,7 @@ class AbundanceTable:
 			lsClades = sFeatureName.split(cDelimiter)
 			#If there are not enough then error
 			if(len(lsClades) > iPrefixLength):
+                                print "Error:: Too many clades given to be biologically meaningful"
 				return False
 			lsUpdatedFeatureNames.append(cDelimiter.join([lsPrefixes[iClade]+lsClades[iClade] if not(lsClades[iClade][0:len(lsPrefixes[iClade])]==lsPrefixes[iClade]) else lsClades[iClade] for iClade in xrange(len(lsClades))]))
 
