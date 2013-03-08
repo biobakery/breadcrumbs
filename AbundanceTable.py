@@ -378,6 +378,7 @@ class AbundanceTable:
 
 		return [taxData,metadata]
 
+#TODO heirarchy is misspelled?
 #	def funcAdd(self,abndTwo,strFileName=None):
 #		"""
 #		Allows one to add an abundance table to an abundance table. They both must be the same state of normalization or summation
