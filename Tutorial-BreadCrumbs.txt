@@ -92,7 +92,7 @@ python scriptManipulateTable.py -i TID -l STSite -x Test.pcl
 
 
 3. scriptPlotFeature.py
-This script allows you to plot a row of an abundance table, metadata or data. This assums the first column is the id and the remaining columns are values to be plotted. Three different plots gave be generated based on the input arguments and the type of data given to the script. The script
+This script allows you to plot a row of an abundance table, metadata or data. This assumes the first column is the id and the remaining columns are values to be plotted. Three different plots can be generated based on the input arguments and the type of data given to the script. A boxplot is made if two features are given, one numeric and one categorical. A scatterplot is made if two numeric features are given. A histogram is made if one numeric feature is given. 
 
 A. How do I plot a box plot of two data.
 A box plot requires two features, one not categorical and one that is categorical. The script detects this automatically and will plot the correct plot for you as you go.
@@ -105,7 +105,7 @@ A box plot requires two features, both not categorical. The script detects this 
 python scriptPlotFeature.py Test.pcl 'Bacteria|unclassified|4904' 'Bacteria|3417'
 
 C. How do I plot a histogram of a feature?
-Just plot one feature.
+Just plot one numeric feature.
 
 python scriptPlotFeature.py Test.pcl 'Bacteria|3417'
 
@@ -117,6 +117,7 @@ E. How do I change the color?
 This script takes hex colors.
 
 python scriptPlotFeature.py -c '#333333' 'Bacteria|3417'
+
 F. How do i invert the colors for a black background?
 
 python scriptPlotFeature.py -r 'Bacteria|3417'
