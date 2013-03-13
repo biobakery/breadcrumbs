@@ -28,14 +28,14 @@ argp = argparse.ArgumentParser( prog = "scriptPcoa.py",
 argp.add_argument("-i","--id", dest="sIDName", default="ID", help="Abundance Table ID")
 argp.add_argument("-l","--meta", dest="sLastMetadataName", help="Last metadata name")
 argp.add_argument("-d","--fDelim", dest= "cFileDelimiter", action= "store", default="\t", help="File delimiter, default tab")
-argp.add_argument("-f","-featureDelim", dest="cFeatureNameDelimiter", action= "store", metavar="Feature Name Delimiter", default="|", help="Feature delimiter") 
+argp.add_argument("-f","--featureDelim", dest="cFeatureNameDelimiter", action= "store", metavar="Feature Name Delimiter", default="|", help="Feature delimiter") 
 
-argp.add_argument("-n","--doNorm", dest="fNormalize", action="store_true", default=False, help="Flag to turn on normalization")
-argp.add_argument("-s","--doSum", dest="fSum", action="store_true", default=False, help="Flag to turn on summation")
+argp.add_argument("-n","--doNorm", dest="fDoNormData", action="store_true", default=False, help="Flag to turn on normalization")
+argp.add_argument("-s","--doSum", dest="fDoSumData", action="store_true", default=False, help="Flag to turn on summation")
 
-argp.add_argument("p","-paint", dest="sLabel", metavar= "Label", default=None, help="Label to paint in the PCoA")
-argp.add_argument("-m","-metric", dest="strMetric", metavar = "distance", default = PCoA.c_BRAY_CURTIS, help ="Distance metric to use.")
-argp.add_argument("-o","-outputFile", dest="strOutFile", metavar= "outputFile", default=None, help="Specify the path for the output figure.")
+argp.add_argument("-p","--paint", dest="sLabel", metavar= "Label", default=None, help="Label to paint in the PCoA")
+argp.add_argument("-m","--metric", dest="strMetric", metavar = "distance", default = PCoA.c_BRAY_CURTIS, help ="Distance metric to use.")
+argp.add_argument("-o","--outputFile", dest="strOutFile", metavar= "outputFile", default=None, help="Specify the path for the output figure.")
 
 argp.add_argument("strFileAbund", metavar = "Abundance file", help ="Input data file")
 
