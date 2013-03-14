@@ -99,15 +99,6 @@ if args.strFeatures:
 
 lsTables.append(abndTable)
 
-#Manipulate lineage
-if args.fPrefixClades:
-  for abndTable in lsTables:
-    fResult = abndTable.funcAddCladePrefixToFeatures()
-    if fResult:
-      print "ManipulateTable::Clade Prefix was added to "+abndTable.funcGetName()
-    else:
-      print "ManipulateTable::ERROR. Clade Prefix was NOT added to "+abndTable.funcGetName()
-
 # Do summing
 #Sum if need
 if args.fSum:
@@ -222,6 +213,15 @@ if args.fNormalize:
     fResult = abndTable.funcNormalize()
     if fResult:
       print "ManipulateTable::"+abndTable.funcGetName()+" was normalized after filtering on abundance data."
+
+#Manipulate lineage
+if args.fPrefixClades:
+  for abndTable in lsTables:
+    fResult = abndTable.funcAddCladePrefixToFeatures()
+    if fResult:
+      print "ManipulateTable::Clade Prefix was added to "+abndTable.funcGetName()
+    else:
+      print "ManipulateTable::ERROR. Clade Prefix was NOT added to "+abndTable.funcGetName()
 
 #Manipulate based on metadata
 if args.strStratifyBy:
