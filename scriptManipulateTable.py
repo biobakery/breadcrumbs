@@ -214,6 +214,15 @@ if args.dCuttOff:
 #    else:
 #      print "ManipulateTable::ERROR. "+abndTable.funcGetName()+" could not be reduced by standard devation."
 
+# Need to normalize again after abundance data filtering given removing features breaks the normalization
+# This happends twice because normalization is required to make the abundance data to filter on ;-)
+# Normalize if needed
+if args.fNormalize:
+  for abndTable in lsTables:
+    fResult = abndTable.funcNormalize()
+    if fResult:
+      print "ManipulateTable::"+abndTable.funcGetName()+" was normalized after filtering on abundance data."
+
 #Manipulate based on metadata
 if args.strStratifyBy:
   labndStratifiedTables = []
