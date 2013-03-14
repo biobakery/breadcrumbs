@@ -1033,7 +1033,7 @@ class AbundanceTable:
 		"""
 
 		if self._fIsNormalized:
-			sys.stderr.write( "This table is already normalized, did not perform new normalization request.\n" )
+#			sys.stderr.write( "This table is already normalized, did not perform new normalization request.\n" )
 			return False
 
 		if self._fIsSummed:
@@ -1065,7 +1065,7 @@ class AbundanceTable:
 		"""
 
 		if self._fIsNormalized:
-			sys.stderr.write( "This table is already normalized, did not perform new normalization request.\n" )
+#			sys.stderr.write( "This table is already normalized, did not perform new summed normalization request.\n" )
 			return False
 
 		if not self._fIsSummed:
