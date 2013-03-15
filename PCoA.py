@@ -217,6 +217,10 @@ class PCoA:
             iDimensionOne = max(0,min(self._iDimensions-2, iDim1-1))
             iDimensionTwo = max(1,min(self._iDimensions-1, iDim2-1))
             adPoints = self.pcoa.getPoints()
+
+            #This is 1-stress which is the amount of variance not explained by all dimensions
+            #There is no precent variance, so I am trying this as a substitute
+            dPercentVariance = int((1.0-self.pcoa.getStress())*100)
             ldXPoints = list(adPoints[:,iDimensionOne])
             if not (self.ldForcedXAxis == None):
                 ldXPoints = self.ldForcedXAxis
@@ -298,7 +302,7 @@ class PCoA:
             #Color/Invert figure
             imgFigure.set_facecolor(self.objFigureControl.c_strBackgroundColorWord)
             imgSubplot = imgFigure.add_subplot(111,axisbg=self.objFigureControl.c_strBackgroundColorLetter)
-            imgSubplot.set_xlabel("Dimension "+str(iDimensionOne+1))
+            imgSubplot.set_xlabel("Dimension "+str(iDimensionOne+1)+" (1-Stress = "+str(dPercentVariance)+"% )")
             imgSubplot.set_ylabel("Dimension "+str(iDimensionTwo+1))
             imgSubplot.spines['top'].set_color(self.objFigureControl.c_strDetailsColorLetter)
             imgSubplot.spines['bottom'].set_color(self.objFigureControl.c_strDetailsColorLetter)
