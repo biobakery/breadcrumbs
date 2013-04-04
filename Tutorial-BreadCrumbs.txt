@@ -22,6 +22,14 @@ Note the current two options are SPEARMAN and BRAY_CURTIS more can be added as n
 
 python scriptPcoa.py -i TID -l STSite -m SPEARMAN Test.pcl
 
+D. How do I get the coordinates of the points in the PCoA plot? Use -C and give a file path to which to write.
+
+python scriptPcoa.py -i TID -l STSite -C coordinates.txt Test.pcl
+
+E. How do I get the distance matrix represented by the PCoA plot? Use -D and give a file path to which to write.
+
+python scriptPcoa.py -i TID -l STSite -D distances.txt Test.pcl
+
 2. scriptManipulateFeature.py
 Abundance tables can be difficult to manipulate. This script captures frequent tasks that may be important to manipualting an abudnance table including normalization, summin, filtering, stratifying the tables into subsets (for instance breaking up a large HMP table into tables, one for each body site), and other functionality. You will notice for every call you must give it the sample id (-i) and the last metadata which should be the row before your first data (-l). This helps the scripts understand what is a data measurement and what is a metadata.
 

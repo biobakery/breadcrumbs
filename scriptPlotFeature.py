@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 """
 Author: Timothy Tickle
-Description: Peforms common manipulations on tables
+Description: Plots feaures
 """
 
 __author__ = "Timothy Tickle"
@@ -103,16 +103,21 @@ if not lxVariable2 is None:
   except ValueError:
     pass
 
-# Plot as needed
-if((not lxVariable1 is None ) and (not lxVariable2 is None)):
-  if(sum([fOneIsNumeric, fTwoIsNumeric])==0):
-    print "scriptPlotFeature:: Error, If plotting 2 variables, atleast 1 should be numeric."
-  elif(sum([fOneIsNumeric, fTwoIsNumeric])==1):
-    funcPlotBoxPlot(lxVariable1,lxVariable2, fOneIsNumeric=fOneIsNumeric)
-  elif(sum([fOneIsNumeric, fTwoIsNumeric])==2):
-    ScatterPlot.funcPlot(lxVariable1, lxVariable2, args.strOutputFile, strTitle=args.strTitle, strXTitle=args.strX, strYTitle=args.strY, strColor=args.strColor, fInvert=args.fColor)
-elif(not lxVariable1 is None ):
-  if fOneIsNumeric:
-    Histogram.funcPlot(lxVariable1, args.strOutputFile, strTitle=args.strTitle, strXTitle=args.strX, strYTitle=args.strY, strColor=args.strColor, fInvert=args.fColor)
-  else:
-    print "Sorry currently histograms are support for only numeric data."
+if lxVariable1 is None:
+  print("scriptPlotFeature:: Sorry, could not find the feature "+ strFeatureOneID +" in the file "+args.strFileAbund+" .")
+elif( (lxVariable2 is None) and (not strFeatureTwoID is None) ):
+  print("scriptPlotFeature:: Sorry, could not find the feature "+ strFeatureTwoID +" in the file "+args.strFileAbund+" .")
+else:
+  # Plot as needed
+  if((not lxVariable1 is None ) and (not lxVariable2 is None)):
+    if(sum([fOneIsNumeric, fTwoIsNumeric])==0):
+      print "scriptPlotFeature:: Error, If plotting 2 variables, atleast 1 should be numeric."
+    elif(sum([fOneIsNumeric, fTwoIsNumeric])==1):
+      funcPlotBoxPlot(lxVariable1,lxVariable2, fOneIsNumeric=fOneIsNumeric)
+    elif(sum([fOneIsNumeric, fTwoIsNumeric])==2):
+      ScatterPlot.funcPlot(lxVariable1, lxVariable2, args.strOutputFile, strTitle=args.strTitle, strXTitle=args.strX, strYTitle=args.strY, strColor=args.strColor, fInvert=args.fColor)
+  elif(not lxVariable1 is None ):
+    if fOneIsNumeric:
+      Histogram.funcPlot(lxVariable1, args.strOutputFile, strTitle=args.strTitle, strXTitle=args.strX, strYTitle=args.strY, strColor=args.strColor, fInvert=args.fColor)
+    else:
+      print "Sorry currently histograms are support for only numeric data."

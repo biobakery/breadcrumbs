@@ -16,6 +16,7 @@ __status__ = "Development"
 import sys
 import argparse
 from AbundanceTable import AbundanceTable
+import csv
 import os
 from PCoA import PCoA
 
@@ -36,6 +37,8 @@ argp.add_argument("-s","--doSum", dest="fDoSumData", action="store_true", defaul
 argp.add_argument("-p","--paint", dest="sLabel", metavar= "Label", default=None, help="Label to paint in the PCoA")
 argp.add_argument("-m","--metric", dest="strMetric", metavar = "distance", default = PCoA.c_BRAY_CURTIS, help ="Distance metric to use.")
 argp.add_argument("-o","--outputFile", dest="strOutFile", metavar= "outputFile", default=None, help="Specify the path for the output figure.")
+argp.add_argument("-D","--DistanceMatrix", dest="strFileDistanceMatrix", metavar= "strFileDistanceMatrix", default=None, help="Specify the path for outputing the distance matrix (if interested). Default this will not output.")
+argp.add_argument("-C","--CoordinatesMatrix", dest="strFileCoordinatesMatrix", metavar= "strFileCoordinatesMatrix", default=None, help="Specify the path for outputing the x,y coordinates matrix (Dim 1 and 2). Default this will not output.")
 
 argp.add_argument("strFileAbund", metavar = "Abundance file", help ="Input data file")
 
@@ -65,21 +68,33 @@ if not args.strOutFile:
   args.strOutFile = os.path.splitext(args.strFileAbund)[0]+"-pcoa.pdf"
 lsFilePieces = os.path.splitext(args.strOutFile)
 
-lsOutputFiles = [lsFilePieces[0]+"-"+sKey+lsFilePieces[1] for sKey in lsKeys] if not args.sLabel else [args.strOutFile]
+# Make PCoA object
+# Get PCoA object and plot
+pcoa = PCoA()
+pcoa.loadData(abndTable,True)
+# Optional args.strFileDistanceMatrix is not none will force a printing of the distance measures to the path in args.strFileDistanceMatrix
+pcoa.run(tempDistanceMetric=args.strMetric, iDims=2, strDistanceMatrixFile=args.strFileDistanceMatrix)
 
+# Write dim 1 and 2 coordinates to file
+if args.strFileCoordinatesMatrix:
+  lsIds = pcoa.funcGetIDs()
+  mtrxCoordinates = pcoa.funcGetCoordinates()
+  csvrCoordinates = csv.writer(open(args.strFileCoordinatesMatrix, 'w'))
+  csvrCoordinates.writerow(["ID","Dimension_1","Dimension_2"])
+  for x in xrange(mtrxCoordinates.shape[0]):
+    strId = lsIds[x] if lsIds else ""
+    csvrCoordinates.writerow([strId]+mtrxCoordinates[x].tolist())
+
+# Paint metadata
 for iIndex in xrange(len(lsKeys)):
-	lsMetadata = abndTable.funcGetMetadata(lsKeys[iIndex])
+  lsMetadata = abndTable.funcGetMetadata(lsKeys[iIndex])
 
-	#Get PCoA object and plot
-	pcoa = PCoA()
-	pcoa.loadData(abndTable,True)
-	pcoa.run(tempDistanceMetric=args.strMetric, iDims=2)
-	pcoa.plotList(lsLabelList = lsMetadata,
-              strOutputFileName = lsOutputFiles[iIndex],
-              iSize=20,
-              dAlpha=1.0,
-              charForceColor=None,
-              charForceShape=None,
-              fInvert=False,
-              iDim1=1,
-              iDim2=2)
+  pcoa.plotList(lsLabelList = lsMetadata,
+    strOutputFileName = lsFilePieces[0]+"-"+lsKeys[iIndex]+lsFilePieces[1],
+    iSize=20,
+    dAlpha=1.0,
+    charForceColor=None,
+    charForceShape=None,
+    fInvert=False,
+    iDim1=1,
+    iDim2=2)

@@ -35,6 +35,7 @@ __status__ = "Development"
 #External libraries
 from ConstantsFiguresBreadCrumbs import ConstantsFiguresBreadCrumbs
 from cogent.cluster.nmds import NMDS
+import csv
 import math
 import matplotlib.cm as cm
 from Metric import Metric
@@ -65,6 +66,8 @@ class PCoA:
     dataMatrix=None
     #Indicates if the data matrix is raw data (True) or a distance matrix (False)
     isRawData=None
+    # Holds current matrix ids
+    lsIDs = None
 
     #Current pcoa object
     pcoa = None
@@ -121,6 +124,7 @@ class PCoA:
             else:
                 self.dataMatrix=data
                 self.isRawData=fIsRawData
+                self.lsIDs=xData.funcGetMetadata(xData.funcGetIDMetadataName())
 
         #Otherwise load the data directly as passed.
         else:
@@ -128,7 +132,7 @@ class PCoA:
             self.isRawData=fIsRawData
         return True
 
-    def run(self, tempDistanceMetric=None, iDims=2):
+    def run(self, tempDistanceMetric=None, iDims=2, strDistanceMatrixFile=None):
         """
         Runs analysis on loaded data.
 
@@ -155,7 +159,7 @@ class PCoA:
                 return False
             elif(ValidateData.funcIsFalse(self.isRawData)):
                 self.pcoa = NMDS(dataMatrix, verbosity=0)
-                return self.pcoa
+                return True
         
         #Make sure the distance metric was a valid string type
         if(not ValidateData.funcIsValidString(tempDistanceMetric)):
@@ -174,10 +178,30 @@ class PCoA:
         if(ValidateData.funcIsFalse(distanceMatrix)):
             print "PCoA:run::Error, when generating distance matrix."
             return False
-        self.pcoa = NMDS(squareform(distanceMatrix), dimension=max(self._iDimensions,2), verbosity=0)
 
+        # Make squareform
+        distanceMatrix = squareform(distanceMatrix)
 
-        return False
+        # Writes distance measures if needed.
+        if strDistanceMatrixFile:
+            csvrDistance = csv.writer(open(strDistanceMatrixFile, 'w'))
+            if self.lsIDs:
+                csvrDistance.writerow(["ID"]+self.lsIDs)
+
+            for x in xrange(distanceMatrix.shape[0]):
+                strId = [self.lsIDs[x]] if self.lsIDs else []
+                csvrDistance.writerow(strId+distanceMatrix[x].tolist())
+
+        self.pcoa = NMDS(distanceMatrix, dimension=max(self._iDimensions,2), verbosity=0)
+        return True
+
+    #TODO Test
+    def funcGetCoordinates(self):
+        return(self.pcoa.getPoints())
+
+    #TODO Test
+    def funcGetIDs(self):
+        return(self.lsIDs)
 
     #Happy path tested
     def plot(self, tempPlotName="PCOA.png", tempColorGrouping=None, tempShape=None, tempLabels=None, tempShapeSize=None, tempAlpha = 1.0, tempLegendLocation="upper right", tempInvert=False, iDim1 = 1, iDim2 = 2):
