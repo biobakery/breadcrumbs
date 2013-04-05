@@ -46,8 +46,8 @@ argp.add_argument("-o","--output", dest="strOutputFile", action="store", default
 
 # Text annotation
 argp.add_argument("-t","--title", dest="strTitle", action="store", default="Title", help="Test for the title.")
-argp.add_argument("-x","--xaxis", dest="strX", action="store", default="X axis", help="Text for the x-axis.")
-argp.add_argument("-y","--yaxis", dest="strY", action="store", default="Y axis", help="Text for the y-axis.")
+argp.add_argument("-x","--xaxis", dest="strX", action="store", default=None, help="Text for the x-axis.")
+argp.add_argument("-y","--yaxis", dest="strY", action="store", default=None, help="Text for the y-axis.")
 
 # Color options
 argp.add_argument("-c","--color", dest="strColor", action="store", default="#83C8F9", help="Fill color as a Hex number (including the #).")
@@ -77,6 +77,12 @@ fTwoIsNumeric = False
 
 strFeatureOneID = args.strFeatures[0]
 strFeatureTwoID = None if len(args.strFeatures)<2 else args.strFeatures[1]
+
+if args.strX is None:
+  args.strX = strFeatureOneID
+
+if args.strY is None:
+  args.strY = strFeatureTwoID
 
 # Get values and groupings
 for lsLine in csvReader:

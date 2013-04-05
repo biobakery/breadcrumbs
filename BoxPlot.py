@@ -113,7 +113,10 @@ class BoxPlot:
     plt.setp(bp['whiskers'], color=objFigureControl.c_strDetailsColorLetter)
 
     #Set ticks and title
-    xtickNames = plt.setp(imgSubplot, xticklabels=lsLabels)
+    lsLabelsWithCounts = []
+    for iindex,sCurLabel in enumerate(lsLabels):
+      lsLabelsWithCounts.append(sCurLabel+" ( "+str(len(ly[iindex]))+" )")
+    xtickNames = plt.setp(imgSubplot, xticklabels=lsLabelsWithCounts)
     imgSubplot.set_title(strTitle)
     imgSubplot.title.set_color(objFigureControl.c_strDetailsColorLetter)
 
