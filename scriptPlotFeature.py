@@ -34,7 +34,7 @@ def funcPlotBoxPlot(lxVariable1,lxVariable2,fOneIsNumeric):
   ly = [dictGroups[sKey] for sKey in dictGroups.keys()]
   lsLabels = dictGroups.keys()
 
-  BoxPlot.funcPlot(ly=ly, lsLabels=lsLabels, strOutputFigurePath=args.strOutputFile, strTitle=args.strTitle, strXTitle=args.strX, strYTitle=args.strY, strColor=args.strColor, fJitter=False, fInvert=args.fColor, fInvertY=args.fAxis)
+  BoxPlot.funcPlot(ly=ly, lsLabels=lsLabels, strOutputFigurePath=args.strOutputFile, strTitle=args.strTitle, strXTitle=args.strX, strYTitle=args.strY, strColor=args.strColor, fJitter=True, fInvert=args.fColor, fInvertY=args.fAxis)
 
 
 #Set up arguments reader
