@@ -939,7 +939,7 @@ class AbundanceTable:
 		"""
 
 		#No need to do anything
-		if(iMinSequence==0) or (iMinSamples==0):
+		if(dMinAbundance==0) or (iMinSamples==0):
 			return True
 
 		#This normalization requires the data to be relative abundance
