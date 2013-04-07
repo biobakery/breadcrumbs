@@ -926,10 +926,45 @@ class AbundanceTable:
 
 		return True
 
+	def funcFilterAbundanceByMinValue(self, dMinAbundance = 0.0001, iMinSamples = 3):
+		"""
+		Filter abundance by requiring features to have a minimum relative abundance in a minimum number of samples.
+		Will evaluate greater than or equal to the dMinAbundance and iMinSamples.
+
+		:param	dMinAbundance:	Minimum relative abundance.
+		:type:	Real	Number Less than 1.
+		:param	iMinSamples:	Minimum samples to have the relative abundnace or greater in.
+		:type:	Integer	Number greater than 1.
+		:return	Boolean:	Indicator of the filter running without error. False indicates error.
+		"""
+
+		#No need to do anything
+		if(iMinSequence==0) or (iMinSamples==0):
+			return True
+
+		#This normalization requires the data to be relative abundance
+		if not self._fIsNormalized:
+			#sys.stderr.write( "Could not filter by sequence occurence because the data is already normalized.\n" )
+			return False
+
+		#Holds which indexes are kept
+		liKeepFeatures = []
+		for iRowIndex, dataRow in enumerate( self._npaFeatureAbundance ):
+			#See which rows meet the criteria and keep the index if needed.
+			if len( filter( lambda d: d >= dMinAbundance, list(dataRow)[1:] ) ) >= iMinSamples:
+				liKeepFeatures.append(iRowIndex)
+
+		#Compress array
+		self._npaFeatureAbundance = self._npaFeatureAbundance[liKeepFeatures,:]
+		#Update filter state
+		self._strCurrentFilterState += ":dMinAbundance=" + str(dMinAbundance) + ",iMinSamples=" + str(iMinSamples)
+
+		return True
+
 	#Happy path tested
 	def funcFilterAbundanceBySequenceOccurence(self, iMinSequence = 2, iMinSamples = 2):
 		"""
-		Filter abundance by requiring features to have a minimum sequence occurence in a minimum number of samples.
+		Filter occurence by requiring features to have a minimum sequence occurence in a minimum number of samples.
 		Will evaluate greater than or equal to the iMinSequence and iMinSamples.
 
 		:param	iMinSequence:	Minimum sequence to occur.

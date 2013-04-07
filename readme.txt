@@ -1,6 +1,6 @@
 BreadCrumbs
 
-BreadCrumbs is an unofficial collection of scripts and code intended to consolidate functions for tool development and contain scripts for command line access to core function.
+BreadCrumbs is an unofficial collection of scripts and code intended to consolidate functions for tool development and contain scripts for command line access to core function. Breadcrumbs tends to include functionality associated with metagenomics analysis but you never know what you will find!
 
 
 Dependencies:
@@ -28,7 +28,7 @@ Scripts are included to expose core functionality to the command line. Currently
 A quick description of the scripts include:
 
 Hclust.py
-Flexible script to create heirarchical clustering of abundance tables (or other matrices).
+Flexible script to create hierarchical clustering of abundance tables (or other matrices).
 
 scriptPlotFeature.py
 Allows one to plot a histogram, boxplot, or scatter plot of a bug or metadata in an abundance table. Will work on any row in a matrix.
@@ -42,7 +42,7 @@ Allows one to plot a principle covariance analysis (PCoA) plot of an abundance t
 
 Programming Classes:
 
-Brief discriptions of classes are as follows. More detailed descriptions are given in the classes themselves.
+Brief descriptions of classes are as follows. More detailed descriptions are given in the classes themselves.
 
 AbundanceTable
 Data structure to contain and perform operations on an abundance table.
@@ -51,19 +51,19 @@ BoxPlot
 Wrapper to plot box plots.
 
 CClade
-Helper object used in heirarchical summing and normalization
+Helper object used in hierarchical summing and normalization
 
 Cladogram
-Object that manipulated an early dendrogram visualization. Depricated, should use the GraPhlan visualization tool on bitbucket instead.
+Object that manipulated an early dendrogram visualization. Deprecated, should use the GraPhlan visualization tool on bitbucket instead.
 
 CommandLine
-Collection of code to work with command line. Depricated. Should use sfle calls.
+Collection of code to work with command line. Deprecated. Should use sfle calls.
 
 ConstantsBreadCrumbs
 Contains generic constants.
 
 ConstantsFiguresBreadCrumbs
-Contains constains associated with formatting figures.
+Contains constants associated with formatting figures.
 
 KMedoids
 Code from MLPY which performs KMedoids sample selection.
@@ -90,7 +90,7 @@ Utility
 Generic functions
 
 UtilityMath
-Generic meth related functions
+Generic math related functions
 
 ValidateData
 Collection of functions to validate data types when needed.
