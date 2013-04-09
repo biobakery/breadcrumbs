@@ -199,8 +199,10 @@ if args.strFilterPercentile:
 
 # Filter on abundance (should go after filter on percentile because the filter on percentile 
 # needs the full distribution of features in a sample
-if args.strFilterAbundnace:
-  dAbundance,iMinSamples = args.strFilterAbundnace.split(",")
+if args.strFilterAbundance:
+  dAbundance,iMinSamples = args.strFilterAbundance.split(",")
+  dAbundance = float(dAbundance)
+  iMinSamples = int(iMinSamples)
   for abndTable in lsTables:
     if abndTable.funcIsNormalized():
       fResult = abndTable.funcFilterAbundanceByMinValue(dMinAbundance=dAbundance,iMinSamples=iMinSamples)
