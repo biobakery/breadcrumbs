@@ -45,7 +45,7 @@ argp = argparse.ArgumentParser( prog = "scriptBoxPlot.py\nExample: python script
 argp.add_argument("-o","--output", dest="strOutputFile", action="store", default=None, help="Output file name.")
 
 # Text annotation
-argp.add_argument("-t","--title", dest="strTitle", action="store", default="Title", help="Test for the title.")
+argp.add_argument("-t","--title", dest="strTitle", action="store", default=None, help="Test for the title.")
 argp.add_argument("-x","--xaxis", dest="strX", action="store", default=None, help="Text for the x-axis.")
 argp.add_argument("-y","--yaxis", dest="strY", action="store", default=None, help="Text for the y-axis.")
 
@@ -62,13 +62,6 @@ argp.add_argument("strFeatures", nargs = "+", help="Features to plot (from one t
 
 args = argp.parse_args( )
 
-# If the output file is not specified, make it up
-if not args.strOutputFile:
-  lsPieces = os.path.splitext(args.strFileAbund)
-  args.strOutputFile = lsPieces[0]+"-plotfeature.pdf"
-
-csvReader = csv.reader(open(args.strFileAbund, 'rU') if isinstance(args.strFileAbund,str) else args.strFileAbund, delimiter="\t")
-
 #Holds the data
 lxVariable1 = None
 lxVariable2 = None
@@ -77,6 +70,22 @@ fTwoIsNumeric = False
 
 strFeatureOneID = args.strFeatures[0]
 strFeatureTwoID = None if len(args.strFeatures)<2 else args.strFeatures[1]
+
+# If the output file is not specified, make it up
+if not args.strOutputFile:
+  lsPieces = os.path.splitext(args.strFileAbund)
+  args.strOutputFile = [lsPieces[0],strFeatureOneID]
+  if strFeatureTwoID:
+    args.strOutputFile = args.strOutputFile+[strFeatureTwoID]
+  args.strOutputFile = "-".join(args.strOutputFile+["plotfeature.pdf"])
+
+if not args.strTitle:
+  args.strTitle = [strFeatureOneID]
+  if strFeatureTwoID:
+    args.strTitle = args.strTitle+[strFeatureTwoID]
+  args.strTitle = " vs ".join(args.strTitle)
+
+csvReader = csv.reader(open(args.strFileAbund, 'rU') if isinstance(args.strFileAbund,str) else args.strFileAbund, delimiter="\t")
 
 if args.strX is None:
   args.strX = strFeatureOneID
@@ -91,6 +100,12 @@ for lsLine in csvReader:
   if not strFeatureTwoID is None:
     if lsLine[0] == strFeatureTwoID:
       lxVariable2 = lsLine[1:]
+
+# Remove NAs
+liNAs = [i for i,x in enumerate(lxVariable1) if x.lower() == "na"]
+liNAs = set([i for i,x in enumerate(lxVariable1) if x.lower() == "na"]+liNAs)
+lxVariable1 = [x for i,x in enumerate(lxVariable1) if not i in liNAs]
+lxVariable2 = [x for i,x in enumerate(lxVariable2) if not i in liNAs]
 
 # Type variables
 if not lxVariable1 is None:
