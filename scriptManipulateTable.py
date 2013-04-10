@@ -35,7 +35,7 @@ argp.add_argument("-n","--doNorm", dest="fNormalize", action="store_true", defau
 argp.add_argument("-s","--doSum", dest="fSum", action="store_true", default=False, help="Flag to turn on summation")
 
 #Unsupervised filtering
-argp.add_argument("-A","--doFilterAbundance", dest="strFilterAbundance", action="store", default=None, help="Turns on filtering by abundance (remove features that do not have a minimum abundance in a minimum number of samples); Should be a real number and an integer in the form 'minAbundance.minSamples', (should be performed on a normalized file).")
+argp.add_argument("-A","--doFilterAbundance", dest="strFilterAbundance", action="store", default=None, help="Turns on filtering by abundance (remove features that do not have a minimum abundance in a minimum number of samples); Should be a real number and an integer in the form 'minAbundance,minSamples', (should be performed on a normalized file).")
 argp.add_argument("-P","--doFilterPercentile", dest="strFilterPercentile", action="store", default=None, help="Turns on filtering by percentile Should be two numbers between 0 and 1 in the form 'percentile,percentage'. (should be performed on a normalized file).")
 argp.add_argument("-O","--doFilterOccurrence", dest="strFilterOccurence", action="store", default=None, help="Turns on filtering by occurrence. Should be two integers in the form 'minSequence,minSample' (should NOT be performed on a normalized file).")
 #argp.add_argument("-D","--doFilterDeviation", dest="dCuttOff", action="store", type=float, default=None, help="Flag to turn on filtering by standard deviation (should NOT be performed on a normalized file).")
