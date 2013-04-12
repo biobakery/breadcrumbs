@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 """
 Author: Timothy Tickle
-Description: Peforms common manipulations on tables
+Description: Performs common manipulations on tables
 """
 
 __author__ = "Timothy Tickle"
@@ -17,7 +17,7 @@ import csv
 import sys
 import argparse
 import os
-from AbundanceTable import AbundanceTable
+from src.AbundanceTable import AbundanceTable
 
 #Set up arguments reader
 argp = argparse.ArgumentParser( prog = "scriptManipulateTable.py",

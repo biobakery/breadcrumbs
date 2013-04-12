@@ -17,9 +17,9 @@ import sys
 import argparse
 import csv
 import os
-from BoxPlot import BoxPlot
-from Histogram import Histogram
-from ScatterPlot import ScatterPlot
+from src.BoxPlot import BoxPlot
+from src.Histogram import Histogram
+from src.ScatterPlot import ScatterPlot
 
 def funcPlotBoxPlot(lxVariable1,lxVariable2,fOneIsNumeric):
 
@@ -105,7 +105,9 @@ for lsLine in csvReader:
 liNAs = [i for i,x in enumerate(lxVariable1) if x.lower() == "na"]
 liNAs = set([i for i,x in enumerate(lxVariable1) if x.lower() == "na"]+liNAs)
 lxVariable1 = [x for i,x in enumerate(lxVariable1) if not i in liNAs]
-lxVariable2 = [x for i,x in enumerate(lxVariable2) if not i in liNAs]
+
+if not lxVariable2 is None:
+  lxVariable2 = [x for i,x in enumerate(lxVariable2) if not i in liNAs]
 
 # Type variables
 if not lxVariable1 is None:
@@ -139,6 +141,6 @@ else:
       ScatterPlot.funcPlot(lxVariable1, lxVariable2, args.strOutputFile, strTitle=args.strTitle, strXTitle=args.strX, strYTitle=args.strY, strColor=args.strColor, fInvert=args.fColor)
   elif(not lxVariable1 is None ):
     if fOneIsNumeric:
-      Histogram.funcPlot(lxVariable1, args.strOutputFile, strTitle=args.strTitle, strXTitle=args.strX, strYTitle=args.strY, strColor=args.strColor, fInvert=args.fColor)
+      Histogram.funcPlot(lxVariable1, args.strOutputFile, strTitle=args.strTitle, strXTitle=args.strX, strYTitle="Frequency", strColor=args.strColor, fInvert=args.fColor)
     else:
       print "Sorry currently histograms are support for only numeric data."

@@ -1,9 +1,10 @@
-BreadCrumbs
+# BreadCrumbs #
 
 BreadCrumbs is an unofficial collection of scripts and code intended to consolidate functions for tool development and contain scripts for command line access to core function. Breadcrumbs tends to include functionality associated with metagenomics analysis but you never know what you will find!
 
 
-Dependencies:
+## Dependencies: ##
+
 Cogent
 MatplotLib
 Mercurial (optional for downloading)
@@ -11,94 +12,96 @@ Numpy
 Python 2.x
 SciPy
 
-To download BreadCrumbs from BitBucket use the command
 
-hg clone https://bitbucket.org/timothyltickle/breadcrumbs
+## How to download ##
+
+To download BreadCrumbs from BitBucket use the command:
+
+> hg clone https://bitbucket.org/timothyltickle/breadcrumbs
 
 To update BreadCrumbs, in the BreadCrumbs directory use the 2 commands sequentially:
 
-hg pull
-hg update
+> hg pull
+> hg update
 
 
-Scripts:
+## Scripts: ##
 
 Scripts are included to expose core functionality to the command line. Currently these scripts center on Manipulating and visualizing abundance tables.
-
 A quick description of the scripts include:
 
-Hclust.py
+* Hclust.py
 Flexible script to create hierarchical clustering of abundance tables (or other matrices).
 
-scriptPlotFeature.py
+* scriptPlotFeature.py
 Allows one to plot a histogram, boxplot, or scatter plot of a bug or metadata in an abundance table. Will work on any row in a matrix.
 
-scriptManipulateTable.py
+* scriptManipulateTable.py
 Allows one to do common functions on an abundance table including, summing, normalizing, filtering, stratifying tables.
 
-scriptPcoa.py
+* scriptPcoa.py
 Allows one to plot a principle covariance analysis (PCoA) plot of an abundance table.
 
 
-Programming Classes:
+## Programming Classes: ##
 
 Brief descriptions of classes are as follows. More detailed descriptions are given in the classes themselves.
 
-AbundanceTable
+* AbundanceTable
 Data structure to contain and perform operations on an abundance table.
 
-BoxPlot
+* BoxPlot
 Wrapper to plot box plots.
 
-CClade
+* CClade
 Helper object used in hierarchical summing and normalization
 
-Cladogram
+* Cladogram
 Object that manipulated an early dendrogram visualization. Deprecated, should use the GraPhlan visualization tool on bitbucket instead.
 
-CommandLine
+* CommandLine
 Collection of code to work with command line. Deprecated. Should use sfle calls.
 
-ConstantsBreadCrumbs
+* ConstantsBreadCrumbs
 Contains generic constants.
 
-ConstantsFiguresBreadCrumbs
+* ConstantsFiguresBreadCrumbs
 Contains constants associated with formatting figures.
 
-KMedoids
+* KMedoids
 Code from MLPY which performs KMedoids sample selection.
 
-MLPYDistanceAdaptor
+* MLPYDistanceAdaptor
 Used to allow custom distance matrices to be used by KMedoids.
 
-Metric
+* Metric
 Difference functions associated with distance and diversity metrics.
 
-PCoA
+* PCoA
 Functionality surrounding the plotting of a PCoA
 
-PlotMatrix
+* PlotMatrix
 Allows on to plot a matrix of numbers.
 
-SVM
+* SVM
 Support Vector Machine associated scripts.
 
-Test.pcl
+* Test.pcl
 Test file to run script on.
 
-Utility
+* Utility
 Generic functions
 
-UtilityMath
+* UtilityMath
 Generic math related functions
 
-ValidateData
+* ValidateData
 Collection of functions to validate data types when needed.
 
 
-Contributing Authors:
+## Contributing Authors: ##
 Curtis Huttenhower, Nicola Segata, Timothy Tickle
 
 
-Contact:
+## Contact: ##
 Please feel free to contact ttickle@hsph.harvard.edu with questions.
