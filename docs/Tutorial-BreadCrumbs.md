@@ -17,6 +17,8 @@ V. Manipulate the feature names
 ## scriptPCoA.py ##
 This script allows one to plot a PCoA of an abundance table. In the plot each sample is one marker. The marker shape and color is determined by a metadata (of your choice). The distances between each sample is determined by a specific beta-diversity distance metric. By default Bray-curtis distance is used. This can be changed as needed. You will notice for every call you must give it the sample id (-i) and the last metadata which should be the row before your first data (-l). This helps the scripts understand what is a data measurement and what is a metadata.
 
+*Note this tutorial assumes you are in the breadcrumbs directory*
+
 A. How do I make a PCoA of an abundance table, painting (coloring) it by a specific metadata?
 
 > python scripts/scriptPcoa.py -i TID -l STSite -p STSite demo_input/Test.pcl
@@ -115,7 +117,7 @@ K. How do I remove all samples of a certain metadata value? (Example, How do I r
 > python scripts/scriptManipulateTable.py -i TID -l STSite -r STSite,R_Retroauricular_crease, L_Retroauricular_crease demo_input/Test.pcl
 
 V. Manipulate the feature names  
-L. How do I add on the k__ and s__ on the names of my bugs?
+L. How do I add on the 'k__' and 's__' on the names of my bugs?
 
 > python scripts/scriptManipulateTable.py -i TID -l STSite -x demo_input/Test.pcl
 
