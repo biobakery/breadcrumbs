@@ -447,6 +447,55 @@ class AbundanceTable:
 #				strLastMetadata = self.funcGetLastMetadataName(),
 #				cFileDelimiter = self.funcGetFileDelimiter(), cFeatureNameDelimiter=self.funcGetFeatureDelimiter())
 
+	#TODO This does not adjust for sample ordering, needs to
+	def funcAddDataFeature(self, lsNames, npdData):
+		"""
+		Adds a data or group of data to the underlying table.
+		Names should be in the order of the data
+		Each row is considered a feature (not sample).
+
+		:param lsNames:	Names of the features being added to the data of the table
+		:type: List	List of string names
+		:param npdData: Rows of features to add to the table
+		:type:	Numpy array accessed by row.
+		"""
+		if ( self._npaFeatureAbundance == None ):
+			return False
+
+		# Check number of input data rows
+		iDataRows = npdData.shape[0]
+		if (len(lsNames) != iDataRows):
+			print "Error:The names and the rows of features to add must be of equal length"
+
+		# Grow the array by the neccessary amount and add the new rows
+		iTableRowCount = self.funcGetFeatureCount()
+		iRowElementCount = self.funcGetSampleCount()
+		self._npaFeatureAbundance.resize(iTableRowCount+iDataRows)
+		for iIndexData in xrange(iDataRows):
+			self._npaFeatureAbundance[iTableRowCount+iIndexData] = tuple([lsNames[iIndexData]]+list(npdData[iIndexData]))
+
+		return True
+
+	#TODO This does not adjust for sample ordering, needs to
+	def funcAddMetadataFeature(self,lsNames,llsMetadata):
+		"""
+		Adds metadata feature to the underlying table.
+		Names should be in the order of the lists of metadata
+		Each internal list is considered a metadata and paired to a name
+		"""
+		if ( self._dictTableMetadata == None ):
+			return False
+
+		# Check number of input data rows
+		iMetadataCount = len(llsMetadata)
+		if (len(lsNames) != iMetadataCount):
+			print "Error:The names and the rows of features to add must be of equal length"
+
+		# Add the metadata
+		for tpleMetadata in zip(lsNames,llsMetadata):
+			self._dictTableMetadata[tpleMetadata[0]]=tpleMetadata[1]
+		return True
+
 	#2 test Cases
 	def funcSetFeatureDelimiter(self, cDelimiter):
 		"""
