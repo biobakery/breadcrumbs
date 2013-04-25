@@ -63,7 +63,7 @@ class PCA(Ordination):
         vStd = std(a=mtrxPrepped,axis=0) if fCenter else [sqrt(sum(square(ldRow))/len(ldRow)) for ldRow in mtrxPrepped.T]
         mtrxPrepped /= vStd
       iRows, iCols = mtrxPrepped.shape
-      U,S,V = linalg.svd(mtrxPrepped)
+      U,S,V = linalg.svd(a=mtrxPrepped,full_matrices=False)
       ldVariance = square(S*(iCols-1))
       ldVariance = ldVariance/sum(ldVariance)
       # Here components are row-wise so each component is a row.

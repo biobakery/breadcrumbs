@@ -465,7 +465,7 @@ class AbundanceTable:
 		# Check number of input data rows
 		iDataRows = npdData.shape[0]
 		if (len(lsNames) != iDataRows):
-			print "Error:The names and the rows of features to add must be of equal length"
+			print "Error:The names and the rows of data features to add must be of equal length"
 
 		# Grow the array by the neccessary amount and add the new rows
 		iTableRowCount = self.funcGetFeatureCount()
@@ -489,7 +489,7 @@ class AbundanceTable:
 		# Check number of input data rows
 		iMetadataCount = len(llsMetadata)
 		if (len(lsNames) != iMetadataCount):
-			print "Error:The names and the rows of features to add must be of equal length"
+			print "Error:The names and the rows of metadata features to add must be of equal length"
 
 		# Add the metadata
 		for tpleMetadata in zip(lsNames,llsMetadata):
