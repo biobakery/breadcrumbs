@@ -9,9 +9,10 @@ Enjoy and happy researching!
 2. scriptManipulateFeature.py  
 I. Manipulating the measurements  
 II. Filtering  
-III. Filtering with knowledge of feature hierarchical relationship.  
-IV. Manipulate samples by metadata.  
-V. Manipulate the feature names  
+III. Filtering with knowledge of feature hierarchical relationship
+IV. Manipulate samples by metadata
+V. Manipulate the feature names
+VI. Dimensionality Reduction
 3. scriptPlotFeature.py  
 
 ## scriptPCoA.py ##
@@ -120,6 +121,12 @@ V. Manipulate the feature names
 L. How do I add on the 'k__' and 's__' on the names of my bugs?
 
 > python scripts/scriptManipulateTable.py -i TID -l STSite -x demo_input/Test.pcl
+
+VI. Dimensionality Reduction
+M. How do I make new composite bugs or metadata using principle components analysis (PCA).
+Adding a -p will make principle components (PCs) out of the bug abundance data and then seperately another time with the numeric data in the metadata (This would include boolean indicated as 0 and 1 so make sure to represent them as 'TRUE' and 'FALSE'). The PCA performed is the same as performed by the R function prcomp and was checked by the results of this function. SVD is used in the function and scaling and centering is automatically performed. The feature names are named as such: Metadata/Data + PC# + percent variance which is between 0 and 1 but the decimal was changed to _ so 0.80 would be 0_80. An example would be Data_PC1_0_81234 which means this is a PC made from the abundance data, this was the first PC and the percent variance is 0.81234 or 81% and some change.
+
+> python scripts/scriptManipulateTable.py -i TID -l STSite -p demo_input/Test2.pcl
 
 
 ## scriptPlotFeature.py ##
