@@ -258,7 +258,7 @@ if args.fDoPCA:
     ldVariance = pcaCur.getVariance()
     lldComponents = pcaCur.getComponents()
     # Make Names
-    lsNamesData = ["Data_PC"+str((tpleVariance[0]+1))+"_"+re.sub("\.","_",str(tpleVariance[1])) for tpleVariance in enumerate(ldVariance)]
+    lsNamesData = ["Data_PC"+str((tpleVariance[0]+1))+"_"+re.sub("[\.|-]","_",str(tpleVariance[1])) for tpleVariance in enumerate(ldVariance)]
     abndTable.funcAddDataFeature(lsNamesData,lldComponents)
 
     # Add metadata features
@@ -283,7 +283,7 @@ if args.fDoPCA:
     ldVariance = pcaCur.getVariance()
     lldComponents = pcaCur.getComponents()
     # Make Names
-    lsNamesMetadata = ["Metadata_PC"+str((tpleVariance[0]+1))+"_"+re.sub("\.","_",str(tpleVariance[1])) for tpleVariance in enumerate(ldVariance)]
+    lsNamesMetadata = ["Metadata_PC"+str((tpleVariance[0]+1))+"_"+re.sub("[\.|-]","_",str(tpleVariance[1])) for tpleVariance in enumerate(ldVariance)]
     # Make metadata components and add to abundance
     llsMetadata = [list(npdRow) for npdRow in lldComponents]
     abndTable.funcAddMetadataFeature(lsNamesMetadata, llsMetadata)
