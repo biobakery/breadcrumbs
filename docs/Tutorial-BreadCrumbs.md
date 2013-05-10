@@ -51,6 +51,8 @@ _Here is an example of summing, normalizing, adding on clade prefixes, and strat
 
 > python scripts/scriptManipulateTable.py -i TID -l STSite -s -n -x -y STSite demo_input/Test.pcl
 
+Please look at the detailed description of normalization and summation for a clear understanding of how the data is being manipulated.
+
 *Manipulating the measurements*  
 A. How do I sum a table based on clade names?
 
@@ -102,6 +104,27 @@ This reduces the bugs to bugs with 3 levels of hierarchy or less (class on a sta
 You may want to hierarchically sum all of you bugs before reducing the table to a certain level, just in case you are missing some.
 
 > python scripts/scriptManipulateTable.py -i TID -l STSite -s -c 3 demo_input/Test.pcl
+
+Detail. OTUs or taxonomic clades are terminal nodes of a dendrogram representing the full taxonomy or phylogeny of a study. Biology may happen at these terminal clades or at higher level clades. Hierarchical summation uses the name of the bug (containing the consensus lineage) to add bugs together at different levels of their ancestral state and represent additional higher level clades or bigger groupings of bugs.
+
+More plainly, imagine if we have 2 bugs in a sample with 5 and 10 counts. These two bugs differ as species but share the rest of their ancestry. In this case, an additional bug is added for the genus level group. 
+
+k__kingdom1|p__phylum2|c__class1|o__order1|f__family1|g__genus1|s__species1	5
+k__kingdom1|p__phylum2|c__class1|o__order1|f__family1|g__genus1|s__species2	10
+add
+k__kingdom1|p__phylum2|c__class1|o__order1|f__family1|g__genus1	15
+
+A new kingdom, phylum, class, order, and family is not entered because they would be the same grouping of counts as the new genus level entry.
+
+If we had an additional bug
+k__kingdom1|p__phylum2|c__class1|o__order2|f__family12|g__genus23|s__species14	2
+k__kingdom1|p__phylum2|c__class1|o__order1|f__family1|g__genus1|s__species1	5
+k__kingdom1|p__phylum2|c__class1|o__order1|f__family1|g__genus1|s__species2	10
+add
+k__kingdom1|p__phylum2|c__class1	17
+k__kingdom1|p__phylum2|c__class1|o__order1|f__family1|g__genus1	15
+
+Two new bugs are added because o__order1 and o__order2 can be combined at the c__class1 grouping and s__species1 and s__species2 can be combined at the g__genus1 level. Other groupings at other clade levels are not made because they represent the same groupings of counts already accounted for in the data by bugs and would be redundant. For instance, having a k__kingdom 17 count entry would be the same grouping as the c_class1 bug that was added and so is not created and added.
 
 *How do I reduce the table to a list of bugs?*
 
