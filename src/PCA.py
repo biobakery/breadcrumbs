@@ -37,7 +37,7 @@ from AbundanceTable import AbundanceTable
 from ConstantsFiguresBreadCrumbs import ConstantsFiguresBreadCrumbs
 from Ordination import Ordination
 import matplotlib.cm as cm
-from math import sqrt
+from math import sqrt,asin
 from matplotlib.mlab import PCA as mplPCA
 from matplotlib import pyplot as plt
 from numpy import *
@@ -53,9 +53,11 @@ class PCA(Ordination):
     self.c_strComponents = "components"
     self.c_strVariance = "percent_variance"
 
-  def run(self,fScale=True,fCenter=True):
+  def run(self,fScale=True,fCenter=True,fASTransform=False):
     if not self.dataMatrix is None:
       mtrxPrepped = self.dataMatrix.T
+      if fASTransform:
+        mtrxPrepped = asin(sqrt(mtrxPrepped))
       if fCenter:
         mtrxPrepped = mtrxPrepped-mean(mtrxPrepped,0)
       if fScale:

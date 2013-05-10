@@ -263,23 +263,29 @@ if args.fDoPCA:
 
     # Add metadata features
     # Convert metadata to an input for PCA
+    # Replace missing values with the mean
+    # dummy the discrete data
     dictMetadata = abndTable.funcGetMetadataCopy()
-    ## Remove the metadta id
+    ## Remove the metadata id
     dictMetadata.pop(abndTable.funcGetIDMetadataName(),None)
     lMetadata = []
     for lxItem in dictMetadata.values():
-      # Replace NAs with the Mode
-      dictFreq = {}
-      for xItem in lxItem:
-        if not xItem.strip().lower() in ["na",""]:
-          dictFreq[xItem] = dictFreq.get(xItem,0)+1
-      xCurMode = max((v, k) for k, v in dictFreq.iteritems())[1]
-      lxItem = [xCurMode if xItem.strip().lower() in ["na",""] else xItem.strip() for xItem in lxItem]
-      ## Get only numeric metadata
-      if sum([ ValidateData.funcIsValidStringFloat(xItem) for xItem in lxItem]) == len(lxItem):
-        lMetadata.append([float(xItem) for xItem in lxItem])
+      ## If this is not numeric data then dummy
+      ## Treat NA as a seperate category
+      if not (sum([ ValidateData.funcIsValidStringFloat(xItem) for xItem in lxItem]) == len(lxItem)):
+        # Get levels
+        setsLevels = set(lxItem)
+        # Go through each level and dummy the metadata
+        for sLevel in setsLevels:
+          lMetadata.append([1.0 if xItem==sLevel else 0.0 for xItem in lxItem])
+      else:
+        # Change NA to Mean and store numeric data as float
+        ldNONA = [float(xItem) for xItem in lxItem if not lxItem.strip().lower() in ["na",""]]
+        dMean = sum(ldNONA)/float(len(ldNONA))
+        lMetadata.append([dMean if xItem.strip().lower() in ["na",""] else float(xItem) for xItem in lxItem])
+
     pcaCur.loadData(np.array(lMetadata).T,False)
-    pcaCur.run()
+    pcaCur.run(fASTransform=True)
     ldVariance = pcaCur.getVariance()
     lldComponents = pcaCur.getComponents()
     # Make Names
