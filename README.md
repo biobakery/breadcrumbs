@@ -27,6 +27,8 @@ A quick description of the scripts include:
 
 * *Hclust.py* Flexible script to create hierarchical clustering of abundance tables (or other matrices).
 
+* *scriptBiplotPCL.R* Allows one to plot a pcl as a biplot using nonmetric multidimensional scaling.
+
 * *scriptPlotFeature.py* Allows one to plot a histogram, boxplot, or scatter plot of a bug or metadata in an abundance table. Will work on any row in a matrix.
 
 * *scriptManipulateTable.py* Allows one to do common functions on an abundance table including, summing, normalizing, filtering, stratifying tables.
