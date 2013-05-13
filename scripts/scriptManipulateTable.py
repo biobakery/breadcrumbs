@@ -254,7 +254,7 @@ if args.fDoPCA:
     # Add data features
     # Make data components and add to abundance table
     pcaCur.loadData(abndTable,True)
-    pcaCur.run()
+    pcaCur.run(fASTransform=True)
     ldVariance = pcaCur.getVariance()
     lldComponents = pcaCur.getComponents()
     # Make Names
@@ -280,12 +280,15 @@ if args.fDoPCA:
           lMetadata.append([1.0 if xItem==sLevel else 0.0 for xItem in lxItem])
       else:
         # Change NA to Mean and store numeric data as float
-        ldNONA = [float(xItem) for xItem in lxItem if not lxItem.strip().lower() in ["na",""]]
+        # Also add to the metadata so that there are no negative numbers
+        ldNONA = [float(xItem) for xItem in lxItem if not xItem.strip().lower() in ["na",""]]
         dMean = sum(ldNONA)/float(len(ldNONA))
-        lMetadata.append([dMean if xItem.strip().lower() in ["na",""] else float(xItem) for xItem in lxItem])
+        lsMetadataValues = [dMean if xItem.strip().lower() in ["na",""] else float(xItem) for xItem in lxItem]
+        dMinValueAdj = abs(min(lsMetadataValues))+1
+        lMetadata.append([sValue + dMinValueAdj for sValue in lsMetadataValues])
 
     pcaCur.loadData(np.array(lMetadata).T,False)
-    pcaCur.run(fASTransform=True)
+    pcaCur.run(fASTransform=False)
     ldVariance = pcaCur.getVariance()
     lldComponents = pcaCur.getComponents()
     # Make Names

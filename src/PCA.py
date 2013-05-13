@@ -57,6 +57,9 @@ class PCA(Ordination):
     if not self.dataMatrix is None:
       mtrxPrepped = self.dataMatrix.T
       if fASTransform:
+        print(mtrxPrepped)
+        print([row for row in mtrxPrepped])
+        print([self.doAsinOnList(row) for row in sqrt(mtrxPrepped)])
         mtrxPrepped = asin(sqrt(mtrxPrepped))
       if fCenter:
         mtrxPrepped = mtrxPrepped-mean(mtrxPrepped,0)
@@ -93,3 +96,6 @@ class PCA(Ordination):
     else:
       print("PCA:getComponents::Error Tried to run analysis on no data load data first.")
     return False
+
+  def doAsinOnList(self, lsValues):
+    return([asin(element) for element in lsValues])

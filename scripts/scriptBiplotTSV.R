@@ -163,6 +163,8 @@ pArgs <- add_option( pArgs, c("-a", "--arrowColor"), type="character", action="s
 pArgs <- add_option( pArgs, c("-w", "--arrowTextColor"), type="character", action="store", default="Blue", dest="sArrowTextColor", metavar="ArrowTextColor", help="The color for the metadat text ploted by the head of the metadat arrow. Default = Blue")
 pArgs <- add_option( pArgs, c("-i", "--title"), type="character", action="store", default="Custom Biplot of Bugs and Samples - Metadata Plotted with Centroids", dest="sTitle", metavar="Title", help="This is the title text to add to the plot.")
 pArgs <- add_option( pArgs, c("-o", "--outputfile"), type="character", action="store", default=NULL, dest="sOutputFileName", metavar="OutputFile", help="This is the name for the output pdf file. If an output file is not given, an output file name is made based on the input file name.")
+pArgs <- add_option( pArgs, c("-e","--rotateByMetadata"), type="character", action="store", default=NULL, dest="sRotateByMetadata", metavar="RotateByMetadata", help="Rotate the ordination by a metadata. Give both the metadata and value to weight it by. The larger the weight, the more the ordination is influenced by the metadata. If the metadata is continuous, use the metadata id; if the metadata is discrete, the ordination will be by one of the levels so use the metadata ID and level seperated by a '_'. Discrete example -e Environment_HighLumninosity,100 ; Continuous example -e Environment,100 .")
+pArgs <- add_option(pArgs, c("-n","--plotNAColor"), type="character", action="store", default=NULL, dest="sPlotNAColor", metavar="PlotNAColor", help="Plot NA values as this color. Example -n grey.")
 
 lsArgs <- parse_args( pArgs, positional_arguments=TRUE )
 
@@ -207,7 +209,8 @@ iLastMetadata = which(names(dfInput)==sLastMetadata)
 viMetadata = 1:iLastMetadata
 viData = (iLastMetadata+1):ncol(dfInput)
 
-### Dummy the metadata
+### Dummy the metadata if discontinuous
+### Leave the continous metadata alone but include
 listMetadata = list()
 vsRowNames = c()
 viContinuousMetadata = c()
@@ -216,6 +219,7 @@ for(i in viMetadata)
   vCurMetadata = unlist(dfInput[i])
   if(is.numeric(vCurMetadata)||is.integer(vCurMetadata))
   {
+    vCurMetadata[which(is.na(vCurMetadata))] = mean(vCurMetadata,na.rm=TRUE)
     listMetadata[[length(listMetadata)+1]] = vCurMetadata
     vsRowNames = c(vsRowNames,names(dfInput)[i])
     viContinuousMetadata = c(viContinuousMetadata,length(listMetadata))
@@ -231,14 +235,31 @@ for(i in viMetadata)
     }
   }
 }
+
 # Convert to data frame
 dfDummyMetadata = as.data.frame(sapply(listMetadata,rbind))
 names(dfDummyMetadata) = vsRowNames
 iNumberMetadata = ncol(dfDummyMetadata)
 
+# Data to use in ordination in NMDS
+dfData = dfInput[viData]
+
+# If rotating the ordination by a metadata
+# 1. Add in the metadata as a bug
+# 2. Multiply the bug by the weight
+# 3. Push this through the NMDS
+if(!is.null(lsArgs$options$sRotateByMetadata))
+{
+  vsRotateMetadata = unlist(strsplit(lsArgs$options$sRotateByMetadata,","))
+  sMetadata = vsRotateMetadata[1]
+  dWeight = as.numeric(vsRotateMetadata[2])
+  sOrdinationMetadata = dfDummyMetadata[sMetadata]*dWeight
+  dfData[sMetadata] = sOrdinationMetadata
+}
+
 # Run NMDS on bug data (Default B-C)
 # Will have species and points because working off of raw data
-mNMDSData = metaMDS(dfInput[viData],k=2)
+mNMDSData = metaMDS(dfData,k=2)
 
 ## Make shapes
 # Defines thes shapes and the metadata they are based on
@@ -266,6 +287,13 @@ if(!is.null(lsArgs$options$sColorBy))
   for(iColor in 1:length(vsColorRBG))
   {
     vsColors[which(paste(dfInput[[lsArgs$options$sColorBy]])==vsColorValues[iColor])]=vsColorRBG[iColor]
+  }
+
+  #If NAs are seperately given color, then color here
+  if(!is.null(lsArgs$options$sPlotNAColor))
+  {
+    vsColors[which(is.na(dfInput[[lsArgs$options$sColorBy]]))] = lsArgs$options$sPlotNAColor
+    vsColorRBG[which(vsColorValues=="NA")] = lsArgs$options$sPlotNAColor
   }
 }
 
