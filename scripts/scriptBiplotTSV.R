@@ -151,20 +151,31 @@ cDefaultShape
 
 ### Create command line argument parser
 pArgs <- OptionParser( usage = "%prog last_metadata input.tsv" )
+
+# Selecting features to plot
 pArgs <- add_option( pArgs, c("-b", "--bugs"), type="character", action="store", default=NULL, dest="sBugs", metavar="BugsToPlot", help="Comma delimited list of data to plot as text. Bug|1,Bug|2")
 pArgs <- add_option( pArgs, c("-m", "--metadata"), type="character", action="store", default=NULL, dest="sMetadata", metavar="MetadataToPlot", help="Comma delimited list of metadata to plot as arrows. metadata1,metadata2,metadata3")
-pArgs <- add_option( pArgs, c("-r", "--colorRange"), type="character", action="store", default="orange,cyan", dest="sColorRange", metavar="ColorRange", help="Colors used to color the samples; a gradient will be formed between the color.Default= orange,cyan")
-pArgs <- add_option( pArgs, c("-y", "--shapeby"), type="character", action="store", default=NULL, dest="sShapeBy", metavar="MetadataToShapeBy", help="The metadata to use to make marker shapes. Expected to be a discrete metadatum. An example would be -y Environment")
-pArgs <- add_option( pArgs, c("-s", "--shapes"), type="character", action="store", default=NULL, dest="sShapes", metavar="ShapesForPlotting", help="This is to be used to specify the shapes to use for plotting. Can use numbers recognized by R as shapes (see pch). Should correspond to the number of levels in shapeBy; the format is level:shape,level:shape for example HighLuminosity:14,LowLuminosity:2,HighPH:10,LowPH:18 . Need to specify -y/--shapeBy for this option to work.")
+
+# Colors
 pArgs <- add_option( pArgs, c("-c", "--colorBy"), type="character", action="store", default=NULL, dest="sColorBy", metavar="MetadataToColorBy", help="The id of the metadatum to use to make the marker colors. Expected to be a continuous metadata.")
-pArgs <- add_option( pArgs, c("-d", "--defaultMarker"), type="character", action="store", default="16", dest="sDefaultMarker", metavar="DefaultColorMarker", help="Default shape for markers which are not otherwise indicated in --shapes, can be used for unspecified values or NA. Must not be a shape in --shapes.")
+pArgs <- add_option( pArgs, c("-r", "--colorRange"), type="character", action="store", default="orange,cyan", dest="sColorRange", metavar="ColorRange", help="Colors used to color the samples; a gradient will be formed between the color.Default= orange,cyan")
 pArgs <- add_option( pArgs, c("-t", "--textColor"), type="character", action="store", default="black", dest="sTextColor", metavar="TextColor", help="The color bug features will be plotted with as text. Default = black")
 pArgs <- add_option( pArgs, c("-a", "--arrowColor"), type="character", action="store", default="cyan", dest="sArrowColor", metavar="ArrowColor", help="The color metadata features will be plotted with as an arrow and text. Default = cyan")
 pArgs <- add_option( pArgs, c("-w", "--arrowTextColor"), type="character", action="store", default="Blue", dest="sArrowTextColor", metavar="ArrowTextColor", help="The color for the metadat text ploted by the head of the metadat arrow. Default = Blue")
+pArgs <- add_option(pArgs, c("-n","--plotNAColor"), type="character", action="store", default=NULL, dest="sPlotNAColor", metavar="PlotNAColor", help="Plot NA values as this color. Example -n grey.")
+
+# Shapes
+pArgs <- add_option( pArgs, c("-y", "--shapeby"), type="character", action="store", default=NULL, dest="sShapeBy", metavar="MetadataToShapeBy", help="The metadata to use to make marker shapes. Expected to be a discrete metadatum. An example would be -y Environment")
+pArgs <- add_option( pArgs, c("-s", "--shapes"), type="character", action="store", default=NULL, dest="sShapes", metavar="ShapesForPlotting", help="This is to be used to specify the shapes to use for plotting. Can use numbers recognized by R as shapes (see pch). Should correspond to the number of levels in shapeBy; the format is level:shape,level:shape for example HighLuminosity:14,LowLuminosity:2,HighPH:10,LowPH:18 . Need to specify -y/--shapeBy for this option to work.")
+pArgs <- add_option( pArgs, c("-d", "--defaultMarker"), type="character", action="store", default="16", dest="sDefaultMarker", metavar="DefaultColorMarker", help="Default shape for markers which are not otherwise indicated in --shapes, can be used for unspecified values or NA. Must not be a shape in --shapes.")
+
+# Plot manipulations
+pArgs <- add_option( pArgs, c("-e","--rotateByMetadata"), type="character", action="store", default=NULL, dest="sRotateByMetadata", metavar="RotateByMetadata", help="Rotate the ordination by a metadata. Give both the metadata and value to weight it by. The larger the weight, the more the ordination is influenced by the metadata. If the metadata is continuous, use the metadata id; if the metadata is discrete, the ordination will be by one of the levels so use the metadata ID and level seperated by a '_'. Discrete example -e Environment_HighLumninosity,100 ; Continuous example -e Environment,100 .")
+pArgs <- add_option( pArgs, c("-z","--resizeArrow"), type="numeric", action="store", default=1, dest="dResizeArrow", metavar="ArrowScaleFactor", help="A constant to multiple the length of the arrow to expand or shorten all arrows together. This will not change the angle of the arrow nor the relative length of arrows to each other.")
+
+# Misc
 pArgs <- add_option( pArgs, c("-i", "--title"), type="character", action="store", default="Custom Biplot of Bugs and Samples - Metadata Plotted with Centroids", dest="sTitle", metavar="Title", help="This is the title text to add to the plot.")
 pArgs <- add_option( pArgs, c("-o", "--outputfile"), type="character", action="store", default=NULL, dest="sOutputFileName", metavar="OutputFile", help="This is the name for the output pdf file. If an output file is not given, an output file name is made based on the input file name.")
-pArgs <- add_option( pArgs, c("-e","--rotateByMetadata"), type="character", action="store", default=NULL, dest="sRotateByMetadata", metavar="RotateByMetadata", help="Rotate the ordination by a metadata. Give both the metadata and value to weight it by. The larger the weight, the more the ordination is influenced by the metadata. If the metadata is continuous, use the metadata id; if the metadata is discrete, the ordination will be by one of the levels so use the metadata ID and level seperated by a '_'. Discrete example -e Environment_HighLumninosity,100 ; Continuous example -e Environment,100 .")
-pArgs <- add_option(pArgs, c("-n","--plotNAColor"), type="character", action="store", default=NULL, dest="sPlotNAColor", metavar="PlotNAColor", help="Plot NA values as this color. Example -n grey.")
 
 lsArgs <- parse_args( pArgs, positional_arguments=TRUE )
 
@@ -358,15 +369,16 @@ if(length(viMetadataDummy)>0)
   for(i in viMetadataDummy)
   {
     curCoordinates = mMetadataCoordinates[i,]
+    curCoordinates = curCoordinates * lsArgs$options$dResizeArrow
     # Plot Arrow
     arrows(0,0, curCoordinates[1] * 0.8, curCoordinates[2] * 0.8, col=lsArgs$options$sArrowColor, length=0.1 )
   }
   # Plot text
   if(length(viMetadataDummy)==1)
   {
-    text(x=mMetadataCoordinates[viMetadataDummy,][1]*0.8, y=mMetadataCoordinates[viMetadataDummy,][2]*0.8, labels=row.names(mMetadataCoordinates)[viMetadataDummy],col=lsArgs$options$sArrowTextColor)
+    text(x=mMetadataCoordinates[viMetadataDummy,][1]*lsArgs$options$dResizeArrow*0.8, y=mMetadataCoordinates[viMetadataDummy,][2]*lsArgs$options$dResizeArrow*0.8, labels=row.names(mMetadataCoordinates)[viMetadataDummy],col=lsArgs$options$sArrowTextColor)
   } else {
-    text(x=mMetadataCoordinates[viMetadataDummy,1]*0.8, y=mMetadataCoordinates[viMetadataDummy,2]*0.8, labels=row.names(mMetadataCoordinates)[viMetadataDummy],col=lsArgs$options$sArrowTextColor)
+    text(x=mMetadataCoordinates[viMetadataDummy,1]*lsArgs$options$dResizeArrow*0.8, y=mMetadataCoordinates[viMetadataDummy,2]*lsArgs$options$dResizeArrow*0.8, labels=row.names(mMetadataCoordinates)[viMetadataDummy],col=lsArgs$options$sArrowTextColor)
   }
 }
 

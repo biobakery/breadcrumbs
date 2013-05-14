@@ -175,12 +175,11 @@ D. How do I change the title or axes?
 
 > python scripts/scriptPlotFeature.py -t Title -x Xaxis -y Yaxis demo_input/Test.pcl 'Bacteria|3417'
 
-E. How do I change the color?  
-This script takes hex colors.
+E. How do I change the color?  Use -c and a hex color.
 
 > python scripts/scriptPlotFeature.py -c '#333333' demo_input/Test.pcl 'Bacteria|3417'
 
-F. How do i invert the colors for a black background?
+F. How do I invert the colors for a black background? Use -r .
 
 > python scripts/scriptPlotFeature.py -r demo_input/Test.pcl 'Bacteria|3417'
 
@@ -233,14 +232,27 @@ J. How do I specify a color range to use when coloring? Use -r with two (R suppo
 
 > ./scripts/scriptBiplotTSV.R -r 'red,cyan' STSite demo_input/Test-Biplot.tsv
 
-K. How do I specify a color to use when drawing arrows? Use -a and a (R supported) color.
+K. How do I specify a color to use when drawing arrows? Use -a and a (R supported) color. R supported colors can be found in many sources including this one http://www.stats4stem.org/r-colors.html
 
 > ./scripts/scriptBiplotTSV.R -a  red STSite demo_input/Test-Biplot.tsv
 
-L. How do I specify a color to use for arrow text? Use -w and a (R supported) color.
+L. How do I specify a color to use for arrow text? Use -w and a (R supported) color. R supported colors can be found in many sources including this one http://www.stats4stem.org/r-colors.html
 
 > ./scripts/scriptBiplotTSV.R -w orange STSite demo_input/Test-Biplot.tsv
 
-M. How do I specify a color to use for bug text? Use -t and a (R supported) color. Make sure to use -b to plot bugs.
+M. How do I specify a color to use for bug text? Use -t and a (R supported) color. Make sure to use -b to plot bugs.  R supported colors can be found in many sources including this one http://www.stats4stem.org/r-colors.html
 
 > ./scripts/scriptBiplotTSV.R -t pink -b 'Bacteria|3417' STSite demo_input/Test-Biplot.tsv
+
+N. How do I rotate the projection (plot) in reference to a specific metadata? Use the -e option and give the plot a metadata and a weight for that metadata, the larger the weight, the more the rotation takes into account the metadata. You may have to experiement with different weights and see how the rotation is affected. The weights can be from 0 (no rotation by the metadata) to a very large number. The metadata name should be the metadata id if the value is continuous or the metadata id and the value (level) of interest seperated by a _ if the metadata is not continuous. Below are two examples, one using a continuous metadata and one using a discontinuous metadata.
+
+> ./scripts/scriptBiplotTSV.R -e 'Continuous,2' STSite demo_input/Test-Biplot.tsv
+> ./scripts/scriptBiplotTSV.R -e 'STSite_L_Antecubital_fossa,.5' STSite demo_input/Test-Biplot.tsv
+
+O. How do I color NAs a specific color, no matter other coloring in the plot? Use -n and a color supported by R.  R supported colors can be found in many sources including this one http://www.stats4stem.org/r-colors.html This requires you to be coloring the plot by a metadata (option -c).
+
+> ./scripts/scriptBiplotTSV.R -n grey -c STSite STSite demo_input/Test-BiplotNA.tsv
+
+P. How do I scale arrows in the plot. Use -z and a number to weight how much the metadata influences the rotation (number between 0 and very large).
+
+> ./scripts/scriptBiplotTSV.R -z 2 STSite demo_input/Test-Biplot.tsv
