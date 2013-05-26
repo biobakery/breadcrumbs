@@ -79,9 +79,14 @@ mSamplePoints
 funcMakeShapes <- function(
 ### Takes care of defining shapes for the plot
 dfInput,
+### Data frame of metadata measurements
 sShapeBy,
+### The metadata to shape by
 sShapes,
+### List of custom metadata (per level if factor).
+### Should correspond to the number of levels in shapeBy; the format is level:shape,level:shape for example HighLuminosity:14,LowLuminosity:2,HighPH:10,LowPH:18 
 cDefaultShape
+### Shape to default to if custom shapes are not used
 ){
   lShapes = list()
   vsShapeValues = c()
@@ -149,6 +154,21 @@ cDefaultShape
   return(list(PlotShapes=vsShapes,Values=vsShapeValues,Shapes=vsShapeShapes,ID=sMetadataId,DefaultShape=cDefaultShape))
 }
 
+### Global defaults
+c_sDefaultColorBy = NULL
+c_sDefaultColorRange = "orange,cyan"
+c_sDefaultTextColor = "black"
+c_sDefaultArrowColor = "cyan"
+c_sDefaultArrowTextColor = "Blue"
+c_sDefaultNAColor = NULL
+c_sDefaultShapeBy = NULL
+c_sDefaultShapes = NULL
+c_sDefaultMarker = "16"
+c_sDefaultRotateByMetadata = NULL
+c_sDefaultResizeArrow = 1
+c_sDefaultTitle = "Custom Biplot of Bugs and Samples - Metadata Plotted with Centroids"
+c_sDefaultOutputFile = NULL
+
 ### Create command line argument parser
 pArgs <- OptionParser( usage = "%prog last_metadata input.tsv" )
 
@@ -157,242 +177,283 @@ pArgs <- add_option( pArgs, c("-b", "--bugs"), type="character", action="store",
 pArgs <- add_option( pArgs, c("-m", "--metadata"), type="character", action="store", default=NULL, dest="sMetadata", metavar="MetadataToPlot", help="Comma delimited list of metadata to plot as arrows. metadata1,metadata2,metadata3")
 
 # Colors
-pArgs <- add_option( pArgs, c("-c", "--colorBy"), type="character", action="store", default=NULL, dest="sColorBy", metavar="MetadataToColorBy", help="The id of the metadatum to use to make the marker colors. Expected to be a continuous metadata.")
-pArgs <- add_option( pArgs, c("-r", "--colorRange"), type="character", action="store", default="orange,cyan", dest="sColorRange", metavar="ColorRange", help="Colors used to color the samples; a gradient will be formed between the color.Default= orange,cyan")
-pArgs <- add_option( pArgs, c("-t", "--textColor"), type="character", action="store", default="black", dest="sTextColor", metavar="TextColor", help="The color bug features will be plotted with as text. Default = black")
-pArgs <- add_option( pArgs, c("-a", "--arrowColor"), type="character", action="store", default="cyan", dest="sArrowColor", metavar="ArrowColor", help="The color metadata features will be plotted with as an arrow and text. Default = cyan")
-pArgs <- add_option( pArgs, c("-w", "--arrowTextColor"), type="character", action="store", default="Blue", dest="sArrowTextColor", metavar="ArrowTextColor", help="The color for the metadat text ploted by the head of the metadat arrow. Default = Blue")
-pArgs <- add_option(pArgs, c("-n","--plotNAColor"), type="character", action="store", default=NULL, dest="sPlotNAColor", metavar="PlotNAColor", help="Plot NA values as this color. Example -n grey.")
+pArgs <- add_option( pArgs, c("-c", "--colorBy"), type="character", action="store", default=c_sDefaultColorBy, dest="sColorBy", metavar="MetadataToColorBy", help="The id of the metadatum to use to make the marker colors. Expected to be a continuous metadata.")
+pArgs <- add_option( pArgs, c("-r", "--colorRange"), type="character", action="store", default=c_sDefaultColorRange, dest="sColorRange", metavar="ColorRange", help=paste("Colors used to color the samples; a gradient will be formed between the color.Default=", c_sDefaultColorRange))
+pArgs <- add_option( pArgs, c("-t", "--textColor"), type="character", action="store", default=c_sDefaultTextColor, dest="sTextColor", metavar="TextColor", help=paste("The color bug features will be plotted with as text. Default =", c_sDefaultTextColor))
+pArgs <- add_option( pArgs, c("-a", "--arrowColor"), type="character", action="store", default=c_sDefaultArrowColor, dest="sArrowColor", metavar="ArrowColor", help=paste("The color metadata features will be plotted with as an arrow and text. Default", c_sDefaultArrowColor))
+pArgs <- add_option( pArgs, c("-w", "--arrowTextColor"), type="character", action="store", default=c_sDefaultArrowTextColor, dest="sArrowTextColor", metavar="ArrowTextColor", help=paste("The color for the metadata text ploted by the head of the metadata arrow. Default", c_sDefaultArrowTextColor))
+pArgs <- add_option(pArgs, c("-n","--plotNAColor"), type="character", action="store", default=c_sDefaultNAColor, dest="sPlotNAColor", metavar="PlotNAColor", help=paste("Plot NA values as this color. Example -n", c_sDefaultNAColor))
 
 # Shapes
-pArgs <- add_option( pArgs, c("-y", "--shapeby"), type="character", action="store", default=NULL, dest="sShapeBy", metavar="MetadataToShapeBy", help="The metadata to use to make marker shapes. Expected to be a discrete metadatum. An example would be -y Environment")
-pArgs <- add_option( pArgs, c("-s", "--shapes"), type="character", action="store", default=NULL, dest="sShapes", metavar="ShapesForPlotting", help="This is to be used to specify the shapes to use for plotting. Can use numbers recognized by R as shapes (see pch). Should correspond to the number of levels in shapeBy; the format is level:shape,level:shape for example HighLuminosity:14,LowLuminosity:2,HighPH:10,LowPH:18 . Need to specify -y/--shapeBy for this option to work.")
-pArgs <- add_option( pArgs, c("-d", "--defaultMarker"), type="character", action="store", default="16", dest="sDefaultMarker", metavar="DefaultColorMarker", help="Default shape for markers which are not otherwise indicated in --shapes, can be used for unspecified values or NA. Must not be a shape in --shapes.")
+pArgs <- add_option( pArgs, c("-y", "--shapeby"), type="character", action="store", default=c_sDefaultShapeBy, dest="sShapeBy", metavar="MetadataToShapeBy", help="The metadata to use to make marker shapes. Expected to be a discrete metadatum. An example would be -y Environment")
+pArgs <- add_option( pArgs, c("-s", "--shapes"), type="character", action="store", default=c_sDefaultShapes, dest="sShapes", metavar="ShapesForPlotting", help="This is to be used to specify the shapes to use for plotting. Can use numbers recognized by R as shapes (see pch). Should correspond to the number of levels in shapeBy; the format is level:shape,level:shape for example HighLuminosity:14,LowLuminosity:2,HighPH:10,LowPH:18 . Need to specify -y/--shapeBy for this option to work.")
+pArgs <- add_option( pArgs, c("-d", "--defaultMarker"), type="character", action="store", default=c_sDefaultMarker, dest="sDefaultMarker", metavar="DefaultColorMarker", help="Default shape for markers which are not otherwise indicated in --shapes, can be used for unspecified values or NA. Must not be a shape in --shapes.")
 
 # Plot manipulations
-pArgs <- add_option( pArgs, c("-e","--rotateByMetadata"), type="character", action="store", default=NULL, dest="sRotateByMetadata", metavar="RotateByMetadata", help="Rotate the ordination by a metadata. Give both the metadata and value to weight it by. The larger the weight, the more the ordination is influenced by the metadata. If the metadata is continuous, use the metadata id; if the metadata is discrete, the ordination will be by one of the levels so use the metadata ID and level seperated by a '_'. Discrete example -e Environment_HighLumninosity,100 ; Continuous example -e Environment,100 .")
-pArgs <- add_option( pArgs, c("-z","--resizeArrow"), type="numeric", action="store", default=1, dest="dResizeArrow", metavar="ArrowScaleFactor", help="A constant to multiple the length of the arrow to expand or shorten all arrows together. This will not change the angle of the arrow nor the relative length of arrows to each other.")
+pArgs <- add_option( pArgs, c("-e","--rotateByMetadata"), type="character", action="store", default=c_sDefaultRotateByMetadata, dest="sRotateByMetadata", metavar="RotateByMetadata", help="Rotate the ordination by a metadata. Give both the metadata and value to weight it by. The larger the weight, the more the ordination is influenced by the metadata. If the metadata is continuous, use the metadata id; if the metadata is discrete, the ordination will be by one of the levels so use the metadata ID and level seperated by a '_'. Discrete example -e Environment_HighLumninosity,100 ; Continuous example -e Environment,100 .")
+pArgs <- add_option( pArgs, c("-z","--resizeArrow"), type="numeric", action="store", default=c_sDefaultResizeArrow, dest="dResizeArrow", metavar="ArrowScaleFactor", help="A constant to multiple the length of the arrow to expand or shorten all arrows together. This will not change the angle of the arrow nor the relative length of arrows to each other.")
 
 # Misc
-pArgs <- add_option( pArgs, c("-i", "--title"), type="character", action="store", default="Custom Biplot of Bugs and Samples - Metadata Plotted with Centroids", dest="sTitle", metavar="Title", help="This is the title text to add to the plot.")
-pArgs <- add_option( pArgs, c("-o", "--outputfile"), type="character", action="store", default=NULL, dest="sOutputFileName", metavar="OutputFile", help="This is the name for the output pdf file. If an output file is not given, an output file name is made based on the input file name.")
+pArgs <- add_option( pArgs, c("-i", "--title"), type="character", action="store", default=c_sDefaultTitle, dest="sTitle", metavar="Title", help="This is the title text to add to the plot.")
+pArgs <- add_option( pArgs, c("-o", "--outputfile"), type="character", action="store", default=c_sDefaultOutputFile, dest="sOutputFileName", metavar="OutputFile", help="This is the name for the output pdf file. If an output file is not given, an output file name is made based on the input file name.")
 
-lsArgs <- parse_args( pArgs, positional_arguments=TRUE )
+funcDoBiplot <- function(
+### Perform biplot. Samples are markers, bugs are text, and metadata are text with arrows. Markers and bugs are dtermined usiing NMDS and Bray-Curtis dissimilarity. Metadata are placed on the ordination in one of two ways: 1. Factor data - for each level take the ordination points for the samples that have that level and plot the metadata text at the average orindation point. 2. For continuous data - make a landscape (x and y form ordination of the points) and z (height) as the metadata value. Use a lowess line to get the fitted values for z and take the max of the landscape. Plot the metadata text at that smoothed max.
+sBugs,
+### Comma delimited list of data to plot as text. Bug|1,Bug|2
+sMetadata,
+### Comma delimited list of metadata to plot as arrows. metadata1,metadata2,metadata3.
+sColorBy = c_sDefaultColorBy,
+### The id of the metadatum to use to make the marker colors. Expected to be a continuous metadata.
+sColorRange = c_sDefaultColorRange,
+### Colors used to color the samples; a gradient will be formed between the color. Example orange,cyan
+sTextColor = c_sDefaultTextColor,
+### The color bug features will be plotted with as text. Example black
+sArrowColor = c_sDefaultArrowColor,
+### The color metadata features will be plotted with as an arrow and text. Example cyan
+sArrowTextColor = c_sDefaultArrowTextColor,
+### The color for the metadata text ploted by the head of the metadat arrow. Example Blue
+sPlotNAColor = c_sDefaultNAColor,
+### Plot NA values as this color. Example grey
+sShapeBy = c_sDefaultShapeBy,
+### The metadata to use to make marker shapes. Expected to be a discrete metadatum.
+sShapes = c_sDefaultShapes,
+### This is to be used to specify the shapes to use for plotting. Can use numbers recognized by R as shapes (see pch). Should correspond to the number of levels in shapeBy; the format is level:shape,level:shape for example HighLuminosity:14,LowLuminosity:2,HighPH:10,LowPH:18 .  Works with sShapesBy.
+sDefaultMarker = c_sDefaultMarker,
+### The default marker shape to use if shapes are not otherwise indicated.
+sRotateByMetadata = c_sDefaultRotateByMetadata,
+### Metadta and value to rotate by. example Environment_HighLumninosity,100
+dResizeArrow = c_sDefaultResizeArrow,
+### Scale factor to resize tthe metadata arrows
+sTitle = c_sDefaultTitle,
+### The title for the figure.
+sOutputFileName = c_sDefaultOutputFile
+### The file name to save the figure.
+){
+  lsArgs <- parse_args( pArgs, positional_arguments=TRUE )
 
-# Define the colors
-vsColorRange = c("blue","orange")
-if(!is.null(lsArgs$options$sColorRange))
-{
-  vsColorRange = unlist(strsplit(lsArgs$options$sColorRange,","))
-}
-cDefaultColor = "grey"
-if(!is.null(vsColorRange) && length(vsColorRange)>0)
-{
-  cDefaultColor = vsColorRange[1]
-}
-
-# List of bugs to plot
-# If there is a list it needs to be more than one.
-vsBugsToPlot = c()
-if(!is.null(lsArgs$options$sBugs))
-{
-  vsBugsToPlot = unlist(strsplit(lsArgs$options$sBugs,","))
-}
-# Metadata to plot
-vsMetadata = c()
-if(!is.null(lsArgs$options$sMetadata))
-{
-  vsMetadata = unlist(strsplit(lsArgs$options$sMetadata,","))
-}
-
-### Last metadata
-sLastMetadata <- lsArgs$args[1]
-### Input file name
-sInputFile <- lsArgs$args[2]
-
-### Load table
-dfInput = read.table(sInputFile, sep = "\t", header=TRUE)
-names(dfInput) = unlist(lapply(names(dfInput),function(x) gsub(".","|",x,fixed=TRUE)))
-row.names(dfInput) = dfInput[,1]
-dfInput = dfInput[-1]
-
-iLastMetadata = which(names(dfInput)==sLastMetadata)
-viMetadata = 1:iLastMetadata
-viData = (iLastMetadata+1):ncol(dfInput)
-
-### Dummy the metadata if discontinuous
-### Leave the continous metadata alone but include
-listMetadata = list()
-vsRowNames = c()
-viContinuousMetadata = c()
-for(i in viMetadata)
-{
-  vCurMetadata = unlist(dfInput[i])
-  if(is.numeric(vCurMetadata)||is.integer(vCurMetadata))
+  # Define the colors
+  vsColorRange = c("blue","orange")
+  if(!is.null(lsArgs$options$sColorRange))
   {
-    vCurMetadata[which(is.na(vCurMetadata))] = mean(vCurMetadata,na.rm=TRUE)
-    listMetadata[[length(listMetadata)+1]] = vCurMetadata
-    vsRowNames = c(vsRowNames,names(dfInput)[i])
-    viContinuousMetadata = c(viContinuousMetadata,length(listMetadata))
-  } else {
-    vCurMetadata = as.factor(vCurMetadata)
-    vsLevels = levels(vCurMetadata)
-    for(sLevel in vsLevels)
-    { 
-      vNewMetadata = rep(0,length(vCurMetadata))
-      vNewMetadata[which(vCurMetadata == sLevel)] = 1
-      listMetadata[[length(listMetadata)+1]] = vNewMetadata
-      vsRowNames = c(vsRowNames,paste(names(dfInput)[i],sLevel,sep="_"))
+    vsColorRange = unlist(strsplit(lsArgs$options$sColorRange,","))
+  }
+  cDefaultColor = "grey"
+  if(!is.null(vsColorRange) && length(vsColorRange)>0)
+  {
+    cDefaultColor = vsColorRange[1]
+  }
+
+  # List of bugs to plot
+  # If there is a list it needs to be more than one.
+  vsBugsToPlot = c()
+  if(!is.null(lsArgs$options$sBugs))
+  {
+    vsBugsToPlot = unlist(strsplit(lsArgs$options$sBugs,","))
+  }
+  # Metadata to plot
+  vsMetadata = c()
+  if(!is.null(lsArgs$options$sMetadata))
+  {
+    vsMetadata = unlist(strsplit(lsArgs$options$sMetadata,","))
+  }
+
+  ### Last metadata
+  sLastMetadata <- lsArgs$args[1]
+  ### Input file name
+  sInputFile <- lsArgs$args[2]
+
+  ### Load table
+  dfInput = read.table(sInputFile, sep = "\t", header=TRUE)
+  names(dfInput) = unlist(lapply(names(dfInput),function(x) gsub(".","|",x,fixed=TRUE)))
+  row.names(dfInput) = dfInput[,1]
+  dfInput = dfInput[-1]
+
+  iLastMetadata = which(names(dfInput)==sLastMetadata)
+  viMetadata = 1:iLastMetadata
+  viData = (iLastMetadata+1):ncol(dfInput)
+
+  ### Dummy the metadata if discontinuous
+  ### Leave the continous metadata alone but include
+  listMetadata = list()
+  vsRowNames = c()
+  viContinuousMetadata = c()
+  for(i in viMetadata)
+  {
+    vCurMetadata = unlist(dfInput[i])
+    if(is.numeric(vCurMetadata)||is.integer(vCurMetadata))
+    {
+      vCurMetadata[which(is.na(vCurMetadata))] = mean(vCurMetadata,na.rm=TRUE)
+      listMetadata[[length(listMetadata)+1]] = vCurMetadata
+      vsRowNames = c(vsRowNames,names(dfInput)[i])
+      viContinuousMetadata = c(viContinuousMetadata,length(listMetadata))
+    } else {
+      vCurMetadata = as.factor(vCurMetadata)
+      vsLevels = levels(vCurMetadata)
+      for(sLevel in vsLevels)
+      { 
+        vNewMetadata = rep(0,length(vCurMetadata))
+        vNewMetadata[which(vCurMetadata == sLevel)] = 1
+        listMetadata[[length(listMetadata)+1]] = vNewMetadata
+        vsRowNames = c(vsRowNames,paste(names(dfInput)[i],sLevel,sep="_"))
+      }
     }
   }
-}
 
-# Convert to data frame
-dfDummyMetadata = as.data.frame(sapply(listMetadata,rbind))
-names(dfDummyMetadata) = vsRowNames
-iNumberMetadata = ncol(dfDummyMetadata)
+  # Convert to data frame
+  dfDummyMetadata = as.data.frame(sapply(listMetadata,rbind))
+  names(dfDummyMetadata) = vsRowNames
+  iNumberMetadata = ncol(dfDummyMetadata)
 
-# Data to use in ordination in NMDS
-dfData = dfInput[viData]
+  # Data to use in ordination in NMDS
+  dfData = dfInput[viData]
 
-# If rotating the ordination by a metadata
-# 1. Add in the metadata as a bug
-# 2. Multiply the bug by the weight
-# 3. Push this through the NMDS
-if(!is.null(lsArgs$options$sRotateByMetadata))
-{
-  vsRotateMetadata = unlist(strsplit(lsArgs$options$sRotateByMetadata,","))
-  sMetadata = vsRotateMetadata[1]
-  dWeight = as.numeric(vsRotateMetadata[2])
-  sOrdinationMetadata = dfDummyMetadata[sMetadata]*dWeight
-  dfData[sMetadata] = sOrdinationMetadata
-}
-
-# Run NMDS on bug data (Default B-C)
-# Will have species and points because working off of raw data
-mNMDSData = metaMDS(dfData,k=2)
-
-## Make shapes
-# Defines thes shapes and the metadata they are based on
-# Metadata to use as shapes
-lShapeInfo = funcMakeShapes(dfInput=dfInput, sShapeBy=lsArgs$options$sShapeBy, sShapes=lsArgs$options$sShapes, cDefaultShape=lsArgs$options$sDefaultMarker)
-
-sMetadataShape = lShapeInfo[["ID"]]
-vsShapeValues = lShapeInfo[["Values"]]
-vsShapeShapes = lShapeInfo[["Shapes"]]
-vsShapes = lShapeInfo[["PlotShapes"]]
-cDefaultShape = lShapeInfo[["DefaultShape"]]
-
-# Colors
-vsColors = rep(cDefaultColor,nrow(dfInput))
-vsColorValues = c()
-vsColorRBG = c()
-if(!is.null(lsArgs$options$sColorBy))
-{
-  vsColorValues = paste(sort(unique(unlist(dfInput[[lsArgs$options$sColorBy]])),na.last=TRUE))
-  iLengthColorValues = length(vsColorValues)
-
-  vsColorRBG = lapply(1:iLengthColorValues/iLengthColorValues,colorRamp(vsColorRange))
-  vsColorRBG = unlist(lapply(vsColorRBG, function(x) rgb(x[1]/255,x[2]/255,x[3]/255)))
-
-  for(iColor in 1:length(vsColorRBG))
+  # If rotating the ordination by a metadata
+  # 1. Add in the metadata as a bug
+  # 2. Multiply the bug by the weight
+  # 3. Push this through the NMDS
+  if(!is.null(lsArgs$options$sRotateByMetadata))
   {
-    vsColors[which(paste(dfInput[[lsArgs$options$sColorBy]])==vsColorValues[iColor])]=vsColorRBG[iColor]
+    vsRotateMetadata = unlist(strsplit(lsArgs$options$sRotateByMetadata,","))
+    sMetadata = vsRotateMetadata[1]
+    dWeight = as.numeric(vsRotateMetadata[2])
+    sOrdinationMetadata = dfDummyMetadata[sMetadata]*dWeight
+    dfData[sMetadata] = sOrdinationMetadata
   }
 
-  #If NAs are seperately given color, then color here
-  if(!is.null(lsArgs$options$sPlotNAColor))
+  # Run NMDS on bug data (Default B-C)
+  # Will have species and points because working off of raw data
+  mNMDSData = metaMDS(dfData,k=2)
+
+  ## Make shapes
+  # Defines thes shapes and the metadata they are based on
+  # Metadata to use as shapes
+  lShapeInfo = funcMakeShapes(dfInput=dfInput, sShapeBy=lsArgs$options$sShapeBy, sShapes=lsArgs$options$sShapes, cDefaultShape=lsArgs$options$sDefaultMarker)
+
+  sMetadataShape = lShapeInfo[["ID"]]
+  vsShapeValues = lShapeInfo[["Values"]]
+  vsShapeShapes = lShapeInfo[["Shapes"]]
+  vsShapes = lShapeInfo[["PlotShapes"]]
+  cDefaultShape = lShapeInfo[["DefaultShape"]]
+
+  # Colors
+  vsColors = rep(cDefaultColor,nrow(dfInput))
+  vsColorValues = c()
+  vsColorRBG = c()
+  if(!is.null(lsArgs$options$sColorBy))
   {
-    vsColors[which(is.na(dfInput[[lsArgs$options$sColorBy]]))] = lsArgs$options$sPlotNAColor
-    vsColorRBG[which(vsColorValues=="NA")] = lsArgs$options$sPlotNAColor
+    vsColorValues = paste(sort(unique(unlist(dfInput[[lsArgs$options$sColorBy]])),na.last=TRUE))
+    iLengthColorValues = length(vsColorValues)
+
+    vsColorRBG = lapply(1:iLengthColorValues/iLengthColorValues,colorRamp(vsColorRange))
+    vsColorRBG = unlist(lapply(vsColorRBG, function(x) rgb(x[1]/255,x[2]/255,x[3]/255)))
+
+    for(iColor in 1:length(vsColorRBG))
+    {
+      vsColors[which(paste(dfInput[[lsArgs$options$sColorBy]])==vsColorValues[iColor])]=vsColorRBG[iColor]
+    }
+
+    #If NAs are seperately given color, then color here
+    if(!is.null(lsArgs$options$sPlotNAColor))
+    {
+      vsColors[which(is.na(dfInput[[lsArgs$options$sColorBy]]))] = lsArgs$options$sPlotNAColor
+      vsColorRBG[which(vsColorValues=="NA")] = lsArgs$options$sPlotNAColor
+    }
   }
-}
 
-# Reduce the bugs down to the ones in the list to be plotted
-viBugsToPlot = which(row.names(mNMDSData$species) %in% vsBugsToPlot)
-viMetadataDummy = which(names(dfDummyMetadata) %in% vsMetadata)
+  # Reduce the bugs down to the ones in the list to be plotted
+  viBugsToPlot = which(row.names(mNMDSData$species) %in% vsBugsToPlot)
+  viMetadataDummy = which(names(dfDummyMetadata) %in% vsMetadata)
 
-# Build the matrix of metadata coordinates
-mMetadataCoordinates = matrix(rep(NA, iNumberMetadata*2),nrow=iNumberMetadata)
-for( i in 1:iNumberMetadata )
-{
-  lxReturn = NA
-  if( i %in% viContinuousMetadata )
+  # Build the matrix of metadata coordinates
+  mMetadataCoordinates = matrix(rep(NA, iNumberMetadata*2),nrow=iNumberMetadata)
+  for( i in 1:iNumberMetadata )
   {
-    lxReturn = funcGetMaximumForMetadatum(dfDummyMetadata[[i]],mNMDSData$points)
-  } else {
-    lxReturn = funcGetCentroidForMetadatum(dfDummyMetadata[[i]],mNMDSData$points)
+    lxReturn = NA
+    if( i %in% viContinuousMetadata )
+    {
+      lxReturn = funcGetMaximumForMetadatum(dfDummyMetadata[[i]],mNMDSData$points)
+    } else {
+      lxReturn = funcGetCentroidForMetadatum(dfDummyMetadata[[i]],mNMDSData$points)
+    }
+    mMetadataCoordinates[i,] = c(lxReturn$x,lxReturn$y)
   }
-  mMetadataCoordinates[i,] = c(lxReturn$x,lxReturn$y)
-}
-row.names(mMetadataCoordinates) = vsRowNames
+  row.names(mMetadataCoordinates) = vsRowNames
 
-# Plot the biplot with the centroid constructed metadata coordinates
-if(length(viMetadataDummy)==0)
-{
-  viMetadataDummy = 1:nrow(mMetadataCoordinates)
-}
-
-# Plot samples
-# Make output name
-if(is.null(lsArgs$options$sOutputFileName))
-{
-  viPeriods = which(lsArgs$args[1]==".")
-  if(length(viPeriods)>0)
+  # Plot the biplot with the centroid constructed metadata coordinates
+  if(length(viMetadataDummy)==0)
   {
-    lsArgs$options$sOutputFileName = paste(lsArgs$options$OutputFileName[1:viPeriods[length(viPeriods)]],"pdf",sep=".")
-  } else {
-    lsArgs$options$sOutputFileName = paste(lsArgs$args[1],"pdf",sep=".")
+    viMetadataDummy = 1:nrow(mMetadataCoordinates)
   }
-}
 
-pdf(lsArgs$options$sOutputFileName)
-plot(mNMDSData$points, xlab=paste("NMDS1","Stress=",mNMDSData$stress), ylab="NMDS2", pch=vsShapes, col=vsColors)
-title(lsArgs$options$sTitle,line=3)
-# Plot Bugs
-mPlotBugs = mNMDSData$species[viBugsToPlot,]
-if(length(viBugsToPlot)==1)
-{
-  text(x=mPlotBugs[1],y=mPlotBugs[2],labels=row.names(mNMDSData$species)[viBugsToPlot],col=lsArgs$options$sTextColor)
-} else if(length(viBugsToPlot)>1){
-  text(x=mPlotBugs[,1],y=mPlotBugs[,2],labels=row.names(mNMDSData$species)[viBugsToPlot],col=lsArgs$options$sTextColor)
-}
-
-# Add alternative axes
-axis(3, col=lsArgs$options$sArrowColor)
-axis(4, col=lsArgs$options$sArrowColor)
-box(col = "black")
-
-# Plot Metadata
-if(length(viMetadataDummy)>0)
-{
-  for(i in viMetadataDummy)
+  # Plot samples
+  # Make output name
+  if(is.null(lsArgs$options$sOutputFileName))
   {
-    curCoordinates = mMetadataCoordinates[i,]
-    curCoordinates = curCoordinates * lsArgs$options$dResizeArrow
-    # Plot Arrow
-    arrows(0,0, curCoordinates[1] * 0.8, curCoordinates[2] * 0.8, col=lsArgs$options$sArrowColor, length=0.1 )
+    viPeriods = which(lsArgs$args[1]==".")
+    if(length(viPeriods)>0)
+    {
+      lsArgs$options$sOutputFileName = paste(lsArgs$options$OutputFileName[1:viPeriods[length(viPeriods)]],"pdf",sep=".")
+    } else {
+      lsArgs$options$sOutputFileName = paste(lsArgs$args[1],"pdf",sep=".")
+    }
   }
-  # Plot text
-  if(length(viMetadataDummy)==1)
+
+  pdf(lsArgs$options$sOutputFileName)
+  plot(mNMDSData$points, xlab=paste("NMDS1","Stress=",mNMDSData$stress), ylab="NMDS2", pch=vsShapes, col=vsColors)
+  title(lsArgs$options$sTitle,line=3)
+  # Plot Bugs
+  mPlotBugs = mNMDSData$species[viBugsToPlot,]
+  if(length(viBugsToPlot)==1)
   {
-    text(x=mMetadataCoordinates[viMetadataDummy,][1]*lsArgs$options$dResizeArrow*0.8, y=mMetadataCoordinates[viMetadataDummy,][2]*lsArgs$options$dResizeArrow*0.8, labels=row.names(mMetadataCoordinates)[viMetadataDummy],col=lsArgs$options$sArrowTextColor)
-  } else {
-    text(x=mMetadataCoordinates[viMetadataDummy,1]*lsArgs$options$dResizeArrow*0.8, y=mMetadataCoordinates[viMetadataDummy,2]*lsArgs$options$dResizeArrow*0.8, labels=row.names(mMetadataCoordinates)[viMetadataDummy],col=lsArgs$options$sArrowTextColor)
+    text(x=mPlotBugs[1],y=mPlotBugs[2],labels=row.names(mNMDSData$species)[viBugsToPlot],col=lsArgs$options$sTextColor)
+  } else if(length(viBugsToPlot)>1){
+    text(x=mPlotBugs[,1],y=mPlotBugs[,2],labels=row.names(mNMDSData$species)[viBugsToPlot],col=lsArgs$options$sTextColor)
   }
+
+  # Add alternative axes
+  axis(3, col=lsArgs$options$sArrowColor)
+  axis(4, col=lsArgs$options$sArrowColor)
+  box(col = "black")
+
+  # Plot Metadata
+  if(length(viMetadataDummy)>0)
+  {
+    for(i in viMetadataDummy)
+    {
+      curCoordinates = mMetadataCoordinates[i,]
+      curCoordinates = curCoordinates * lsArgs$options$dResizeArrow
+      # Plot Arrow
+      arrows(0,0, curCoordinates[1] * 0.8, curCoordinates[2] * 0.8, col=lsArgs$options$sArrowColor, length=0.1 )
+    }
+    # Plot text
+    if(length(viMetadataDummy)==1)
+    {
+      text(x=mMetadataCoordinates[viMetadataDummy,][1]*lsArgs$options$dResizeArrow*0.8, y=mMetadataCoordinates[viMetadataDummy,][2]*lsArgs$options$dResizeArrow*0.8, labels=row.names(mMetadataCoordinates)[viMetadataDummy],col=lsArgs$options$sArrowTextColor)
+    } else {
+      text(x=mMetadataCoordinates[viMetadataDummy,1]*lsArgs$options$dResizeArrow*0.8, y=mMetadataCoordinates[viMetadataDummy,2]*lsArgs$options$dResizeArrow*0.8, labels=row.names(mMetadataCoordinates)[viMetadataDummy],col=lsArgs$options$sArrowTextColor)
+    }
+  }
+
+  sLegendText = c(paste(vsColorValues,lsArgs$options$sColorBy,sep="_"),paste(vsShapeValues,sMetadataShape,sep="_"))
+  sLegendShapes = c(rep(cDefaultShape,length(vsColorValues)),vsShapeShapes)
+  sLegendColors = c(vsColorRBG,rep(cDefaultColor,length(vsShapeValues)))
+  if(length(sLegendText)>0)
+  {
+    legend("topright",legend=sLegendText,pch=sLegendShapes,col=sLegendColors)
+  }
+
+  # Original biplot call if you want to check the custom ploting of the script
+  # There will be one difference where the biplot call scales an axis, this one does not. In relation to the axes, the points, text and arrows should still match.
+  # Axes to the top and right are for the arrow, otherse are for markers and bug names.
+  #biplot(mNMDSData$points,mMetadataCoordinates[viMetadataDummy,],xlabs=vsShapes,xlab=paste("MDS1","Stress=",mNMDSData$stress),main="Biplot function Bugs and Sampes - Metadata Plotted with Centroids")
+  dev.off()
 }
 
-sLegendText = c(paste(vsColorValues,lsArgs$options$sColorBy,sep="_"),paste(vsShapeValues,sMetadataShape,sep="_"))
-sLegendShapes = c(rep(cDefaultShape,length(vsColorValues)),vsShapeShapes)
-sLegendColors = c(vsColorRBG,rep(cDefaultColor,length(vsShapeValues)))
-if(length(sLegendText)>0)
-{
-  legend("topright",legend=sLegendText,pch=sLegendShapes,col=sLegendColors)
-}
-
-# Original biplot call if you want to check the custom ploting of the script
-# There will be one difference where the biplot call scales an axis, this one does not. In relation to the axes, the points, text and arrows should still match.
-# Axes to the top and right are for the arrow, otherse are for markers and bug names.
-#biplot(mNMDSData$points,mMetadataCoordinates[viMetadataDummy,],xlabs=vsShapes,xlab=paste("MDS1","Stress=",mNMDSData$stress),main="Biplot function Bugs and Sampes - Metadata Plotted with Centroids")
-dev.off()
-
+# This is the equivalent of __name__ == "__main__" in Python.
+# That is, if it's true we're being called as a command line script;
+# if it's false, we're being sourced or otherwise included, such as for
+# library or inlinedocs.
+if( identical( environment( ), globalenv( ) ) &&
+	!length( grep( "^source\\(", sys.calls( ) ) ) ) {
+	funcDoBiplot( pArgs ) }

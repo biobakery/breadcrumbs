@@ -263,39 +263,18 @@ if args.fDoPCA:
 
     # Add metadata features
     # Convert metadata to an input for PCA
-    # Replace missing values with the mean
-    # dummy the discrete data
-    dictMetadata = abndTable.funcGetMetadataCopy()
-    ## Remove the metadata id
-    dictMetadata.pop(abndTable.funcGetIDMetadataName(),None)
-    lMetadata = []
-    for lxItem in dictMetadata.values():
-      ## If this is not numeric data then dummy
-      ## Treat NA as a seperate category
-      if not (sum([ ValidateData.funcIsValidStringFloat(xItem) for xItem in lxItem]) == len(lxItem)):
-        # Get levels
-        setsLevels = set(lxItem)
-        # Go through each level and dummy the metadata
-        for sLevel in setsLevels:
-          lMetadata.append([1.0 if xItem==sLevel else 0.0 for xItem in lxItem])
-      else:
-        # Change NA to Mean and store numeric data as float
-        # Also add to the metadata so that there are no negative numbers
-        ldNONA = [float(xItem) for xItem in lxItem if not xItem.strip().lower() in ["na",""]]
-        dMean = sum(ldNONA)/float(len(ldNONA))
-        lsMetadataValues = [dMean if xItem.strip().lower() in ["na",""] else float(xItem) for xItem in lxItem]
-        dMinValueAdj = abs(min(lsMetadataValues))+1
-        lMetadata.append([sValue + dMinValueAdj for sValue in lsMetadataValues])
-
-    pcaCur.loadData(np.array(lMetadata).T,False)
-    pcaCur.run(fASTransform=False)
-    ldVariance = pcaCur.getVariance()
-    lldComponents = pcaCur.getComponents()
-    # Make Names
-    lsNamesMetadata = ["Metadata_PC"+str((tpleVariance[0]+1))+"_"+re.sub("[\.|-]","_",str(tpleVariance[1])) for tpleVariance in enumerate(ldVariance)]
-    # Make metadata components and add to abundance
-    llsMetadata = [list(npdRow) for npdRow in lldComponents]
-    abndTable.funcAddMetadataFeature(lsNamesMetadata, llsMetadata)
+    pcaCur.loadData(pcaCur.convertMetadataForPCA(abndTable),False)
+    fSuccessful = pcaCur.run(fASTransform=False)
+    if(fSuccessful):
+      ldVariance = pcaCur.getVariance()
+      lldComponents = pcaCur.getComponents()
+      # Make Names
+      lsNamesMetadata = ["Metadata_PC"+str((tpleVariance[0]+1))+"_"+re.sub("[\.|-]","_",str(tpleVariance[1])) for tpleVariance in enumerate(ldVariance)]
+      # Make metadata components and add to abundance
+      llsMetadata = [list(npdRow) for npdRow in lldComponents]
+      abndTable.funcAddMetadataFeature(lsNamesMetadata, llsMetadata)
+    else:
+      print "ManipulateTable::No metadata to PCA, no PCA components added to file based on metadata"
 
 #Manipulate based on metadata
 if args.strStratifyBy:

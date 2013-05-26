@@ -42,6 +42,7 @@ from matplotlib.mlab import PCA as mplPCA
 from matplotlib import pyplot as plt
 from numpy import *
 from UtilityMath import UtilityMath
+from ValidateData import ValidateData
 
 class PCA(Ordination):
   """
@@ -57,10 +58,7 @@ class PCA(Ordination):
     if not self.dataMatrix is None:
       mtrxPrepped = self.dataMatrix.T
       if fASTransform:
-        print(mtrxPrepped)
-        print([row for row in mtrxPrepped])
-        print([self.doAsinOnList(row) for row in sqrt(mtrxPrepped)])
-        mtrxPrepped = asin(sqrt(mtrxPrepped))
+        mtrxPrepped = array([self.doAsinOnList(row) for row in sqrt(mtrxPrepped)])
       if fCenter:
         mtrxPrepped = mtrxPrepped-mean(mtrxPrepped,0)
       if fScale:
@@ -91,11 +89,45 @@ class PCA(Ordination):
   def getComponents(self,iIndex=None):
     if not self.dataProcessed is None:
       if not iIndex is None:
-        return self.dataProcessed[self.c_strComponents][iIndex]
-      return self.dataProcessed[self.c_strComponents]
+        return self.dataProcessed[self.c_strComponents].T[iIndex]
+      return self.dataProcessed[self.c_strComponents].T
     else:
       print("PCA:getComponents::Error Tried to run analysis on no data load data first.")
     return False
 
   def doAsinOnList(self, lsValues):
     return([asin(element) for element in lsValues])
+
+  def convertMetadataForPCA(self,abndTable):
+    """ This takes a metadata dictionary from an abundance table and formats the metadata for use in the PCA.
+        This formatting includes reducing discontinuous data to leveles and replacing NA values to the means of the value (continuous data only)
+        This returns a numpy array of the format needed for this PCA object.
+    """
+
+    # Replace missing values with the mean
+    # dummy the discrete data
+    dictMetadata = abndTable.funcGetMetadataCopy()
+    if(len(dictMetadata) < 2):
+      return None
+
+    ## Remove the metadata id
+    dictMetadata.pop(abndTable.funcGetIDMetadataName(),None)
+    lMetadata = []
+    for lxItem in dictMetadata.values():
+      ## If this is not numeric data then dummy
+      ## Treat NA as a seperate category
+      if not (sum([ ValidateData.funcIsValidStringFloat(xItem) for xItem in lxItem]) == len(lxItem)):
+        # Get levels
+        setsLevels = set(lxItem)
+        # Go through each level and dummy the metadata
+        for sLevel in setsLevels:
+          lMetadata.append([1.0 if xItem==sLevel else 0.0 for xItem in lxItem])
+      else:
+        # Change NA to Mean and store numeric data as float
+        # Also add to the metadata so that there are no negative numbers
+        ldNONA = [float(xItem) for xItem in lxItem if not xItem.strip().lower() in ["na",""]]
+        dMean = sum(ldNONA)/float(len(ldNONA))
+        lsMetadataValues = [dMean if xItem.strip().lower() in ["na",""] else float(xItem) for xItem in lxItem]
+        dMinValueAdj = abs(min(lsMetadataValues))
+        lMetadata.append([sValue + dMinValueAdj for sValue in lsMetadataValues])
+    return(array(lMetadata).T)
