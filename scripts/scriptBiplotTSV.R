@@ -227,16 +227,18 @@ dResizeArrow = c_sDefaultResizeArrow,
 ### Scale factor to resize tthe metadata arrows
 sTitle = c_sDefaultTitle,
 ### The title for the figure.
+sInputFileName,
+### File to input (tsv file: tab seperated, row = sample file)
+sLastMetadata,
+### Last metadata that seperates data and metadata
 sOutputFileName = c_sDefaultOutputFile
 ### The file name to save the figure.
 ){
-  lsArgs <- parse_args( pArgs, positional_arguments=TRUE )
-
   # Define the colors
   vsColorRange = c("blue","orange")
-  if(!is.null(lsArgs$options$sColorRange))
+  if(!is.null(sColorRange))
   {
-    vsColorRange = unlist(strsplit(lsArgs$options$sColorRange,","))
+    vsColorRange = unlist(strsplit(sColorRange,","))
   }
   cDefaultColor = "grey"
   if(!is.null(vsColorRange) && length(vsColorRange)>0)
@@ -247,24 +249,19 @@ sOutputFileName = c_sDefaultOutputFile
   # List of bugs to plot
   # If there is a list it needs to be more than one.
   vsBugsToPlot = c()
-  if(!is.null(lsArgs$options$sBugs))
+  if(!is.null(sBugs))
   {
-    vsBugsToPlot = unlist(strsplit(lsArgs$options$sBugs,","))
+    vsBugsToPlot = unlist(strsplit(sBugs,","))
   }
   # Metadata to plot
   vsMetadata = c()
-  if(!is.null(lsArgs$options$sMetadata))
+  if(!is.null(sMetadata))
   {
-    vsMetadata = unlist(strsplit(lsArgs$options$sMetadata,","))
+    vsMetadata = unlist(strsplit(sMetadata,","))
   }
 
-  ### Last metadata
-  sLastMetadata <- lsArgs$args[1]
-  ### Input file name
-  sInputFile <- lsArgs$args[2]
-
   ### Load table
-  dfInput = read.table(sInputFile, sep = "\t", header=TRUE)
+  dfInput = read.table(sInputFileName, sep = "\t", header=TRUE)
   names(dfInput) = unlist(lapply(names(dfInput),function(x) gsub(".","|",x,fixed=TRUE)))
   row.names(dfInput) = dfInput[,1]
   dfInput = dfInput[-1]
@@ -312,9 +309,9 @@ sOutputFileName = c_sDefaultOutputFile
   # 1. Add in the metadata as a bug
   # 2. Multiply the bug by the weight
   # 3. Push this through the NMDS
-  if(!is.null(lsArgs$options$sRotateByMetadata))
+  if(!is.null(sRotateByMetadata))
   {
-    vsRotateMetadata = unlist(strsplit(lsArgs$options$sRotateByMetadata,","))
+    vsRotateMetadata = unlist(strsplit(sRotateByMetadata,","))
     sMetadata = vsRotateMetadata[1]
     dWeight = as.numeric(vsRotateMetadata[2])
     sOrdinationMetadata = dfDummyMetadata[sMetadata]*dWeight
@@ -328,7 +325,7 @@ sOutputFileName = c_sDefaultOutputFile
   ## Make shapes
   # Defines thes shapes and the metadata they are based on
   # Metadata to use as shapes
-  lShapeInfo = funcMakeShapes(dfInput=dfInput, sShapeBy=lsArgs$options$sShapeBy, sShapes=lsArgs$options$sShapes, cDefaultShape=lsArgs$options$sDefaultMarker)
+  lShapeInfo = funcMakeShapes(dfInput=dfInput, sShapeBy=sShapeBy, sShapes=sShapes, cDefaultShape=sDefaultMarker)
 
   sMetadataShape = lShapeInfo[["ID"]]
   vsShapeValues = lShapeInfo[["Values"]]
@@ -340,9 +337,9 @@ sOutputFileName = c_sDefaultOutputFile
   vsColors = rep(cDefaultColor,nrow(dfInput))
   vsColorValues = c()
   vsColorRBG = c()
-  if(!is.null(lsArgs$options$sColorBy))
+  if(!is.null(sColorBy))
   {
-    vsColorValues = paste(sort(unique(unlist(dfInput[[lsArgs$options$sColorBy]])),na.last=TRUE))
+    vsColorValues = paste(sort(unique(unlist(dfInput[[sColorBy]])),na.last=TRUE))
     iLengthColorValues = length(vsColorValues)
 
     vsColorRBG = lapply(1:iLengthColorValues/iLengthColorValues,colorRamp(vsColorRange))
@@ -350,14 +347,14 @@ sOutputFileName = c_sDefaultOutputFile
 
     for(iColor in 1:length(vsColorRBG))
     {
-      vsColors[which(paste(dfInput[[lsArgs$options$sColorBy]])==vsColorValues[iColor])]=vsColorRBG[iColor]
+      vsColors[which(paste(dfInput[[sColorBy]])==vsColorValues[iColor])]=vsColorRBG[iColor]
     }
 
     #If NAs are seperately given color, then color here
-    if(!is.null(lsArgs$options$sPlotNAColor))
+    if(!is.null(sPlotNAColor))
     {
-      vsColors[which(is.na(dfInput[[lsArgs$options$sColorBy]]))] = lsArgs$options$sPlotNAColor
-      vsColorRBG[which(vsColorValues=="NA")] = lsArgs$options$sPlotNAColor
+      vsColors[which(is.na(dfInput[[sColorBy]]))] = sPlotNAColor
+      vsColorRBG[which(vsColorValues=="NA")] = sPlotNAColor
     }
   }
 
@@ -388,32 +385,32 @@ sOutputFileName = c_sDefaultOutputFile
 
   # Plot samples
   # Make output name
-  if(is.null(lsArgs$options$sOutputFileName))
+  if(is.null(sOutputFileName))
   {
-    viPeriods = which(lsArgs$args[1]==".")
+    viPeriods = which(sInputFileName==".")
     if(length(viPeriods)>0)
     {
-      lsArgs$options$sOutputFileName = paste(lsArgs$options$OutputFileName[1:viPeriods[length(viPeriods)]],"pdf",sep=".")
+      sOutputFileName = paste(OutputFileName[1:viPeriods[length(viPeriods)]],"pdf",sep=".")
     } else {
-      lsArgs$options$sOutputFileName = paste(lsArgs$args[1],"pdf",sep=".")
+      sOutputFileName = paste(sInputFileName,"pdf",sep=".")
     }
   }
 
-  pdf(lsArgs$options$sOutputFileName)
+  pdf(sOutputFileName)
   plot(mNMDSData$points, xlab=paste("NMDS1","Stress=",mNMDSData$stress), ylab="NMDS2", pch=vsShapes, col=vsColors)
-  title(lsArgs$options$sTitle,line=3)
+  title(sTitle,line=3)
   # Plot Bugs
   mPlotBugs = mNMDSData$species[viBugsToPlot,]
   if(length(viBugsToPlot)==1)
   {
-    text(x=mPlotBugs[1],y=mPlotBugs[2],labels=row.names(mNMDSData$species)[viBugsToPlot],col=lsArgs$options$sTextColor)
+    text(x=mPlotBugs[1],y=mPlotBugs[2],labels=row.names(mNMDSData$species)[viBugsToPlot],col=sTextColor)
   } else if(length(viBugsToPlot)>1){
-    text(x=mPlotBugs[,1],y=mPlotBugs[,2],labels=row.names(mNMDSData$species)[viBugsToPlot],col=lsArgs$options$sTextColor)
+    text(x=mPlotBugs[,1],y=mPlotBugs[,2],labels=row.names(mNMDSData$species)[viBugsToPlot],col=sTextColor)
   }
 
   # Add alternative axes
-  axis(3, col=lsArgs$options$sArrowColor)
-  axis(4, col=lsArgs$options$sArrowColor)
+  axis(3, col=sArrowColor)
+  axis(4, col=sArrowColor)
   box(col = "black")
 
   # Plot Metadata
@@ -422,20 +419,20 @@ sOutputFileName = c_sDefaultOutputFile
     for(i in viMetadataDummy)
     {
       curCoordinates = mMetadataCoordinates[i,]
-      curCoordinates = curCoordinates * lsArgs$options$dResizeArrow
+      curCoordinates = curCoordinates * dResizeArrow
       # Plot Arrow
-      arrows(0,0, curCoordinates[1] * 0.8, curCoordinates[2] * 0.8, col=lsArgs$options$sArrowColor, length=0.1 )
+      arrows(0,0, curCoordinates[1] * 0.8, curCoordinates[2] * 0.8, col=sArrowColor, length=0.1 )
     }
     # Plot text
     if(length(viMetadataDummy)==1)
     {
-      text(x=mMetadataCoordinates[viMetadataDummy,][1]*lsArgs$options$dResizeArrow*0.8, y=mMetadataCoordinates[viMetadataDummy,][2]*lsArgs$options$dResizeArrow*0.8, labels=row.names(mMetadataCoordinates)[viMetadataDummy],col=lsArgs$options$sArrowTextColor)
+      text(x=mMetadataCoordinates[viMetadataDummy,][1]*dResizeArrow*0.8, y=mMetadataCoordinates[viMetadataDummy,][2]*dResizeArrow*0.8, labels=row.names(mMetadataCoordinates)[viMetadataDummy],col=sArrowTextColor)
     } else {
-      text(x=mMetadataCoordinates[viMetadataDummy,1]*lsArgs$options$dResizeArrow*0.8, y=mMetadataCoordinates[viMetadataDummy,2]*lsArgs$options$dResizeArrow*0.8, labels=row.names(mMetadataCoordinates)[viMetadataDummy],col=lsArgs$options$sArrowTextColor)
+      text(x=mMetadataCoordinates[viMetadataDummy,1]*dResizeArrow*0.8, y=mMetadataCoordinates[viMetadataDummy,2]*dResizeArrow*0.8, labels=row.names(mMetadataCoordinates)[viMetadataDummy],col=sArrowTextColor)
     }
   }
 
-  sLegendText = c(paste(vsColorValues,lsArgs$options$sColorBy,sep="_"),paste(vsShapeValues,sMetadataShape,sep="_"))
+  sLegendText = c(paste(vsColorValues,sColorBy,sep="_"),paste(vsShapeValues,sMetadataShape,sep="_"))
   sLegendShapes = c(rep(cDefaultShape,length(vsColorValues)),vsShapeShapes)
   sLegendColors = c(vsColorRBG,rep(cDefaultColor,length(vsShapeValues)))
   if(length(sLegendText)>0)
@@ -455,5 +452,26 @@ sOutputFileName = c_sDefaultOutputFile
 # if it's false, we're being sourced or otherwise included, such as for
 # library or inlinedocs.
 if( identical( environment( ), globalenv( ) ) &&
-	!length( grep( "^source\\(", sys.calls( ) ) ) ) {
-	funcDoBiplot( pArgs ) }
+	!length( grep( "^source\\(", sys.calls( ) ) ) )
+{
+  lsArgs <- parse_args( pArgs, positional_arguments=TRUE )
+
+  funcDoBiplot(
+    sBugs = lsArgs$options$sBugs,
+    sMetadata = lsArgs$options$sMetadata,
+    sColorBy = lsArgs$options$sColorBy,
+    sColorRange = lsArgs$options$sColorRange,
+    sTextColor = lsArgs$options$sTextColor,
+    sArrowColor = lsArgs$options$sArrowColor,
+    sArrowTextColor = lsArgs$options$sArrowTextColor,
+    sPlotNAColor = lsArgs$options$sPlotNAColor,
+    sShapeBy = lsArgs$options$sShapeBy,
+    sShapes = lsArgs$options$sShapes,
+    sDefaultMarker = lsArgs$options$sDefaultMarker,
+    sRotateByMetadata = lsArgs$options$sRotateByMetadata,
+    dResizeArrow = lsArgs$options$dResizeArrow,
+    sTitle = lsArgs$options$sTitle,
+    sInputFileName = lsArgs$args[2],
+    sLastMetadata = lsArgs$args[1],
+    sOutputFileName = lsArgs$options$sOutputFileName)
+}
