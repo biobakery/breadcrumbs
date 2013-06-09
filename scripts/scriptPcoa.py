@@ -16,6 +16,7 @@ __status__ = "Development"
 import sys
 import argparse
 from src.AbundanceTable import AbundanceTable
+from src.Metric import Metric
 import csv
 import os
 from src.PCoA import PCoA
@@ -35,33 +36,41 @@ argp.add_argument("-n","--doNorm", dest="fDoNormData", action="store_true", defa
 argp.add_argument("-s","--doSum", dest="fDoSumData", action="store_true", default=False, help="Flag to turn on summation")
 
 argp.add_argument("-p","--paint", dest="sLabel", metavar= "Label", default=None, help="Label to paint in the PCoA")
-argp.add_argument("-m","--metric", dest="strMetric", metavar = "distance", default = PCoA.c_BRAY_CURTIS, help ="Distance metric to use.")
+argp.add_argument("-m","--metric", dest="strMetric", metavar = "distance", default = PCoA.c_BRAY_CURTIS, help ="Distance metric to use. Pick from braycurtis, canberra, chebyshev, cityblock, correlation, cosine, euclidean, hamming, sqeuclidean, unifrac_unweighted, unifrac_weighted")
 argp.add_argument("-o","--outputFile", dest="strOutFile", metavar= "outputFile", default=None, help="Specify the path for the output figure.")
 argp.add_argument("-D","--DistanceMatrix", dest="strFileDistanceMatrix", metavar= "strFileDistanceMatrix", default=None, help="Specify the path for outputing the distance matrix (if interested). Default this will not output.")
 argp.add_argument("-C","--CoordinatesMatrix", dest="strFileCoordinatesMatrix", metavar= "strFileCoordinatesMatrix", default=None, help="Specify the path for outputing the x,y coordinates matrix (Dim 1 and 2). Default this will not output.")
 
-argp.add_argument("strFileAbund", metavar = "Abundance file", help ="Input data file")
+# Unifrac arguments
+argp.add_argument("-t","--unifracTree", dest="istrmTree", metavar="UnifracTreeFile", default=None, help="Optional file only needed for UniFrac calculations.")
+argp.add_argument("-e","--unifracEnv", dest="istrmEnvr", metavar="UnifracEnvFile", default=None, help="Optional file only needed for UniFrac calculations.")
+argp.add_argument("-c","--unifracColor", dest="unifracColor", metavar="UnifracColor", default = None, help="Optional for coloring samples in a unifrac setting. If the sample id is found in the comma delimited string then it is given a color. Sample1,Sample2,Sample3")
 
+argp.add_argument("strFileAbund", metavar = "Abundance file", nargs="?", help ="Input data file")
 
 args = argp.parse_args( )
 
 #Read in abundance table
-abndTable = AbundanceTable.funcMakeFromFile(args.strFileAbund,
+abndTable = None
+if args.strFileAbund:
+  abndTable = AbundanceTable.funcMakeFromFile(args.strFileAbund,
                              cDelimiter = args.cFileDelimiter,
                              sMetadataID = args.sIDName,
                              sLastMetadata = args.sLastMetadataName,
                              cFeatureNameDelimiter= args.cFeatureNameDelimiter)
 
-#Normalize if need
-if args.fDoSumData:
-  abndTable.funcSumClades()
+  #Normalize if need
+  if args.fDoSumData:
+    abndTable.funcSumClades()
 
-#Sum if needed
-if args.fDoNormData:
-  abndTable.funcNormalize()
+  #Sum if needed
+  if args.fDoNormData:
+    abndTable.funcNormalize()
 
 #Get the metadata to paint
-lsKeys = abndTable.funcGetMetadataCopy().keys() if not args.sLabel else [args.sLabel]
+lsKeys = None
+if abndTable:
+  lsKeys = abndTable.funcGetMetadataCopy().keys() if not args.sLabel else [args.sLabel]
 
 #Get pieces of output file
 if not args.strOutFile:
@@ -71,9 +80,10 @@ lsFilePieces = os.path.splitext(args.strOutFile)
 # Make PCoA object
 # Get PCoA object and plot
 pcoa = PCoA()
-pcoa.loadData(abndTable,True)
+if(not args.strMetric in [Metric.c_strUnifracUnweighted,Metric.c_strUnifracWeighted]) and abndTable:
+  pcoa.loadData(abndTable,True)
 # Optional args.strFileDistanceMatrix is not none will force a printing of the distance measures to the path in args.strFileDistanceMatrix
-pcoa.run(tempDistanceMetric=args.strMetric, iDims=2, strDistanceMatrixFile=args.strFileDistanceMatrix)
+pcoa.run(tempDistanceMetric=args.strMetric, iDims=2, strDistanceMatrixFile=args.strFileDistanceMatrix, istrmTree=args.istrmTree, istrmEnvr=args.istrmEnvr)
 
 # Write dim 1 and 2 coordinates to file
 if args.strFileCoordinatesMatrix:
@@ -86,15 +96,30 @@ if args.strFileCoordinatesMatrix:
     csvrCoordinates.writerow([strId]+mtrxCoordinates[x].tolist())
 
 # Paint metadata
-for iIndex in xrange(len(lsKeys)):
-  lsMetadata = abndTable.funcGetMetadata(lsKeys[iIndex])
+if lsKeys:
+  for iIndex in xrange(len(lsKeys)):
+    lsMetadata = abndTable.funcGetMetadata(lsKeys[iIndex])
 
-  pcoa.plotList(lsLabelList = lsMetadata,
-    strOutputFileName = lsFilePieces[0]+"-"+lsKeys[iIndex]+lsFilePieces[1],
-    iSize=20,
-    dAlpha=1.0,
-    charForceColor=None,
-    charForceShape=None,
-    fInvert=False,
-    iDim1=1,
-    iDim2=2)
+    pcoa.plotList(lsLabelList = lsMetadata,
+      strOutputFileName = lsFilePieces[0]+"-"+lsKeys[iIndex]+lsFilePieces[1],
+      iSize=20,
+      dAlpha=1.0,
+      charForceColor=None,
+      charForceShape=None,
+      fInvert=False,
+      iDim1=1,
+      iDim2=2)
+
+if args.strMetric in [Metric.c_strUnifracUnweighted,Metric.c_strUnifracWeighted]:
+  lsIds = pcoa.funcGetIDs()
+  lsColorBy = args.unifracColor.split(",") if args.unifracColor else ""
+  lsGroupLabels = [str(sId in lsColorBy) for sId in lsIds]
+  pcoa.plotList(lsLabelList = lsGroupLabels,
+      strOutputFileName = lsFilePieces[0]+"-"+args.strMetric+lsFilePieces[1],
+      iSize=20,
+      dAlpha=1.0,
+      charForceColor=None,
+      charForceShape=None,
+      fInvert=False,
+      iDim1=1,
+      iDim2=2)

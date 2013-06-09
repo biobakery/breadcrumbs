@@ -56,10 +56,13 @@ class PCoA:
     The process is structured in this way so that data is read once but can be transformed to different
     distance matricies and after analysis can be plotted with multiple sample highlighting.
     One can always reload or rerun data by calling the appropriate function.
+
+    Supported beta diversity metrics include "braycurtis","canberra","chebyshev","cityblock","correlation",
+	"cosine","euclidean","hamming","sqeuclidean",unifrac_unweighted","unifrac_weighted"
     """
 
     #Supported distance metrics
-    c_BRAY_CURTIS="BRAY_CURTIS"
+    c_BRAY_CURTIS="B_Curtis"
     c_SPEARMAN="SPEARMAN"
 
     #Holds the data Matrix
@@ -71,6 +74,9 @@ class PCoA:
 
     #Current pcoa object
     pcoa = None
+
+    #Holds the most recently successful distance metric
+    strRecentMetric = None
 
     #Current dimensions
     _iDimensions = 2
@@ -132,18 +138,25 @@ class PCoA:
             self.isRawData=fIsRawData
         return True
 
-    def run(self, tempDistanceMetric=None, iDims=2, strDistanceMatrixFile=None):
+    def run(self, tempDistanceMetric=None, iDims=2, strDistanceMatrixFile=None, istrmTree=None, istrmEnvr=None):
         """
         Runs analysis on loaded data.
 
         :param tempDistanceMetric: The name of the distance metric to use when performing PCoA.
                                    None indicates a distance matrix was already given when loading and will be used.
-                                   Currently only brays-curtis distance is supported.
+                                   Supports "braycurtis","canberra","chebyshev","cityblock","correlation",
+				   "cosine","euclidean","hamming","sqeuclidean",unifrac_unweighted","unifrac_weighted"
         :type: String Distance matrix name
         :param iDims: How many dimension to plot the PCoA graphs.
                       (This can be minimally 2; all combinations of dimensions are plotted).
                       iDims start with 1 (not index-based).
         :type: Integer Positive integer 2 or greater.
+	:param strDistanceMatrixFile: If the underlying distance matrix should be output, this is the file to output to.
+	:type: String Output file for distances of None for indicating it shoudl not be done.
+	:param istrmTree: One of two files needed for unifrac calculations, this is the phylogeny of the features.
+	:type: String Path to file
+	:param istrmEnvr: One of two files needed for unifrac calculations, this is the environment file for the features.
+	:type: String Path to file
         :return boolean: Indicator of success (True)
         """
 
@@ -167,14 +180,15 @@ class PCoA:
             return False
 
         #Supported distances
+	
         distanceMatrix = None
-        if(tempDistanceMetric==self.c_BRAY_CURTIS):
-            distanceMatrix=Metric().funcGetBrayCurtisDissimilarity(ldSampleTaxaAbundancies=self.dataMatrix)
-        elif(tempDistanceMetric==self.c_SPEARMAN):
+        if(tempDistanceMetric==self.c_SPEARMAN):
             distanceMatrix = Metric().funcGetDissimilarity(ldSampleTaxaAbundancies=self.dataMatrix, funcDistanceFunction=lambda u,v: spearmanr(u,v)[0])
+        if(tempDistanceMetric in [Metric.c_strUnifracUnweighted,Metric.c_strUnifracWeighted]):
+            distanceMatrix,lsLabels = Metric().funcGetBetaMetric(sMetric=tempDistanceMetric, istrmTree=istrmTree, istrmEnvr=istrmEnvr)
+            self.lsIDs = lsLabels
         else:
-            print("PCoA:run::Error, not a supported distance metric. Please generate the distance matrix and load.")
-            return False
+            distanceMatrix = Metric().funcGetBetaMetric(npadAbundancies=self.dataMatrix, sMetric=tempDistanceMetric)
         if(ValidateData.funcIsFalse(distanceMatrix)):
             print "PCoA:run::Error, when generating distance matrix."
             return False
@@ -193,6 +207,7 @@ class PCoA:
                 csvrDistance.writerow(strId+distanceMatrix[x].tolist())
 
         self.pcoa = NMDS(distanceMatrix, dimension=max(self._iDimensions,2), verbosity=0)
+        self.strRecentMetric = tempDistanceMetric
         return True
 
     #TODO Test

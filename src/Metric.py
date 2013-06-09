@@ -402,7 +402,7 @@ class Metric:
         :type:	String	String name of beta metric. Possibilities are listed in microPITA.
         :return	Double:	Measurement indicated by metric for given abundance list
         """
-	
+
         if sMetric == Metric.c_strBrayCurtisDissimilarity:
             mtrxDistance = Metric.funcGetBrayCurtisDissimilarity(ldSampleTaxaAbundancies=npadAbundancies)
         elif sMetric == Metric.c_strInvBrayCurtisDissimilarity:
@@ -410,11 +410,11 @@ class Metric:
         elif sMetric in Metric.setBetaDiversities:
             mtrxDistance = Metric.funcGetDissimilarityByName(ldSampleTaxaAbundancies=npadAbundancies, strMetric=sMetric)
         elif sMetric == Metric.c_strUnifracUnweighted:
-            xReturn = Metric.funcGetUnifracDistance(istrmTree=istrmTree,istrmEnvr=istrmEnvr,lsSampleOrder=lsSampleOrder,fWeighted=False)
-            mtrxDistance = xReturn[0] if not type(xReturn) is BooleanType else xReturn
+            mtrxDistance = Metric.funcGetUnifracDistance(istrmTree=istrmTree,istrmEnvr=istrmEnvr,lsSampleOrder=lsSampleOrder,fWeighted=False)
+#            mtrxDistance = xReturn[0] if not type(xReturn) is BooleanType else xReturn
         elif sMetric == Metric.c_strUnifracWeighted:
-            xReturn = Metric.funcGetUnifracDistance(istrmTree=istrmTree,istrmEnvr=istrmEnvr,lsSampleOrder=lsSampleOrder,fWeighted=True)
-            mtrxDistance = xReturn[0] if not type(xReturn) is BooleanType else xReturn
+            mtrxDistance = Metric.funcGetUnifracDistance(istrmTree=istrmTree,istrmEnvr=istrmEnvr,lsSampleOrder=lsSampleOrder,fWeighted=True)
+#            mtrxDistance = xReturn[0] if not type(xReturn) is BooleanType else xReturn
         else:
             mtrxDistance = False
         if fAdditiveInverse and not type(mtrxDistance) is BooleanType:
