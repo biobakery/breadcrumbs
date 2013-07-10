@@ -71,5 +71,21 @@ class ConstantsBreadCrumbs():
     #Suffix given to a file that is check with the checkRawDataFile method
     OUTPUT_SUFFIX = "-checked.pcl"
 
+	######################################################################
+	# Constants related to biom import and export files                  #
+	######################################################################
+    c_biom = "biom"							#Suffix of biom files
+    c_BiomTaxData = "BiomTaxData"
+    c_Metadata = "Metadata"
+    c_metadata_lowercase = "metadata"
+    c_sLastMetadata = "sLastMetadata"
+    c_columns = "columns"	
+    c_ascii = "ascii"	
+    c_ignore = "ignore"	
+    c_Dtype = "Dtype"	
+    c_ID = "ID"	
+    c_id_lowercase = "id"	
+    c_f4 = "f4"		
+
     def __init__(self):
       pass

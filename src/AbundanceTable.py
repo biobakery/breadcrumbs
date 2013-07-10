@@ -44,6 +44,8 @@ import re
 import scipy.stats
 import string
 from ValidateData import ValidateData
+from biom.parse import *
+from biom.table import *
 
 c_dTarget	= 1.0
 c_fRound	= False
@@ -158,8 +160,21 @@ class AbundanceTable:
 		
 		#Get output file and remove if existing
 		outputFile = open( xOutputFile, "w" ) if isinstance(xOutputFile, str) else xOutputFile
-		#Read in from text file to create the abundance and metadata structures
-		lContents = AbundanceTable._funcTextToStructuredArray(xInputFile=xInputFile, cDelimiter=cDelimiter,
+		
+		#################################################################################
+		#    Check if file is a biom file - if so invoke the biom routine               #
+		#################################################################################
+		if  xInputFile.endswith(ConstantsBreadCrumbs.c_biom):					#Does the file end with biom?
+			BiomCommonArea = AbundanceTable._funcBiomToStructuredArray(xInputFile)	#Call the biom formatting function
+			if  BiomCommonArea:					#If got good results reading the file, build lContents
+				lContents = [BiomCommonArea[ConstantsBreadCrumbs.c_BiomTaxData],
+							BiomCommonArea[ConstantsBreadCrumbs.c_Metadata]]	#Post the Taxdata and Metadata
+				strLastMetadata = BiomCommonArea[ConstantsBreadCrumbs.c_sLastMetadata]	#Post the Last Metadata
+			else:
+				lContents = False	#Failed to read and decode the biom file
+		else:	
+			#Read in from text file to create the abundance and metadata structures
+			lContents = AbundanceTable._funcTextToStructuredArray(xInputFile=xInputFile, cDelimiter=cDelimiter,
 				sMetadataID = sMetadataID, sLastMetadata = sLastMetadata, ostmOutputFile = outputFile)
 
 		#If contents is not a false then set contents to appropriate objects
@@ -1733,3 +1748,139 @@ class AbundanceTable:
 			lsFilesWritten.append(sOutputFile)
 
 		return lsFilesWritten
+		
+		
+				
+	#*******************************************
+	#* biom interface functions:               *
+	#* 1. _funcBiomToStructuredArray           *
+	#* 2. _funcDecodeBiomMetadata              *
+	#*******************************************	
+	@staticmethod
+	def _funcBiomToStructuredArray(xInputFile = None):	
+		"""
+		Reads the biom input file and builds a "BiomCommonArea"  that contains:
+			1.BiomCommonArea['sLastMetadata'] - This is the name of the last Metadata (String)
+		    2.BiomCommonArea['BiomTaxData']- dict() - going to be used as  lcontents[0]==TaxData 
+ 		    3.BiomCommonArea['Metadata']   - dict() -  going to be used as lcontents[1]==MetaData
+  		:param	xInputFile:	File path of biom file to read.
+		:type:	String	File path.
+		:return:   BiomCommonArea  (See description above)
+		:type:	dict()		
+		"""	
+ 
+ 
+		#*******************************************
+		#* Build the metadata                      *
+		#*******************************************
+		try:
+			BiomTable = parse_biom_table(open(xInputFile,'U'))
+		except:
+			print("Failure decoding biom file - please check your input biom file and rerun")
+			BiomCommonArea = None
+			return BiomCommonArea
+		BiomElements  =  BiomTable.getBiomFormatObject('')	
+		for BiomKey, BiomValue in BiomElements.iteritems():
+			if BiomKey == ConstantsBreadCrumbs.c_columns:
+				BiomCommonArea = AbundanceTable._funcDecodeBiomMetadata(BiomValue)	#Call the subroutine to Build the metadata
+	 
+		#*******************************************
+		#* Build the TaxData                       *
+		#*******************************************
+		BiomTaxDataWork = list()			#Initlialize TaxData
+		BiomObservations = BiomTable.iterObservations(conv_to_np=True)		#Invoke biom method to fetch data from the biom file
+		for BiomObservationData in BiomObservations:
+			cnt = -1							 
+			for BiomData in BiomObservationData:
+				cnt+= 1	
+				if cnt == 0:
+					BiomObservationsValues = BiomData				
+				if cnt == 1:
+					BiomTaxDataEntry = list()
+					BiomTaxDataEntry.append(BiomData.encode(ConstantsBreadCrumbs.c_ascii,ConstantsBreadCrumbs.c_ignore))    
+	
+			for BiomDataValue in BiomObservationsValues:
+				BiomTaxDataEntry.append(BiomDataValue)
+			
+			BiomTaxDataWork.append(tuple(BiomTaxDataEntry))	
+		
+		BiomCommonArea[ConstantsBreadCrumbs.c_BiomTaxData] = np.array(BiomTaxDataWork,dtype=np.dtype(BiomCommonArea[ConstantsBreadCrumbs.c_Dtype]))
+		del(BiomCommonArea[ConstantsBreadCrumbs.c_Dtype])			#Not needed anymore
+		return BiomCommonArea
+	
+
+	@staticmethod
+	def _funcDecodeBiomMetadata(BiomValue = None):	
+		"""
+		Decode the Biom Metadata and build:  
+			1. BiomCommonArea['Metadata'] 
+			2. BiomCommonArea['Dtype']
+			3. BiomCommonArea['sLastMetadata']
+			These elements will be formatted and passed down the line to build the AbundanceTable
+ 		:param	BiomValue:	The "columns" Metadata from the biom file (Contains the Metadata information)
+		:type:	dict()	 
+		:return:   BiomCommonArea 
+		:type:	dict()		
+		"""
+ 		
+ 
+		BiomCommonArea = dict()					#Initiliaze the Common Area to contain the built Elements
+		BiomCommonArea[ConstantsBreadCrumbs.c_sLastMetadata] = None	#Initialize the LastMetadata element 
+		lenBiomValue = len(BiomValue)
+		BiomMetadata = dict()				 
+		for cntMetadata in range(0, lenBiomValue):
+			BiomMetadataEntry = BiomValue[cntMetadata]
+ 
+			for key, value in BiomMetadataEntry.iteritems(): 		#Loop on the entries
+				if 	key == ConstantsBreadCrumbs.c_id_lowercase:		#If id - process it
+					if  ConstantsBreadCrumbs.c_ID  not in BiomMetadata:	#If ID  not in the common area - initalize it
+						BiomMetadata[ConstantsBreadCrumbs.c_ID] = list() #Initialize a list
+						for indx in range(0, lenBiomValue):			#And post the values
+							BiomMetadata[ConstantsBreadCrumbs.c_ID].append(None)
+					BiomMetadata[ConstantsBreadCrumbs.c_ID][cntMetadata] = value.encode(ConstantsBreadCrumbs.c_ascii,ConstantsBreadCrumbs.c_ignore)
+ 
+				if  key == ConstantsBreadCrumbs.c_metadata_lowercase:		#If key = metadata
+					if  not value is None:					#And value is not empty
+						MetadataDict = value				#Initialize a dictionary and post the values
+						for MDkey, MDvalue in MetadataDict.iteritems():
+							if type(MDkey) == unicode :
+								MDkeyAscii = MDkey.encode(ConstantsBreadCrumbs.c_ascii,ConstantsBreadCrumbs.c_ignore)
+							else:
+								MDkeyAscii = MDkey 
+							if type(MDvalue) == unicode:
+								MDvalueAscii = MDvalue.encode(ConstantsBreadCrumbs.c_ascii,ConstantsBreadCrumbs.c_ignore)
+							else:
+								MDvalueAscii = MDvalue 
+							
+							if  len(MDkeyAscii) > 0:		#Search for the last metadata
+									BiomCommonArea[ConstantsBreadCrumbs.c_sLastMetadata] =  MDkeyAscii #Set the last Metadata
+							if  MDkeyAscii  not in BiomMetadata:
+								BiomMetadata[MDkeyAscii] = list()
+								for indx in range(0, lenBiomValue):
+									BiomMetadata[MDkeyAscii].append(None)
+							BiomMetadata[MDkeyAscii][cntMetadata] = MDvalueAscii 
+ 
+						
+		BiomCommonArea['Metadata'] = BiomMetadata				
+		#**********************************************
+		#*    Build dtype                             *
+		#**********************************************
+		BiomDtype = list()
+		MaxIdLen =  2 * max( len(a) for a in BiomMetadata[ConstantsBreadCrumbs.c_ID] )	#Twice the length of the longest ID
+		BiomDtypeEntry = list()
+		FirstValue = ConstantsBreadCrumbs.c_ID
+		SecondValue = "a" + str(MaxIdLen)
+		BiomDtypeEntry.append(FirstValue)
+		BiomDtypeEntry.append(SecondValue)
+		BiomDtype.append(tuple(BiomDtypeEntry))
+
+		for a in BiomMetadata[ConstantsBreadCrumbs.c_ID]:
+				BiomDtypeEntry = list()
+				FirstValue =  a.encode(ConstantsBreadCrumbs.c_ascii,ConstantsBreadCrumbs.c_ignore)
+				SecondValue = ConstantsBreadCrumbs.c_f4 
+				BiomDtypeEntry.append(FirstValue)
+				BiomDtypeEntry.append(SecondValue)
+				BiomDtype.append(tuple(BiomDtypeEntry))
+				
+		BiomCommonArea[ConstantsBreadCrumbs.c_Dtype] = BiomDtype
+		return BiomCommonArea
