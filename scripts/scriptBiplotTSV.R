@@ -396,7 +396,7 @@ sOutputFileName = c_sDefaultOutputFile
     }
   }
 
-  pdf(sOutputFileName)
+  pdf(sOutputFileName,useDingbats=FALSE)
   plot(mNMDSData$points, xlab=paste("NMDS1","Stress=",mNMDSData$stress), ylab="NMDS2", pch=vsShapes, col=vsColors)
   title(sTitle,line=3)
   # Plot Bugs
