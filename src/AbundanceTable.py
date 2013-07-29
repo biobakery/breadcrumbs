@@ -1523,7 +1523,7 @@ class AbundanceTable:
 		return None
 
 	#Happy Path tested
-	def funcWriteToFile(self, xOutputFile, cDelimiter=None):
+	def funcWriteToFile(self, xOutputFile, cDelimiter=None, cFileType=ConstantsBreadCrumbs.c_strPCLFile):
 		"""
 		Writes the AbundanceTable to a file strOutputFile.
 		Will rewrite over a file as needed.
@@ -1535,11 +1535,31 @@ class AbundanceTable:
 		:type:	Character	If cDlimiter is not specified, the internally stored file delimiter is used.
 		"""
 
+
 		if not xOutputFile:
 			return
-		#Check delimiter argument
+		# Check delimiter argument
 		if not cDelimiter:
 			cDelimiter = self._cDelimiter
+
+		if(cFileType == ConstantsBreadCrumbs.c_strPCLFile):
+			# Write as a pcl file
+			self._funcWritePCLFile(xOutputFile, cDelimiter=None)
+		elif(cFileType == ConstantsBreadCrumbs.c_strBiomeFile):
+			#Write as a biome file
+			BiomTable = self._funcWriteBiomeFile(xOutputFile)
+			return BiomTable   		#If Biom - Need the Biom Table afterwards
+		return
+
+	def _funcWritePCLFile(self, xOutputFile, cDelimiter=None):
+		"""
+		Write an abundance table object as a PCL file.
+
+		:param	xOutputFile:	File stream or File path to write the file to.
+		:type:	String	File Path
+		:param	cDelimiter:	Delimiter for the output file.
+		:type:	Character	If cDlimiter is not specified, the internally stored file delimiter is used.
+		"""
 
 		f = csv.writer(open( xOutputFile, "w" ) if isinstance(xOutputFile, str) else xOutputFile, csv.excel_tab, delimiter=cDelimiter)
 		
@@ -1553,6 +1573,88 @@ class AbundanceTable:
 		curAbundance = self._npaFeatureAbundance.tolist()
 		for curAbundanceRow in curAbundance:
 			f.writerows([[str(curAbundanceElement) for curAbundanceElement in curAbundanceRow]])
+		return
+
+	def _funcWriteBiomeFile(self, xOutputFile):
+		"""
+		Write an abundance table object as a Biome file.
+
+		:param	xOutputFile:	File stream or File path to write the file to.
+		:type:	String	File Path	
+		"""
+		
+		#**************************
+		# Get Sample Names        *
+		#**************************
+		lSampNames = list(self.funcGetSampleNames())
+
+		#**************************
+		# Metadata Names          *
+		#**************************
+		dictMetadataCopy = self.funcGetMetadataCopy()
+		lMetaData = list()
+		iKeysCounter = 0
+		for lMetadataCopyEntry in dictMetadataCopy.iteritems():
+			iKeysCounter +=1
+			sMetadataName = lMetadataCopyEntry[0]
+			lMetadataEntries = lMetadataCopyEntry[1]
+			iMetadataEntryCounter =  -1
+			for sMetadataEntry in lMetadataEntries:
+				iMetadataEntryCounter+=1
+				dictMetadataNames = dict()
+				dictMetadataNames[sMetadataName ] = sMetadataEntry
+				if iKeysCounter == 1:
+					lMetaData.append(dictMetadataNames)
+				else:
+					lMetaData[iMetadataEntryCounter][sMetadataName ] = sMetadataEntry
+
+		#**************************
+		# Observation Ids         *
+		#**************************
+		lObservationIds = list()
+		lFeatureNamesResultArray = self.funcGetFeatureNames()
+		for sObservatiuonId in lFeatureNamesResultArray:
+			lObservationIds.append(sObservatiuonId)
+		 
+		#**************************
+		# Data                    *
+		#**************************
+		lData = list()
+		lAbundanceCopyResultArray = self.funcGetAbundanceCopy()
+		for r in lAbundanceCopyResultArray:
+			lr = list(r)
+			lr.pop(0)	#Remove metadata
+			lData.append(lr)
+		arrData = array(lData)  #Convert list to array
+
+		#**************************
+		# Invoke the              *
+		# biom table factory      *     
+		#**************************
+		BiomTable = table_factory(arrData,
+						  lSampNames,
+						  lObservationIds,
+						  lMetaData,
+						  constructor=SparseOTUTable)
+						
+
+		#**************************
+		# Generate biom Output    *   
+		#**************************
+		###f = csv.writer(open( xOutputFile, "w" ) if isinstance(xOutputFile, str) else xOutputFile, csv.excel_tab, delimiter=ConstantsBreadCrumbs.c_cTab)    
+		####f.write(BiomTable.getBiomFormatJsonString(ConstantsBreadCrumbs.c_biom_file_generated_by))
+		####f.close()
+		########################################
+		##  Need to  fix this                  #
+		########################################
+		f = open(xOutputFile,ConstantsBreadCrumbs.c_write)     
+		f.write(BiomTable.getBiomFormatJsonString(ConstantsBreadCrumbs.c_biom_file_generated_by))
+		f.close()
+		return  BiomTable
+		
+		
+		
+		
 
 	#Testing Status: 1 Happy path test
 	@staticmethod

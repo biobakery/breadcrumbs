@@ -86,6 +86,10 @@ class ConstantsBreadCrumbs():
     c_ID = "ID"	
     c_id_lowercase = "id"	
     c_f4 = "f4"		
+    c_write = "w"	
+    c_biom_file_generated_by = "AbundanceTable conversion program"
+    c_strPCLFile = "PCL"
+    c_strBiomeFile = "Biom"
 
     def __init__(self):
       pass
