@@ -1535,20 +1535,24 @@ class AbundanceTable:
 		:type:	Character	If cDlimiter is not specified, the internally stored file delimiter is used.
 		"""
 
-
 		if not xOutputFile:
 			return
 		# Check delimiter argument
 		if not cDelimiter:
 			cDelimiter = self._cDelimiter
 
+			
+			
+		#  Check file type: If pcl: Write pcl file; If biom: write biom file;  If None - write pcl file
+		if(cFileType == None):		
+				cFileType == ConstantsBreadCrumbs.c_strPCLFile 
+				
 		if(cFileType == ConstantsBreadCrumbs.c_strPCLFile):
 			# Write as a pcl file
-			self._funcWritePCLFile(xOutputFile, cDelimiter=None)
+			self._funcWritePCLFile(xOutputFile, cDelimiter=cDelimiter)
 		elif(cFileType == ConstantsBreadCrumbs.c_strBiomeFile):
 			#Write as a biome file
-			BiomTable = self._funcWriteBiomeFile(xOutputFile)
-			return BiomTable   		#If Biom - Need the Biom Table afterwards
+			self._funcWriteBiomeFile(xOutputFile)
 		return
 
 	def _funcWritePCLFile(self, xOutputFile, cDelimiter=None):
@@ -1560,7 +1564,8 @@ class AbundanceTable:
 		:param	cDelimiter:	Delimiter for the output file.
 		:type:	Character	If cDlimiter is not specified, the internally stored file delimiter is used.
 		"""
-
+		
+		
 		f = csv.writer(open( xOutputFile, "w" ) if isinstance(xOutputFile, str) else xOutputFile, csv.excel_tab, delimiter=cDelimiter)
 		
 		#Write Ids
@@ -1578,7 +1583,6 @@ class AbundanceTable:
 	def _funcWriteBiomeFile(self, xOutputFile):
 		"""
 		Write an abundance table object as a Biome file.
-
 		:param	xOutputFile:	File stream or File path to write the file to.
 		:type:	String	File Path	
 		"""
@@ -1637,20 +1641,13 @@ class AbundanceTable:
 						  lMetaData,
 						  constructor=SparseOTUTable)
 						
-
 		#**************************
 		# Generate biom Output    *   
 		#**************************
-		###f = csv.writer(open( xOutputFile, "w" ) if isinstance(xOutputFile, str) else xOutputFile, csv.excel_tab, delimiter=ConstantsBreadCrumbs.c_cTab)    
-		####f.write(BiomTable.getBiomFormatJsonString(ConstantsBreadCrumbs.c_biom_file_generated_by))
-		####f.close()
-		########################################
-		##  Need to  fix this                  #
-		########################################
-		f = open(xOutputFile,ConstantsBreadCrumbs.c_write)     
+		f = open( xOutputFile, "w" ) if isinstance(xOutputFile, str) else xOutputFile
 		f.write(BiomTable.getBiomFormatJsonString(ConstantsBreadCrumbs.c_biom_file_generated_by))
 		f.close()
-		return  BiomTable
+		return  
 		
 		
 		
