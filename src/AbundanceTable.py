@@ -2035,8 +2035,7 @@ class AbundanceTable:
 							BiomMetadata[MDkeyAscii][cntMetadata] = MDvalueAscii 
  
 	
-		#if len(BiomMetadata) == 1 and 'ID' in BiomMetadata:			# Only ID?
-			#BiomMetadata['Sample'] = 	BiomMetadata['ID']			# Force Sample
+
 			
 		BiomCommonArea['Metadata'] = BiomMetadata				
 		#**********************************************
