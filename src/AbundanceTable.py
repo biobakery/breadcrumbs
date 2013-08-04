@@ -318,6 +318,78 @@ class AbundanceTable:
 	  os.linesep+"Feature delimiter:", self._cFeatureDelimiter,
 	  os.linesep+"File delimiter:",self._cDelimiter])
 
+	  	# TODO !!!!!! Note will have to over write hash as well
+
+	def __eq__(self, objOther):
+
+		# Check to make sure that objOther is not None
+
+		# Check to make sure objOther is the correct class type
+
+		# Check to make sure self and other internal data are the same (exclusing file name)
+		# Check data and make sure the npa arrays are the same
+		# Check the metdata to make sure the dicts are the same 
+		# (will need to sort the keys of the dicts before comparing, they do not guarentee any order.
+
+		#************************************
+		#*  Check Equality of the objects   *
+		#************************************
+		
+		if objOther == None:
+			return False
+
+		if isinstance(objOther,AbundanceTable) != True:
+			return False
+		
+		result1 = self.funcGetName()
+		result2 = objOther.funcGetName()
+		if  result1 != result2 :
+			return  False
+		
+		
+		result1 = self.funcGetAbundanceCopy()
+		result2 = objOther.funcGetAbundanceCopy()	
+
+		if len(result1) != len(result2):
+			return False
+			
+ 	
+		result1 = self.funcGetMetadataCopy()
+		result2 = objOther.funcGetMetadataCopy()
+		if  result1 != result2 :
+			return  False
+				
+		result1 = self.funcGetAbundanceCopy()
+		result2 = objOther.funcGetAbundanceCopy()	
+		if len(result1) != len(result2):
+			return False
+			
+		for iIndexAbundanceTableEntry in range(0, len(result1)):
+			if result1[iIndexAbundanceTableEntry] != result2[iIndexAbundanceTableEntry]:
+				return False						
+				
+				
+				
+		if AbundanceTable.__str__(self)!=  AbundanceTable.__str__(objOther):
+				return False
+					
+		result1 = self.funcGetSampleNames()
+		result2 = objOther.funcGetSampleNames()
+		if  result1 != result2 :
+			return  False
+
+		return  True				#All comparisons successful
+	
+		
+		
+		
+	def __ne__(self, objOther):
+		return not self == objOther
+	  
+	  
+	  
+	  
+	  
 	#Testing Status: Light happy path testing
 	@staticmethod
 	def _funcTextToStructuredArray(xInputFile = None, cDelimiter = ConstantsBreadCrumbs.c_cTab, sMetadataID = None, sLastMetadata = None, ostmOutputFile = None):
@@ -1570,9 +1642,12 @@ class AbundanceTable:
 		
 		#Write Ids
 		f.writerows([[self.funcGetIDMetadataName()]+list(self.funcGetSampleNames())])
-		#Write metadata
+	
 		lsKeys = list(set(self._dictTableMetadata.keys())-set([self.funcGetIDMetadataName(),self.funcGetLastMetadataName()]))
-		f.writerows([[sMetaKey]+self.funcGetMetadata(sMetaKey) for sMetaKey in lsKeys+[self.funcGetLastMetadataName()]])
+		lMetadataIterations = list(set(lsKeys+[self.funcGetLastMetadataName()] ) -set([None]))  #Try to remove None ---> Need to recheck!!!!
+
+		#########f.writerows([[sMetaKey]+self.funcGetMetadata(sMetaKey) for sMetaKey in lsKeys+[self.funcGetLastMetadataName()]])
+		f.writerows([[sMetaKey]+self.funcGetMetadata(sMetaKey) for sMetaKey in lMetadataIterations])  #---> Need to recheck!!!!
 		#Write abundance
 		lsOutput = list()
 		curAbundance = self._npaFeatureAbundance.tolist()
@@ -1873,11 +1948,12 @@ class AbundanceTable:
 		#* Build the metadata                      *
 		#*******************************************
 		try:
-			BiomTable = parse_biom_table(open(xInputFile,'U'))
+			BiomTable = parse_biom_table(open(xInputFile,'U'))	#Import the biom file
 		except:
 			print("Failure decoding biom file - please check your input biom file and rerun")
 			BiomCommonArea = None
 			return BiomCommonArea
+ 
 		BiomElements  =  BiomTable.getBiomFormatObject('')	
 		for BiomKey, BiomValue in BiomElements.iteritems():
 			if BiomKey == ConstantsBreadCrumbs.c_columns:
@@ -1921,8 +1997,7 @@ class AbundanceTable:
 		:return:   BiomCommonArea 
 		:type:	dict()		
 		"""
- 		
- 
+
 		BiomCommonArea = dict()					#Initiliaze the Common Area to contain the built Elements
 		BiomCommonArea[ConstantsBreadCrumbs.c_sLastMetadata] = None	#Initialize the LastMetadata element 
 		lenBiomValue = len(BiomValue)
@@ -1959,7 +2034,10 @@ class AbundanceTable:
 									BiomMetadata[MDkeyAscii].append(None)
 							BiomMetadata[MDkeyAscii][cntMetadata] = MDvalueAscii 
  
-						
+	
+		#if len(BiomMetadata) == 1 and 'ID' in BiomMetadata:			# Only ID?
+			#BiomMetadata['Sample'] = 	BiomMetadata['ID']			# Force Sample
+			
 		BiomCommonArea['Metadata'] = BiomMetadata				
 		#**********************************************
 		#*    Build dtype                             *
