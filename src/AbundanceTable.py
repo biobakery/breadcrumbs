@@ -1954,14 +1954,40 @@ class AbundanceTable:
 			BiomCommonArea = None
 			return BiomCommonArea
  
+		dBugNames = dict()			#Bug Names Table
+ 
 		BiomElements  =  BiomTable.getBiomFormatObject('')	
 		for BiomKey, BiomValue in BiomElements.iteritems():
+		#*******************************************
+		#*     Get rows metadata                   *
+		#*******************************************
+			if BiomKey == ConstantsBreadCrumbs.c_rows:
+					iMaxIdLen = 0 
+					for iIndexRowMetaData in range(0, len(BiomValue)):
+						if 'id' in BiomValue[iIndexRowMetaData]:
+							sBugName = BiomValue[iIndexRowMetaData][ConstantsBreadCrumbs.c_id_lowercase]
+							sRowBugAndMetadata = sBugName  #This will be the default if no metadata
+						if ConstantsBreadCrumbs.c_metadata_lowercase in BiomValue[iIndexRowMetaData] and BiomValue[iIndexRowMetaData][ConstantsBreadCrumbs.c_metadata_lowercase] != None :
+							if ConstantsBreadCrumbs.c_taxonomy in BiomValue[iIndexRowMetaData][ConstantsBreadCrumbs.c_metadata_lowercase]:
+								lRowTaxonomyEntry  = BiomValue[iIndexRowMetaData][ConstantsBreadCrumbs.c_metadata_lowercase][ConstantsBreadCrumbs.c_taxonomy]
+								sRowBugAndMetadata = ""		#Initialize the Bug row Info
+								for iIndexRowTaxonomyEntry in range(0,len(lRowTaxonomyEntry)):
+									sRowBugAndMetadata = sRowBugAndMetadata + lRowTaxonomyEntry[iIndexRowTaxonomyEntry] 
+									sRowBugAndMetadata= sRowBugAndMetadata + ConstantsBreadCrumbs.c_cPipe
+								sRowBugAndMetadata = sRowBugAndMetadata +    sBugName 
+						dBugNames[sBugName] = sRowBugAndMetadata 	#Post to the table
+
+						if len(sRowBugAndMetadata) > iMaxIdLen:    #We  are calculating dynamically the length of the ID
+							iMaxIdLen  =  len(sRowBugAndMetadata)
+							
+					
 			if BiomKey == ConstantsBreadCrumbs.c_columns:
-				BiomCommonArea = AbundanceTable._funcDecodeBiomMetadata(BiomValue)	#Call the subroutine to Build the metadata
+				BiomCommonArea = AbundanceTable._funcDecodeBiomMetadata(BiomValue, iMaxIdLen)	#Call the subroutine to Build the metadata
 	 
 		#*******************************************
 		#* Build the TaxData                       *
 		#*******************************************
+	
 		BiomTaxDataWork = list()			#Initlialize TaxData
 		BiomObservations = BiomTable.iterObservations(conv_to_np=True)		#Invoke biom method to fetch data from the biom file
 		for BiomObservationData in BiomObservations:
@@ -1972,20 +1998,24 @@ class AbundanceTable:
 					BiomObservationsValues = BiomData				
 				if cnt == 1:
 					BiomTaxDataEntry = list()
-					BiomTaxDataEntry.append(BiomData.encode(ConstantsBreadCrumbs.c_ascii,ConstantsBreadCrumbs.c_ignore))    
-	
+					if BiomData in dBugNames:   #Look for the name of the bug and if dound use its name and metadata
+						BiomTaxDataEntry.append(dBugNames[BiomData])
+					else:
+						BiomTaxDataEntry.append(BiomData.encode(ConstantsBreadCrumbs.c_ascii,ConstantsBreadCrumbs.c_ignore))  
+							
+
 			for BiomDataValue in BiomObservationsValues:
 				BiomTaxDataEntry.append(BiomDataValue)
 			
 			BiomTaxDataWork.append(tuple(BiomTaxDataEntry))	
-		
+
 		BiomCommonArea[ConstantsBreadCrumbs.c_BiomTaxData] = np.array(BiomTaxDataWork,dtype=np.dtype(BiomCommonArea[ConstantsBreadCrumbs.c_Dtype]))
 		del(BiomCommonArea[ConstantsBreadCrumbs.c_Dtype])			#Not needed anymore
 		return BiomCommonArea
 	
 
 	@staticmethod
-	def _funcDecodeBiomMetadata(BiomValue = None):	
+	def _funcDecodeBiomMetadata(BiomValue = None,  iMaxIdLen=0):	
 		"""
 		Decode the Biom Metadata and build:  
 			1. BiomCommonArea['Metadata'] 
@@ -1994,6 +2024,8 @@ class AbundanceTable:
 			These elements will be formatted and passed down the line to build the AbundanceTable
  		:param	BiomValue:	The "columns" Metadata from the biom file (Contains the Metadata information)
 		:type:	dict()	 
+		:param	iMaxIdLen:	 The maximum length of a row ID
+		:type:	Integer	
 		:return:   BiomCommonArea 
 		:type:	dict()		
 		"""
@@ -2041,11 +2073,12 @@ class AbundanceTable:
 		#**********************************************
 		#*    Build dtype                             *
 		#**********************************************
+
 		BiomDtype = list()
-		MaxIdLen =  2 * max( len(a) for a in BiomMetadata[ConstantsBreadCrumbs.c_ID] )	#Twice the length of the longest ID
+		iMaxIdLen+=10 #Increase it by 10
 		BiomDtypeEntry = list()
 		FirstValue = ConstantsBreadCrumbs.c_ID
-		SecondValue = "a" + str(MaxIdLen)
+		SecondValue = "a" + str(iMaxIdLen)
 		BiomDtypeEntry.append(FirstValue)
 		BiomDtypeEntry.append(SecondValue)
 		BiomDtype.append(tuple(BiomDtypeEntry))

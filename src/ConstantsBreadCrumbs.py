@@ -80,6 +80,7 @@ class ConstantsBreadCrumbs():
     c_metadata_lowercase = "metadata"
     c_sLastMetadata = "sLastMetadata"
     c_columns = "columns"	
+    c_rows = "rows"
     c_ascii = "ascii"	
     c_ignore = "ignore"	
     c_Dtype = "Dtype"	
@@ -89,6 +90,7 @@ class ConstantsBreadCrumbs():
     c_biom_file_generated_by = "AbundanceTable conversion program"
     c_strPCLFile = "pcl"
     c_strBiomeFile = "biom"
+    c_taxonomy = "taxonomy"
 
     def __init__(self):
       pass
