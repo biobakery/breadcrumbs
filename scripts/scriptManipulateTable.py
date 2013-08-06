@@ -64,7 +64,7 @@ argp.add_argument("-x","--doPrefixClades", dest="fPrefixClades", action="store_t
 #argp.add_argument("-e","--combineUnion", dest="fCombineUnion", action="store_true", default=False, help="Combine two tables (union).")
 
 #Dimensionality Reduction
-argp.add_argument("-p","--doPCA", dest="fDoPCA",action="store_true", default=False, help="Flag to turn on adding metabugs and metametadata by performing PCA on each of bug relative abundance and continuous metadata and add the resulting components")
+#argp.add_argument("-p","--doPCA", dest="fDoPCA",action="store_true", default=False, help="Flag to turn on adding metabugs and metametadata by performing PCA on each of bug relative abundance and continuous metadata and add the resulting components")
 
 #Checked
 argp.add_argument("-o","--output", dest="strOutFile", action="store", default=None, help="Indicate output pcl file.")
@@ -246,35 +246,36 @@ if args.fPrefixClades:
     else:
       print "ManipulateTable::ERROR. Clade Prefix was NOT added to "+abndTable.funcGetName()
 
+# Under development
 # Reduce dimensionality
-if args.fDoPCA:
-  pcaCur = PCA()
-  for abndTable in lsTables:
-
-    # Add data features
-    # Make data components and add to abundance table
-    pcaCur.loadData(abndTable,True)
-    pcaCur.run(fASTransform=True)
-    ldVariance = pcaCur.getVariance()
-    lldComponents = pcaCur.getComponents()
-    # Make Names
-    lsNamesData = ["Data_PC"+str((tpleVariance[0]+1))+"_"+re.sub("[\.|-]","_",str(tpleVariance[1])) for tpleVariance in enumerate(ldVariance)]
-    abndTable.funcAddDataFeature(lsNamesData,lldComponents)
-
-    # Add metadata features
-    # Convert metadata to an input for PCA
-    pcaCur.loadData(pcaCur.convertMetadataForPCA(abndTable),False)
-    fSuccessful = pcaCur.run(fASTransform=False)
-    if(fSuccessful):
-      ldVariance = pcaCur.getVariance()
-      lldComponents = pcaCur.getComponents()
-      # Make Names
-      lsNamesMetadata = ["Metadata_PC"+str((tpleVariance[0]+1))+"_"+re.sub("[\.|-]","_",str(tpleVariance[1])) for tpleVariance in enumerate(ldVariance)]
-      # Make metadata components and add to abundance
-      llsMetadata = [list(npdRow) for npdRow in lldComponents]
-      abndTable.funcAddMetadataFeature(lsNamesMetadata, llsMetadata)
-    else:
-      print "ManipulateTable::No metadata to PCA, no PCA components added to file based on metadata"
+#if args.fDoPCA:
+#  pcaCur = PCA()
+#  for abndTable in lsTables:
+#
+#    # Add data features
+#    # Make data components and add to abundance table
+#    pcaCur.loadData(abndTable,True)
+#    pcaCur.run(fASTransform=True)
+#    ldVariance = pcaCur.getVariance()
+#    lldComponents = pcaCur.getComponents()
+#    # Make Names
+#    lsNamesData = ["Data_PC"+str((tpleVariance[0]+1))+"_"+re.sub("[\.|-]","_",str(tpleVariance[1])) for tpleVariance in enumerate(ldVariance)]
+#    abndTable.funcAddDataFeature(lsNamesData,lldComponents)
+#
+#    # Add metadata features
+#    # Convert metadata to an input for PCA
+#    pcaCur.loadData(pcaCur.convertMetadataForPCA(abndTable),False)
+#    fSuccessful = pcaCur.run(fASTransform=False)
+#    if(fSuccessful):
+#      ldVariance = pcaCur.getVariance()
+#      lldComponents = pcaCur.getComponents()
+#      # Make Names
+#      lsNamesMetadata = ["Metadata_PC"+str((tpleVariance[0]+1))+"_"+re.sub("[\.|-]","_",str(tpleVariance[1])) for tpleVariance in enumerate(ldVariance)]
+#      # Make metadata components and add to abundance
+#      llsMetadata = [list(npdRow) for npdRow in lldComponents]
+#      abndTable.funcAddMetadataFeature(lsNamesMetadata, llsMetadata)
+#    else:
+#      print "ManipulateTable::No metadata to PCA, no PCA components added to file based on metadata"
 
 #Manipulate based on metadata
 if args.strStratifyBy:

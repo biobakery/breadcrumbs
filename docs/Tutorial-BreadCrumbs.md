@@ -15,6 +15,7 @@ V. Manipulate the feature names
 VI. Dimensionality Reduction
 3. scriptPlotFeature.py
 4. scriptBiplotPCL.R
+5. scriptConvertBetweenBiomeAndPCL.py
 
 ## scriptPCoA.py ##
 This script allows one to plot a PCoA of an abundance table. In the plot each sample is one marker. The marker shape and color is determined by a metadata (of your choice). The distances between each sample is determined by a specific beta-diversity distance metric. By default Bray-curtis distance is used. This can be changed as needed. You will notice for every call you must give it the sample id (-i) and the last metadata which should be the row before your first data (-l). This helps the scripts understand what is a data measurement and what is a metadata.
@@ -256,3 +257,26 @@ O. How do I color NAs a specific color, no matter other coloring in the plot? Us
 P. How do I scale arrows in the plot. Use -z and a number to weight how much the metadata influences the rotation (number between 0 and very large).
 
 > ./scripts/scriptBiplotTSV.R -z 2 STSite demo_input/Test-Biplot.tsv
+
+## scriptConvertBetweenBiomeAndPCL.py ##
+The script allows one to convert between PCL and BIOME file formats.
+
+A. The minimal call to convert from BIOME file to a PCL file or visa versa. This call provides which metadata entry is the sample id and which is the last listed metadata in a pcl file before the data measurements. If there are no metadata and only a metadata id then -l is not required.
+
+> ./scriptConvertBetweenBiomeAndPCL.py -i ID -l study demo_input/Test.biome
+> ./scriptConvertBetweenBiomeAndPCL.py -i ID -l study demo_input/Test.pcl
+
+The case where there are no metadata, just sample IDs
+
+> ./scriptConvertBetweenBiomeAndPCL.py -i ID demo_input/Test_no_metadata.biome
+> ./scriptConvertBetweenBiomeAndPCL.py -i ID demo_input/Test_no_metadata.pcl
+
+B. Although the output file name can be automatically generated, the output file name can be given if needed.
+
+> ./scriptConvertBetweenBiomeAndPCL.py -i ID demo_input/Test.biome CustomFileName.pcl
+> ./scriptConvertBetweenBiomeAndPCL.py -i ID demo_input/Test.pcl CustomFileName.biome
+
+C. Indicate the use of a pcl file using a delimiter that is not tab or indicate the creation of a pcl file using a delimier that is not tab.
+
+> ./scriptConvertBetweenBiomeAndPCL.py -i ID -l study -f , demo_input/Test.biome
+> ./scriptConvertBetweenBiomeAndPCL.py -i ID -l study -f , demo_input/Test.pcl

@@ -35,6 +35,8 @@ A quick description of the scripts include:
 
 * *scriptPcoa.py* Allows one to plot a principle covariance analysis (PCoA) plot of an abundance table.
 
+* *scriptConvertBetweenBiomeAndPCL.py* Allows one to convert between BIOME and PCL file formats.
+
 
 ## Programming Classes: ##
 
@@ -66,8 +68,6 @@ Brief descriptions of classes are as follows. More detailed descriptions are giv
 
 * *SVM* Support Vector Machine associated scripts.
 
-* *Test.pcl* Test file to run script on.
-
 * *Utility* Generic functions
 
 * *UtilityMath* Generic math related functions
@@ -75,8 +75,21 @@ Brief descriptions of classes are as follows. More detailed descriptions are giv
 * *ValidateData* Collection of functions to validate data types when needed.
 
 
+## Input files: ##
+
+* *Test.pcl* Example file / Test PCL file to run scripts on.
+
+* *Test.biome* Example file / Test BIOME file to run scripts on.
+
+* *Test_no_metadata.pcl* Example file / Test PCL file to run scripts on which does not have metadata.
+
+* *Test_no_metadata.biome* Example file / Test BIOME file to run scripts on which does not have metadata.
+
+* *Test-biplot.tsv* Example file / Test file for the scriptBiplotTSV.R
+
+
 ## Contributing Authors: ##
-Curtis Huttenhower, Nicola Segata, Timothy Tickle
+Timothy Tickle, George Weingart, Nicola Segata, Curtis Huttenhower
 
 
 ## Contact: ##
