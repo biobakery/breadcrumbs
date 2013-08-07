@@ -353,20 +353,27 @@ class AbundanceTable:
 		if len(result1) != len(result2):
 			return False
 			
- 	
+		
+	
 		result1 = self.funcGetMetadataCopy()
 		result2 = objOther.funcGetMetadataCopy()
 		if  result1 != result2 :
 			return  False
+				
+
 				
 		result1 = self.funcGetAbundanceCopy()
 		result2 = objOther.funcGetAbundanceCopy()	
 		if len(result1) != len(result2):
 			return False
 			
-		for iIndexAbundanceTableEntry in range(0, len(result1)):
-			if result1[iIndexAbundanceTableEntry] != result2[iIndexAbundanceTableEntry]:
-				return False						
+
+		sorted_result1 = sorted(result1, key=lambda tup: tup[0])
+		sorted_result2 = sorted(result2, key=lambda tup: tup[0])		
+			
+		if  sorted_result1 != sorted_result2 :
+			return  False
+						
 				
 				
 				
