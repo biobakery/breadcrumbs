@@ -1623,7 +1623,7 @@ class AbundanceTable:
 			# Write as a pcl file
 			self._funcWritePCLFile(xOutputFile, cDelimiter=cDelimiter)
 		elif(cFileType == ConstantsBreadCrumbs.c_strBiomeFile):
-			#Write as a biome file
+			#Write as a biom  file
 			self._funcWriteBiomeFile(xOutputFile)
 		return
 
@@ -1661,7 +1661,7 @@ class AbundanceTable:
 		:param	xOutputFile:	File stream or File path to write the file to.
 		:type:	String	File Path	
 		"""
-		
+
 		#**************************
 		# Get Sample Names        *
 		#**************************
@@ -1690,11 +1690,24 @@ class AbundanceTable:
 		#**************************
 		# Observation Ids         *
 		#**************************
+		bTaxonomyInRowsFlag = False			#Initialize flag
 		lObservationIds = list()
 		lFeatureNamesResultArray = self.funcGetFeatureNames()
-		for sObservatiuonId in lFeatureNamesResultArray:
-			lObservationIds.append(sObservatiuonId)
-		 
+		strFeatureDelimiter = self.funcGetFeatureDelimiter()
+		if lFeatureNamesResultArray[0].find(strFeatureDelimiter) > -1:	#Is there a taxonomy in the AbundanceTable rows?
+			bTaxonomyInRowsFlag = True
+			lObservationMetadata = dict()    #If there is metadata we have to build the element
+			lObservationMetadataTable = list() 
+		for sObservationId in lFeatureNamesResultArray:
+			if  bTaxonomyInRowsFlag == False:
+				lObservationIds.append(sObservationId)
+			else:
+				lObservationsNames = sObservationId.split(strFeatureDelimiter)  #List of Observation names
+				lObservationIds.append(lObservationsNames[-1])  #Put in the last one
+				lObservationMetadata[ConstantsBreadCrumbs.c_taxonomy] = list()  #Initialize the taxonomy 
+				for iIndxMetadataRow in range(0, len(lObservationsNames)-1): 
+					lObservationMetadata[ConstantsBreadCrumbs.c_taxonomy].append(lObservationsNames[iIndxMetadataRow])
+				lObservationMetadataTable.append(lObservationMetadata)	
 		#**************************
 		# Data                    *
 		#**************************
@@ -1705,16 +1718,27 @@ class AbundanceTable:
 			lr.pop(0)	#Remove metadata
 			lData.append(lr)
 		arrData = array(lData)  #Convert list to array
+		
+
 
 		#**************************
 		# Invoke the              *
 		# biom table factory      *     
 		#**************************
-		BiomTable = table_factory(arrData,
-						  lSampNames,
-						  lObservationIds,
-						  lMetaData,
-						  constructor=SparseOTUTable)
+		
+		if  bTaxonomyInRowsFlag == False:
+			BiomTable = table_factory(arrData,
+							  lSampNames,
+							  lObservationIds,
+							  lMetaData,
+							  constructor=SparseOTUTable)
+		else:				#There was metadata in the rows
+			BiomTable = table_factory(arrData,
+							  lSampNames,
+							  lObservationIds,
+							  lMetaData,
+							  lObservationMetadataTable,
+							  constructor=SparseOTUTable)		
 						
 		#**************************
 		# Generate biom Output    *   
