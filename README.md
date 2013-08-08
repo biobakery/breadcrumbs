@@ -1,11 +1,17 @@
 # BreadCrumbs #
 
-BreadCrumbs is an unofficial collection of scripts and code intended to consolidate functions for tool development and contain scripts for command line access to core function. Breadcrumbs tends to include functionality associated with metagenomics analysis but you never know what you will find!
+BreadCrumbs is an unofficial collection of scripts and code intended to consolidate functions for tool development and contain scripts for command line access to commonly used function. Breadcrumbs tends to include functionality associated with metagenomics analysis but you never know what you will find!
 
 
 ## Dependencies: ##
 
-Cogent, MatplotLib, Mercurial (optional for downloading), Numpy, Python 2.x, SciPy
+Cogent (https://pypi.python.org/pypi/cogent)
+MatplotLib (http://matplotlib.org/downloads.html)
+Mercurial (optional for downloading) (http://mercurial.selenic.com/)
+Numpy (http://www.numpy.org/)
+Python 2.x (http://www.python.org/download/)
+SciPy (http://www.scipy.org/install.html)
+biome support (http://biom-format.org/)
 
 
 ## How to download ##
@@ -22,10 +28,10 @@ To update BreadCrumbs, in the BreadCrumbs directory use the 2 commands sequentia
 
 ## Scripts: ##
 
-Scripts are included to expose core functionality to the command line. Currently these scripts center on Manipulating and visualizing abundance tables.  
+Scripts are included to expose core functionality to the command line. Currently these scripts center on manipulating and visualizing abundance tables.  
 A quick description of the scripts include:
 
-* *Hclust.py* Flexible script to create hierarchical clustering of abundance tables (or other matrices).
+* *Hclust.py* Flexible script to create a visualization of hierarchical clustering of abundance tables (or other matrices).
 
 * *scriptBiplotPCL.R* Allows one to plot a pcl as a biplot using nonmetric multidimensional scaling.
 
