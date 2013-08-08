@@ -14,7 +14,6 @@ II. Filtering
 III. Filtering with knowledge of feature hierarchical relationship
 IV. Manipulate samples by metadata
 V. Manipulate the feature names
-VI. Dimensionality Reduction
 3. scriptPlotFeature.py
 4. scriptBiplotPCL.R
 5. scriptConvertBetweenBiomeAndPCL.py
@@ -49,8 +48,8 @@ E. How do I get the distance matrix represented by the PCoA plot? Use -D and giv
 
 F. How do I make a PCoA using unifrac type metrics.
 
-> scripts/scriptPcoa.py -m unifrac_weighted -t demo_input/GreenGenesCore-May09.ref.tre -e demo_input/fastunifrac_Ley_et_al_NRM_2_sample_id_map.txt -c input/fastunifrac_Ley_et_al_NRM_2_sample_id_map-colors.txt
-> scripts/scriptPcoa.py -m unifrac_unweighted -t demo_input/GreenGenesCore-May09.ref.tre -e demo_input/fastunifrac_Ley_et_al_NRM_2_sample_id_map.txt -c input/fastunifrac_Ley_et_al_NRM_2_sample_id_map-colors.txt
+> scripts/scriptPcoa.py -m unifrac_weighted -t demo_input/GreenGenesCore-May09.ref.tre -e demo_input/fastunifrac_Ley_et_al_NRM_2_sample_id_map.txt -c demo_input/fastunifrac_Ley_et_al_NRM_2_sample_id_map-colors.txt
+> scripts/scriptPcoa.py -m unifrac_unweighted -t demo_input/GreenGenesCore-May09.ref.tre -e demo_input/fastunifrac_Ley_et_al_NRM_2_sample_id_map.txt -c demo_input/fastunifrac_Ley_et_al_NRM_2_sample_id_map-colors.txt
 
 There already exists a collection of functionality surrounding unifrac distances in Qiime and related software. We support these metrics here for completeness, if your need is not met here, please look into Qiime and related software for a solutions with a more rich collection of functionality.
 
@@ -155,13 +154,6 @@ V. Manipulate the feature names
 L. How do I add on the 'k__' and 's__' on the names of my bugs?
 
 > scripts/scriptManipulateTable.py -i TID -l STSite -x demo_input/Test.pcl
-
-VI. Dimensionality Reduction
-M. How do I make new composite bugs or metadata using principle components analysis (PCA).
-Adding a -p will make principle components (PCs) out of the bug abundance data and then seperately another time with the numeric data in the metadata (This would include boolean indicated as 0 and 1 so make sure to represent them as 'TRUE' and 'FALSE'). The PCA performed is the same as performed by the R function prcomp and was checked by the results of this function. SVD is used in the function and scaling and centering is automatically performed. The feature names are named as such: Metadata/Data + PC# + percent variance which is between 0 and 1 but the decimal was changed to _ so 0.80 would be 0_80. An example would be Data_PC1_0_81234 which means this is a PC made from the abundance data, this was the first PC and the percent variance is 0.81234 or 81% and some change.
-
-> scripts/scriptManipulateTable.py -i TID -l STSite -p demo_input/Test.pcl
-
 
 ## scriptPlotFeature.py ##
 This script allows you to plot a row of an abundance table, metadata or data. This assumes the first column is the id and the remaining columns are values to be plotted. Three different plots can be generated based on the input arguments and the type of data given to the script. A boxplot is made if two features are given, one numeric and one categorical. A scatterplot is made if two numeric features are given. A histogram is made if one numeric feature is given.  

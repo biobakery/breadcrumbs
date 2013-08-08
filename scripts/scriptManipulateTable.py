@@ -20,7 +20,7 @@ import re
 import os
 import numpy as np
 from src.AbundanceTable import AbundanceTable
-from src.PCA import PCA
+#from src.PCA import PCA
 from src.ValidateData import ValidateData
 
 #Set up arguments reader
