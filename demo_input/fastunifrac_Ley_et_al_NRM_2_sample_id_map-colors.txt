@@ -1,0 +1,8 @@
+Group1:Nse#L#150,Nse#L#151,Nse#L#152,Nse#L#153,Nse#L#98
+Group2:Nso#106,Nso#107,Nso#108,Nso#1209,Nso#65
+Group3:Nw#L#119,Nw#L#160,Nw#L#5,Nw#R#189,Nw#R#50
+Group4:Sse#1224,Sse#M#14,Sse#M#169,Sse#M#62,Sse#M#63,Sse#M#64,Sse#M#75
+Group5:Swb#M#137,Swb#M#154,Swb#M#155,Swb#M#156,Swb#M#157
+Group6:Sws#M#1227,Sws#M#1230,Sws#M#1234,Sws#M#163,Sws#M#83
+Group7:Tg#1238,Tg#1249,Tg#1251,Tg#1252
+Group8:Vg#h#1038,Vg#h#1039,Vg#h#1043,Vg#h#1061,Vg#h#1104,Vg#o#1124,Vg#o#1128,Vg#o#1132,Vg#o#1153,Vg#o#1160,Vg#oh#1051,Vg#oh#1055,Vg#oh#1070
