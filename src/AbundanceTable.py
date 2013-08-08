@@ -59,7 +59,9 @@ class AbundanceTable:
 	This class is made from an abundance data file. What is expected is a text file delimited by
 	a character (which is given to the object). The first column is expected to be the id column
 	for each of the rows. Metadata is expected before measurement data. Columns are samples and
-	rows are features (bugs). 
+	rows are features (bugs).
+
+	This object is currently not hashable.
 	"""
 
 	def __init__(self, npaAbundance, dictMetadata, strName, strLastMetadata, lOccurenceFilter = None, cFileDelimiter = ConstantsBreadCrumbs.c_cTab, cFeatureNameDelimiter="|"):
@@ -91,7 +93,7 @@ class AbundanceTable:
 
 		#The name of the object relating to the file it was read from or would have been read from if it exists
 		#Keeps tract of changes to the file through the name
-		#Will be used to wrtie out the object to a file as needed
+		#Will be used to write out the object to a file as needed
 		self._strOriginalName = strName
 
 		#The original number of features in the table
@@ -114,6 +116,9 @@ class AbundanceTable:
 
 		#Clade prefixes for biological samples
 		self._lsCladePrefixes = ["k__","p__","c__","o__","f__","g__","s__"]
+
+		#This is not a hashable object
+		self.__hash__ = None
 
 		self._fIsNormalized = self._fIsSummed = None
 		#If contents is not a false then set contents to appropriate objects
@@ -1654,7 +1659,7 @@ class AbundanceTable:
 		lMetadataIterations = list(set(lsKeys+[self.funcGetLastMetadataName()] ) -set([None]))  #Try to remove None ---> Need to recheck!!!!
 
 		#########f.writerows([[sMetaKey]+self.funcGetMetadata(sMetaKey) for sMetaKey in lsKeys+[self.funcGetLastMetadataName()]])
-		f.writerows([[sMetaKey]+self.funcGetMetadata(sMetaKey) for sMetaKey in lMetadataIterations])  #---> Need to recheck!!!!
+		f.writerows([[sMetaKey]+self.funcGetMetadata(sMetaKey) for sMetaKey in lMetadataIterations if sMetadKey != self.funcGetIDMetadataName()])  #---> Need to recheck!!!!
 		#Write abundance
 		lsOutput = list()
 		curAbundance = self._npaFeatureAbundance.tolist()
