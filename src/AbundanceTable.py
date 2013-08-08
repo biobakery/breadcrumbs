@@ -323,23 +323,16 @@ class AbundanceTable:
 	  os.linesep+"Feature delimiter:", self._cFeatureDelimiter,
 	  os.linesep+"File delimiter:",self._cDelimiter])
 
-	  	# TODO !!!!!! Note will have to over write hash as well
-
 	def __eq__(self, objOther):
-
-		# Check to make sure that objOther is not None
-
-		# Check to make sure objOther is the correct class type
-
-		# Check to make sure self and other internal data are the same (exclusing file name)
-		# Check data and make sure the npa arrays are the same
-		# Check the metdata to make sure the dicts are the same 
-		# (will need to sort the keys of the dicts before comparing, they do not guarentee any order.
-
-		#************************************
-		#*  Check Equality of the objects   *
-		#************************************
-		
+		"""
+		Check if an object is equivalent in data to this object
+		Check to make sure that objOther is not None
+		Check to make sure objOther is the correct class type
+		Check to make sure self and other internal data are the same (exclusing file name)
+		Check data and make sure the npa arrays are the same
+		Check the metdata to make sure the dicts are the same 
+		(will need to sort the keys of the dicts before comparing, they do not guarentee any order.
+		"""
 		if objOther == None:
 			return False
 

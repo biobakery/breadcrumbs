@@ -63,7 +63,7 @@ class PCoA:
 
     #Supported distance metrics
     c_BRAY_CURTIS="B_Curtis"
-    c_SPEARMAN="SPEARMAN"
+    c_SPEARMAN="spearman"
 
     #Holds the data Matrix
     dataMatrix=None
