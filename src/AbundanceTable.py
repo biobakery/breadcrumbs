@@ -169,7 +169,8 @@ class AbundanceTable:
 		#################################################################################
 		#    Check if file is a biom file - if so invoke the biom routine               #
 		#################################################################################
-		if  xInputFile.endswith(ConstantsBreadCrumbs.c_biom):					#Does the file end with biom?
+		strFileName = xInputFile if isinstance(xInputFile, str) else xInputFile.name
+		if  strFileName.endswith(ConstantsBreadCrumbs.c_biom):					#Does the file end with biom?
 			BiomCommonArea = AbundanceTable._funcBiomToStructuredArray(xInputFile)	#Call the biom formatting function
 			if  BiomCommonArea:					#If got good results reading the file, build lContents
 				lContents = [BiomCommonArea[ConstantsBreadCrumbs.c_BiomTaxData],
@@ -1977,7 +1978,7 @@ class AbundanceTable:
 		#* Build the metadata                      *
 		#*******************************************
 		try:
-			BiomTable = parse_biom_table(open(xInputFile,'U'))	#Import the biom file
+			BiomTable = parse_biom_table(open(xInputFile,'U') if isinstance(xInputFile, str) else xInputFile)	#Import the biom file
 		except:
 			print("Failure decoding biom file - please check your input biom file and rerun")
 			BiomCommonArea = None

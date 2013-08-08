@@ -418,7 +418,10 @@ class Metric:
         else:
             mtrxDistance = False
         if fAdditiveInverse and not type(mtrxDistance) is BooleanType:
-            mtrxDistance = 1.0 - mtrxDistance
+	    if sMetric in [Metric.c_strUnifracUnweighted,Metric.c_strUnifracWeighted]:
+		mtrxDistance = (1.0 - mtrxDistance[0],mtrxDistance[1])
+	    else:
+                mtrxDistance = 1.0 - mtrxDistance
 	return mtrxDistance
 
     #Test Cases 11
