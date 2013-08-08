@@ -1659,7 +1659,7 @@ class AbundanceTable:
 		lMetadataIterations = list(set(lsKeys+[self.funcGetLastMetadataName()] ) -set([None]))  #Try to remove None ---> Need to recheck!!!!
 
 		#########f.writerows([[sMetaKey]+self.funcGetMetadata(sMetaKey) for sMetaKey in lsKeys+[self.funcGetLastMetadataName()]])
-		f.writerows([[sMetaKey]+self.funcGetMetadata(sMetaKey) for sMetaKey in lMetadataIterations if sMetadKey != self.funcGetIDMetadataName()])  #---> Need to recheck!!!!
+		f.writerows([[sMetaKey]+self.funcGetMetadata(sMetaKey) for sMetaKey in lMetadataIterations if sMetaKey != self.funcGetIDMetadataName()])  #---> Need to recheck!!!!
 		#Write abundance
 		lsOutput = list()
 		curAbundance = self._npaFeatureAbundance.tolist()
