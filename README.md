@@ -75,7 +75,11 @@ Brief descriptions of classes are as follows. More detailed descriptions are giv
 * *ValidateData* Collection of functions to validate data types when needed.
 
 
-## Input files: ##
+## Demo input files: ##
+
+* *fastunifrac_Ley_et_al_NRM_2_sample_id_map.txt* Example Unifrac Id mapping file (source http://bmf2.colorado.edu/fastunifrac/tutorial.psp)
+
+* *GreenGenesCore-May09.ref.tre* Example Greengenes core set reference for Unifrac demo (source http://bmf2.colorado.edu/fastunifrac/tutorial.psp)
 
 * *Test.pcl* Example file / Test PCL file to run scripts on.
 
