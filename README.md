@@ -5,13 +5,13 @@ BreadCrumbs is an unofficial collection of scripts and code intended to consolid
 
 ## Dependencies: ##
 
-Cogent (https://pypi.python.org/pypi/cogent)
-MatplotLib (http://matplotlib.org/downloads.html)
-Mercurial (optional for downloading) (http://mercurial.selenic.com/)
-Numpy (http://www.numpy.org/)
-Python 2.x (http://www.python.org/download/)
-SciPy (http://www.scipy.org/install.html)
-biome support (http://biom-format.org/)
+1. Cogent 		https://pypi.python.org/pypi/cogent
+2. MatplotLib 		http://matplotlib.org/downloads.html
+3. Mercurial 		http://mercurial.selenic.com/ (optional for downloading)
+4. Numpy 		http://www.numpy.org/
+5. Python 2.x 		http://www.python.org/download/
+6. SciPy 		http://www.scipy.org/install.html
+7. biome support 	http://biom-format.org/
 
 
 ## How to download ##
