@@ -11,7 +11,7 @@ BreadCrumbs is an unofficial collection of scripts and code intended to consolid
 4. Numpy 		http://www.numpy.org/
 5. Python 2.x 		http://www.python.org/download/
 6. SciPy 		http://www.scipy.org/install.html
-7. biome support 	http://biom-format.org/
+7. biom support 	http://biom-format.org/
 
 
 ## How to download ##
@@ -41,7 +41,7 @@ A quick description of the scripts include:
 
 * *scriptPcoa.py* Allows one to plot a principle covariance analysis (PCoA) plot of an abundance table.
 
-* *scriptConvertBetweenBiomeAndPCL.py* Allows one to convert between BIOME and PCL file formats.
+* *scriptConvertBetweenBIOMAndPCL.py* Allows one to convert between BIOM and PCL file formats.
 
 
 ## Programming Classes: ##
@@ -89,11 +89,11 @@ Brief descriptions of classes are as follows. More detailed descriptions are giv
 
 * *Test.pcl* Example file / Test PCL file to run scripts on.
 
-* *Test.biome* Example file / Test BIOME file to run scripts on.
+* *Test.biom* Example file / Test BIOM file to run scripts on.
 
 * *Test_no_metadata.pcl* Example file / Test PCL file to run scripts on which does not have metadata.
 
-* *Test_no_metadata.biome* Example file / Test BIOME file to run scripts on which does not have metadata.
+* *Test_no_metadata.biom* Example file / Test BIOM file to run scripts on which does not have metadata.
 
 * *Test-biplot.tsv* Example file / Test file for the scriptBiplotTSV.R
 

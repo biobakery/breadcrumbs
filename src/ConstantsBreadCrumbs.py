@@ -89,7 +89,7 @@ class ConstantsBreadCrumbs():
     c_f4 = "f4"		
     c_biom_file_generated_by = "AbundanceTable conversion program"
     c_strPCLFile = "pcl"
-    c_strBiomeFile = "biom"
+    c_strBiomFile = "biom"
     c_taxonomy = "taxonomy"
 
     def __init__(self):

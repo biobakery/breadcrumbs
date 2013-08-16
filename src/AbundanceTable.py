@@ -1628,9 +1628,9 @@ class AbundanceTable:
 		if(cFileType == ConstantsBreadCrumbs.c_strPCLFile):
 			# Write as a pcl file
 			self._funcWritePCLFile(xOutputFile, cDelimiter=cDelimiter)
-		elif(cFileType == ConstantsBreadCrumbs.c_strBiomeFile):
+		elif(cFileType == ConstantsBreadCrumbs.c_strBiomFile):
 			#Write as a biom  file
-			self._funcWriteBiomeFile(xOutputFile)
+			self._funcWriteBiomFile(xOutputFile)
 		return
 
 	def _funcWritePCLFile(self, xOutputFile, cDelimiter=None):
@@ -1661,9 +1661,9 @@ class AbundanceTable:
 			f.writerows([[str(curAbundanceElement) for curAbundanceElement in curAbundanceRow]])
 		return
 
-	def _funcWriteBiomeFile(self, xOutputFile):
+	def _funcWriteBiomFile(self, xOutputFile):
 		"""
-		Write an abundance table object as a Biome file.
+		Write an abundance table object as a Biom file.
 		:param	xOutputFile:	File stream or File path to write the file to.
 		:type:	String	File Path	
 		"""
@@ -1724,8 +1724,6 @@ class AbundanceTable:
 			lr.pop(0)	#Remove metadata
 			lData.append(lr)
 		arrData = array(lData)  #Convert list to array
-		
-
 
 		#**************************
 		# Invoke the              *
@@ -1744,8 +1742,8 @@ class AbundanceTable:
 							  lObservationIds,
 							  lMetaData,
 							  lObservationMetadataTable,
-							  constructor=SparseOTUTable)		
-						
+							  constructor=SparseOTUTable)	
+
 		#**************************
 		# Generate biom Output    *   
 		#**************************

@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 """
 Author: Timothy Tickle
-Description: Converts between biome and pcl files. If a pcl file is read, an equivalent biome file will be written; if a biome file is read, an equivalent pcl file will be written.
+Description: Converts between BIOM and PCL files. If a PCL file is read, an equivalent BIOM file will be written; if a BIOM file is read, an equivalent pcl file will be written.
 """
 
 __author__ = "Timothy Tickle"
@@ -21,8 +21,8 @@ import sys
 
 
 #Set up arguments reader
-argp = argparse.ArgumentParser( prog = "convertBetweenBiomeAndPCL.py",
-    description = """Converts a PCL file to a biome file and visa versa.""" )
+argp = argparse.ArgumentParser( prog = "convertBetweenBIOMAndPCL.py",
+    description = """Converts a PCL file to a BIOM file and visa versa.""" )
 
 #Arguments
 #For table
@@ -34,10 +34,13 @@ argp.add_argument("strOutputFile", default = "", nargs="?", metavar = "Selection
 
 args = argp.parse_args( )
 
+print("args")
+print(args)
+
 # Make the output file name (if not given) and get the type of output file name
-# Change the extension from biome to pcl
+# Change the extension from BIOM to pcl
 lsFilePieces = os.path.splitext(args.strFileAbund)
-strOutputFileType = ConstantsBreadCrumbs.c_strPCLFile if lsFilePieces[1]==ConstantsBreadCrumbs.c_strBiomeFile else ConstantsBreadCrumbs.c_strBiomeFile
+strOutputFileType = ConstantsBreadCrumbs.c_strPCLFile if lsFilePieces[-1]=="."+ConstantsBreadCrumbs.c_strBiomFile else ConstantsBreadCrumbs.c_strBiomFile
 
 if not args.strOutputFile:
   args.strOutputFile = lsFilePieces[0] + "." + strOutputFileType
@@ -47,7 +50,7 @@ if not args.sLastMetadataName:
   args.sLastMetadataName = args.sID
 
 # Read in abundance table
-abndTable = AbundanceTable.funcMakeFromFile(args.strFileAbund, cDelimiter=args.cFileDelimiter, sMetadataID=args.sID, sLastMetadata=args.sLastMetadataName)
+abndTable = AbundanceTable.funcMakeFromFile(args.strFileAbund, cDelimiter=args.cFileDelimiter, sMetadataID=args.sID, sLastMetadata=args.sLastMetadataName, xOutputFile=args.strOutputFile)
 if not abndTable:
   print("Could not create an abundance table from the given file and settings.")
 else:
