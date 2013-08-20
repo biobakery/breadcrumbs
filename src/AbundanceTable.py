@@ -64,7 +64,7 @@ class AbundanceTable:
 	This object is currently not hashable.
 	"""
 
-	def __init__(self, npaAbundance, dictMetadata, strName, strLastMetadata, lOccurenceFilter = None, cFileDelimiter = ConstantsBreadCrumbs.c_cTab, cFeatureNameDelimiter="|"):
+	def __init__(self, npaAbundance, dictMetadata, strName, strLastMetadata, npaRowMetadata=None, lOccurenceFilter = None, cFileDelimiter = ConstantsBreadCrumbs.c_cTab, cFeatureNameDelimiter="|"):
 		"""
 		Constructor for an abundance table.
 
@@ -72,6 +72,8 @@ class AbundanceTable:
 		:type:	Numpy Structured Array abundance data (Row=Features, Columns=Samples)
 		:param	dictMetadata:	Dictionary of metadata {"String ID":["strValue","strValue","strValue","strValue","strValue"]}
 		:type:	Dictionary	Dictionary
+		:param	npaRowMetdata	Structured Array of row (feature) metadata (optional)
+		:type:	Numpy Structured Array abundance data (Row=Features, Columns=Feature metadata)
 	 	:param	strName:	The name of the metadata that serves as the ID for the columns (For example a sample ID)
 		:type:	string
 		:param	strLastMetadata: The string last metadata name
@@ -90,6 +92,9 @@ class AbundanceTable:
 
 		#The metdata
 		self._dictTableMetadata = dictMetadata
+
+		#The row metadata numpy array
+		self._npaRowMetadata = npaRowMetadata
 
 		#The name of the object relating to the file it was read from or would have been read from if it exists
 		#Keeps tract of changes to the file through the name
@@ -122,6 +127,7 @@ class AbundanceTable:
 
 		self._fIsNormalized = self._fIsSummed = None
 		#If contents is not a false then set contents to appropriate objects
+		# Checking to see if the data is normalized, summed and if we need to run a filter on it.
 		if ( self._npaFeatureAbundance != None ) and self._dictTableMetadata:
 			self._iOriginalFeatureCount = self._npaFeatureAbundance.shape[0]
 			self._iOriginalSampleCount = len(self.funcGetSampleNames())
@@ -184,7 +190,7 @@ class AbundanceTable:
 				sMetadataID = sMetadataID, sLastMetadata = sLastMetadata, ostmOutputFile = outputFile)
 
 		#If contents is not a false then set contents to appropriate objects
-		return AbundanceTable(npaAbundance=lContents[0], dictMetadata=lContents[1], strName=str(xInputFile), strLastMetadata=sLastMetadata,
+		return AbundanceTable(npaAbundance=lContents[0], dictMetadata=lContents[1], strName=str(xInputFile), strLastMetadata=sLastMetadata, npaRowMetadata = lContents[2],
 		  lOccurenceFilter = lOccurenceFilter, cFileDelimiter=cDelimiter, cFeatureNameDelimiter=cFeatureNameDelimiter) if lContents else False
 
 	#Testing Status: Light happy path testing
@@ -411,13 +417,15 @@ class AbundanceTable:
 		:type:	String		String ID
 		:param	sLastMetadata:	The ID of the metadata that is the last metadata before measurement or feature rows.
 		:type:	String		String ID
-		:param	ostmOutputFile:	Output File to write to if needed. None does not wrtie the file.
+		:param	ostmOutputFile:	Output File to write to if needed. None does not write the file.
 		:type:	FileStream or String
-		:return	[taxData,metadata]:	Numpy Structured Array of abundance data and dictionary of metadata.
+		:return	[taxData,metadata,rowmetadata]:	Numpy Structured Array of abundance data and dictionary of metadata.
 										Metadata is a dictionary as such {"ID", [value,value,values...]}
 										Values are in the order thety are read in (and the order of the sample names).
 										ID is the first column in each metadata row.
-										[Numpy structured Array, Dictionary]
+										rowmetadata is a optional Numpy strucured array (can be None if not made)
+										The rowmetadata and taxData row Ids should match
+										[Numpy structured Array, Dictionary, Numpy structured array]
 		"""
 
 		istmInput = open( xInputFile, 'rU' ) if isinstance(xInputFile, str) else xInputFile
@@ -469,7 +477,9 @@ class AbundanceTable:
 		#Create structured array
 		taxData = np.array(dataMatrix,dtype=np.dtype(dataTypeVector))
 
-		return [taxData,metadata]
+		# Returns a none currently because the PCL file specification this originally worked on did not have feature metadata
+ 		# Can be updated in the future.
+		return [taxData,metadata,None]
 
 #TODO heirarchy is misspelled?
 #	def funcAdd(self,abndTwo,strFileName=None):
