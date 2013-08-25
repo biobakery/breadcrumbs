@@ -261,10 +261,14 @@ sOutputFileName = c_sDefaultOutputFile
   }
 
   ### Load table
-  dfInput = read.table(sInputFileName, sep = "\t", header=TRUE)
-  names(dfInput) = unlist(lapply(names(dfInput),function(x) gsub(".","|",x,fixed=TRUE)))
-  row.names(dfInput) = dfInput[,1]
-  dfInput = dfInput[-1]
+  dfInput = sInputFileName
+  if(class(sInputFileName)=="character")
+  {
+    dfInput = read.table(sInputFileName, sep = "\t", header=TRUE)
+    names(dfInput) = unlist(lapply(names(dfInput),function(x) gsub(".","|",x,fixed=TRUE)))
+    row.names(dfInput) = dfInput[,1]
+    dfInput = dfInput[-1]
+  }
 
   iLastMetadata = which(names(dfInput)==sLastMetadata)
   viMetadata = 1:iLastMetadata
@@ -364,6 +368,7 @@ sOutputFileName = c_sDefaultOutputFile
 
   # Build the matrix of metadata coordinates
   mMetadataCoordinates = matrix(rep(NA, iNumberMetadata*2),nrow=iNumberMetadata)
+
   for( i in 1:iNumberMetadata )
   {
     lxReturn = NA
