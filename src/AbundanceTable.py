@@ -38,7 +38,7 @@ import blist
 from CClade import CClade
 from ConstantsBreadCrumbs import ConstantsBreadCrumbs
 import copy
-import datetime
+from datetime import date
 import numpy as np
 import os
 import re
@@ -94,7 +94,7 @@ class AbundanceTable:
 		self.dateCreationDate = dictFileMetadata.get(ConstantsBreadCrumbs.c_strDateKey,None) if dictFileMetadata else None
 
 		#Indicates if the table has been filtered and how
-		self.strCurrentFilterState = ""
+		self._strCurrentFilterState = ""
 
 		#The delimiter from the source file
 		self._cDelimiter = cFileDelimiter
@@ -213,12 +213,14 @@ class AbundanceTable:
 		#################################################################################
 		strFileName = xInputFile if isinstance(xInputFile, str) else xInputFile.name
                 # Determine the file read function by file extension
-		if  strFileName.endswith(ConstantsBreadCrumbs.c_strBiom):
+		if  strFileName.endswith(ConstantsBreadCrumbs.c_strBiomFile):
 			BiomCommonArea = AbundanceTable._funcBiomToStructuredArray(xInputFile)
 			if  BiomCommonArea:
+				#TODO Update this do you aer passing the dictof file metadata and not a dummy dict
 				lContents = [BiomCommonArea[ConstantsBreadCrumbs.c_BiomTaxData],
 					BiomCommonArea[ConstantsBreadCrumbs.c_Metadata],
-					BiomCommonArea[ 'npRowsMetadata']]	 
+					BiomCommonArea[ 'npRowsMetadata'],
+					{}]	 
 				strLastMetadata = BiomCommonArea[ConstantsBreadCrumbs.c_sLastMetadata]
 
 			else:
@@ -230,8 +232,8 @@ class AbundanceTable:
 				sMetadataID = sMetadataID, sLastMetadata = sLastMetadata, ostmOutputFile = outputFile)
 
 		#If contents is not a false then set contents to appropriate objects
-		return AbundanceTable(npaAbundance=lContents[0], dictMetadata=lContents[1], strName=str(xInputFile), strLastMetadata=sLastMetadata, npaRowMetadata = lContents[2], dictFileMetadata = lContents[3],
-		  lOccurenceFilter = lOccurenceFilter, cFileDelimiter=cDelimiter, cFeatureNameDelimiter=cFeatureNameDelimiter) if lContents else False
+		return AbundanceTable(npaAbundance=lContents[0], dictMetadata=lContents[1], strName=str(xInputFile), strLastMetadata=sLastMetadata, npaRowMetadata = lContents[2],
+		dictFileMetadata = lContents[3], lOccurenceFilter = lOccurenceFilter, cFileDelimiter=cDelimiter, cFeatureNameDelimiter=cFeatureNameDelimiter) if lContents else False
 
 	#Testing Status: Light happy path testing
 	@staticmethod
@@ -549,7 +551,7 @@ class AbundanceTable:
 		#[Data (structured array), column metadata (dict), row metadata (structured array), file metadata (dict)]
 		return [taxData,metadata,None,{
                     ConstantsBreadCrumbs.c_strIDKey:ConstantsBreadCrumbs.c_strDefaultPCLID,
-                    ConstantsBreadCrumbs.c_strDateKey:str(datetime.date.today()),
+                    ConstantsBreadCrumbs.c_strDateKey:str(date.today()),
                     ConstantsBreadCrumbs.c_strFormatKey:ConstantsBreadCrumbs.c_strDefaultPCLFileFormateType,
                     ConstantsBreadCrumbs.c_strSourceKey:ConstantsBreadCrumbs.c_strDefaultPCLGenerationSource,
                     ConstantsBreadCrumbs.c_strTypekey:ConstantsBreadCrumbs.c_strDefaultPCLFileTpe,
