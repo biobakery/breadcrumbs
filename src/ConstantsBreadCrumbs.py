@@ -71,10 +71,61 @@ class ConstantsBreadCrumbs():
     #Suffix given to a file that is check with the checkRawDataFile method
     OUTPUT_SUFFIX = "-checked.pcl"
 
+    #BIOM related
+    #PCL File metadata defaults (many of these come from biom file requirements
+    #ID
+    c_strIDKey = "id"
+    c_strDefaultPCLID = None
+
+    #File date
+    c_strDateKey = "date"
+
+    #File format type
+    c_strFormatKey = "format"
+    c_strDefaultPCLFileFormateType = "PCL"
+
+    #File generation source
+    c_strSourceKey = "source"
+    c_strDefaultPCLGenerationSource = None
+
+    #File type
+    c_strTypekey = "type"
+    c_strDefaultPCLFileTpe = None
+
+    #Allowable file types for biom files
+    c_strOTUType = "OTU"
+    c_strOTUBIOMType = "OTU table"
+    c_strPathwayType = "Pathway"
+    c_strPathwayBIOMType = "Pathway table"
+    c_strFunctionType = "Function"
+    c_strFunctionBIOMType = "Function table"
+    c_strOrthologType = "Ortholog"
+    c_strOrthologBIOMType = "Ortholog table"
+    c_strGeneType = "Gene"
+    c_strGeneBIOMType = "Gene table"
+    c_strMetaboliteType = "Metabolite"
+    c_strMetaboliteBIOMType = "Metabolite table"
+    c_strTaxonType = "Taxon"
+    c_strTaxonBIOMType = "Taxon table"
+    c_dictFileType = {c_strOTUType:c_strOTUBIOMType, c_strPathwayType:c_strPathwayBIOMType, c_strFunctionType:c_strFunctionBIOMType, c_strOrthologType:c_strOrthologBIOMType, c_strGeneType:c_strGeneBIOMType, c_strMetaboliteType:c_strMetaboliteBIOMType, c_strTaxonType:c_strTaxonType}
+
+    #File URL
+    c_strURLKey = "url"
+    c_strDefaultPCLURL = None
+
+    #File sparse matrix
+    c_strSparsityKey = "sparsity"
+    c_fDefaultPCLSparsity = False
+
+    # BIOM related Data
+    # Data shape
+    c_strDataShapeKey = "shape"
+
 	######################################################################
 	# Constants related to biom import and export files                  #
 	######################################################################
-    c_biom = "biom"							#Suffix of biom files
+    # Biom file extension
+    c_strBiomFile = "biom"
     c_BiomTaxData = "BiomTaxData"
     c_Metadata = "Metadata"
     c_metadata_lowercase = "metadata"
@@ -89,7 +140,6 @@ class ConstantsBreadCrumbs():
     c_f4 = "f4"		
     c_biom_file_generated_by = "AbundanceTable conversion program"
     c_strPCLFile = "pcl"
-    c_strBiomFile = "biom"
     c_taxonomy = "taxonomy"
 
     def __init__(self):

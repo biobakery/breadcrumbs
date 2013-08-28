@@ -38,6 +38,7 @@ import blist
 from CClade import CClade
 from ConstantsBreadCrumbs import ConstantsBreadCrumbs
 import copy
+import datetime
 import numpy as np
 import os
 import re
@@ -64,7 +65,7 @@ class AbundanceTable:
 	This object is currently not hashable.
 	"""
 
-	def __init__(self, npaAbundance, dictMetadata, strName, strLastMetadata, npaRowMetadata=None, lOccurenceFilter = None, cFileDelimiter = ConstantsBreadCrumbs.c_cTab, cFeatureNameDelimiter="|"):
+	def __init__(self, npaAbundance, dictMetadata, strName, strLastMetadata, npaRowMetadata=None, dictFileMetadata=None, lOccurenceFilter = None, cFileDelimiter = ConstantsBreadCrumbs.c_cTab, cFeatureNameDelimiter="|"):
 		"""
 		Constructor for an abundance table.
 
@@ -87,43 +88,78 @@ class AbundanceTable:
 		:type:	Character delimiter for feature names (default = |)
 		"""
 
-		#The abundance data
-		self._npaFeatureAbundance = npaAbundance
+		### File Metadata
 
-		#The metdata
-		self._dictTableMetadata = dictMetadata
+		#Date
+		self.dateCreationDate = dictFileMetadata.get(ConstantsBreadCrumbs.c_strDateKey,None) if dictFileMetadata else None
 
-		#The row metadata numpy array
-		self._npaRowMetadata = npaRowMetadata
+		#Indicates if the table has been filtered and how
+		self.strCurrentFilterState = ""
+
+		#The delimiter from the source file
+		self._cDelimiter = cFileDelimiter
+
+		#The feature name delimiter
+		self._cFeatureDelimiter = cFeatureNameDelimiter
+
+		#File type
+		self.strFileFormatType = dictFileMetadata.get(ConstantsBreadCrumbs.c_strFormatKey,None) if dictFileMetadata else None
+
+		#File generation source
+		self.strFileGenerationSource = dictFileMetadata.get(ConstantsBreadCrumbs.c_strSourceKey,None) if dictFileMetadata else None
+
+		#File type
+		self.strFileType = dictFileMetadata.get(ConstantsBreadCrumbs.c_strTypekey,None) if dictFileMetadata else None
+
+		#File url
+		self.strFileURL = dictFileMetadata.get(ConstantsBreadCrumbs.c_strURLKey,None) if dictFileMetadata else None
+
+		#The id of the file
+		self.strId = dictFileMetadata.get(ConstantsBreadCrumbs.c_strIDKey,None) if dictFileMetadata else None
+
+		#The lastmetadata name (which should be preserved when writing the file)
+		self._strLastMetadataName = strLastMetadata
+
+		#The original number of features in the table
+		self._iOriginalFeatureCount = -1
 
 		#The name of the object relating to the file it was read from or would have been read from if it exists
 		#Keeps tract of changes to the file through the name
 		#Will be used to write out the object to a file as needed
 		self._strOriginalName = strName
 
-		#The original number of features in the table
-		self._iOriginalFeatureCount = -1
-
 		#The original number of samples in the table
 		self._iOriginalSampleCount = -1
 
-		#Indicates if the table has been filtered and how
-		self._strCurrentFilterState = ""
+		#Data sparsity type
+		self.fSparseMatrix = dictFileMetadata.get(ConstantsBreadCrumbs.c_strSparsityKey,False) if dictFileMetadata else False
 
-		#The feature name delimiter
-		self._cFeatureDelimiter = cFeatureNameDelimiter
 
-		#The delimiter from the source file
-		self._cDelimiter = cFileDelimiter
+		### Data metadata
 
-		#The lastmetadata name (which should be preserved when writing the file)
-		self._strLastMetadataName = strLastMetadata
+		#The column (sample) metdata
+		self._dictTableMetadata = dictMetadata
+
+		#The row (feature) metadata numpy array
+		self._npaRowMetadata = npaRowMetadata
+
+
+		### Data
+
+		#The abundance data
+		self._npaFeatureAbundance = npaAbundance
+
+
+		### Logistical
 
 		#Clade prefixes for biological samples
 		self._lsCladePrefixes = ["k__","p__","c__","o__","f__","g__","s__"]
 
 		#This is not a hashable object
 		self.__hash__ = None
+
+
+		### Prep the object
 
 		self._fIsNormalized = self._fIsSummed = None
 		#If contents is not a false then set contents to appropriate objects
@@ -176,23 +212,25 @@ class AbundanceTable:
 		#    Check if file is a biom file - if so invoke the biom routine               #
 		#################################################################################
 		strFileName = xInputFile if isinstance(xInputFile, str) else xInputFile.name
-		if  strFileName.endswith(ConstantsBreadCrumbs.c_biom):					#Does the file end with biom?
-			BiomCommonArea = AbundanceTable._funcBiomToStructuredArray(xInputFile)	#Call the biom formatting function
-			if  BiomCommonArea:					#If got good results reading the file, build lContents
-				lContents = [BiomCommonArea[ConstantsBreadCrumbs.c_BiomTaxData],  #Post the Taxdata and Metadata and Rows Metadata
-							BiomCommonArea[ConstantsBreadCrumbs.c_Metadata],
-							BiomCommonArea[ 'npRowsMetadata']]	 
-				strLastMetadata = BiomCommonArea[ConstantsBreadCrumbs.c_sLastMetadata]	#Post the Last Metadata
+                # Determine the file read function by file extension
+		if  strFileName.endswith(ConstantsBreadCrumbs.c_strBiom):
+			BiomCommonArea = AbundanceTable._funcBiomToStructuredArray(xInputFile)
+			if  BiomCommonArea:
+				lContents = [BiomCommonArea[ConstantsBreadCrumbs.c_BiomTaxData],
+					BiomCommonArea[ConstantsBreadCrumbs.c_Metadata],
+					BiomCommonArea[ 'npRowsMetadata']]	 
+				strLastMetadata = BiomCommonArea[ConstantsBreadCrumbs.c_sLastMetadata]
 
 			else:
-				lContents = False	#Failed to read and decode the biom file
+				# return false on failure
+				lContents = False
 		else:	
 			#Read in from text file to create the abundance and metadata structures
 			lContents = AbundanceTable._funcTextToStructuredArray(xInputFile=xInputFile, cDelimiter=cDelimiter,
 				sMetadataID = sMetadataID, sLastMetadata = sLastMetadata, ostmOutputFile = outputFile)
 
 		#If contents is not a false then set contents to appropriate objects
-		return AbundanceTable(npaAbundance=lContents[0], dictMetadata=lContents[1], strName=str(xInputFile), strLastMetadata=sLastMetadata, npaRowMetadata = lContents[2],
+		return AbundanceTable(npaAbundance=lContents[0], dictMetadata=lContents[1], strName=str(xInputFile), strLastMetadata=sLastMetadata, npaRowMetadata = lContents[2], dictFileMetadata = lContents[3],
 		  lOccurenceFilter = lOccurenceFilter, cFileDelimiter=cDelimiter, cFeatureNameDelimiter=cFeatureNameDelimiter) if lContents else False
 
 	#Testing Status: Light happy path testing
@@ -342,67 +380,94 @@ class AbundanceTable:
 		Check the metdata to make sure the dicts are the same 
 		(will need to sort the keys of the dicts before comparing, they do not guarentee any order.
 		"""
-		if objOther == None:
+                # Check for none
+		if objOther is None:
 			return False
 
+                #Check for object type
 		if isinstance(objOther,AbundanceTable) != True:
 			return False
 		
-		result1 = self.funcGetName()
-		result2 = objOther.funcGetName()
-		if  result1 != result2 :
+		#Check feature delimiter
+		if self.funcGetFeatureDelimiter() != objOther.funcGetFeatureDelimiter():
+			return False
+
+		#Check file delimiter
+		if self.funcGetFileDelimiter() != objOther.funcGetFileDelimiter():
+			return False
+
+                #Check name
+		if self.funcGetName() != objOther.funcGetName():
 			return  False
 		
-		
-		result1 = self.funcGetAbundanceCopy()
-		result2 = objOther.funcGetAbundanceCopy()	
 
-		if len(result1) != len(result2):
-			return False
-			
-		
-	
+	        #Check sample metadata
+		#Go through the metadata
 		result1 = self.funcGetMetadataCopy()
 		result2 = objOther.funcGetMetadataCopy()
-		if  result1 != result2 :
-			return  False
-				
+		if sorted(result1.keys()) != sorted(results2.keys()):
+			return False
+		for strKey in result1.keys():
+			if strKey not in result2:
+				return False
+			if result1[strKey] != result2[strKey]:
+				return False
 
-				
+		#TODO check the row (feature) metadata
+
+		#TODO check the file metadata
+		#Check the ID
+		if self.funcGetFileDelimiter() != objOther.funcGetFileDelimiter():
+			return False
+
+		#Check the date
+		if self.dateCreationDate != objOther.dateCreationDate:
+			return False
+
+		#Check the format
+		if self.strFileFormatType != objOther.strFileFormatType:
+			return False
+
+		#Check the source
+		if self.strFileGenerationSource != objOther.strFileGenerationSource:
+			return False
+
+		#Check the type
+		if self.strFileType != objOther.strFileType:
+			return False
+
+		#Check the URL
+		if self.strFileURL != objOther.strFileURL:
+			return False
+
+		#Check data
+		#TODO go through the data
+		#TODO also check the data type
 		result1 = self.funcGetAbundanceCopy()
 		result2 = objOther.funcGetAbundanceCopy()	
 		if len(result1) != len(result2):
 			return False
-			
 
 		sorted_result1 = sorted(result1, key=lambda tup: tup[0])
 		sorted_result2 = sorted(result2, key=lambda tup: tup[0])		
 			
-		if  sorted_result1 != sorted_result2 :
+		if sorted_result1 != sorted_result2 :
 			return  False
 						
-				
-				
-				
-		if AbundanceTable.__str__(self)!=  AbundanceTable.__str__(objOther):
+		#Check string representation
+		if AbundanceTable.__str__(self) !=  AbundanceTable.__str__(objOther):
 				return False
 					
-		result1 = self.funcGetSampleNames()
-		result2 = objOther.funcGetSampleNames()
-		if  result1 != result2 :
+		#Check if sample ids are the same and in the same order
+		if self.funcGetSampleNames() != objOther.funcGetSampleNames():
 			return  False
 
-		return  True				#All comparisons successful
+		return  True
 	
-		
-		
-		
+
 	def __ne__(self, objOther):
 		return not self == objOther
-	  
-	  
-	  
-	  
+
 	  
 	#Testing Status: Light happy path testing
 	@staticmethod
@@ -481,9 +546,16 @@ class AbundanceTable:
 
 		# Returns a none currently because the PCL file specification this originally worked on did not have feature metadata
  		# Can be updated in the future.
-		return [taxData,metadata,None]
+		#[Data (structured array), column metadata (dict), row metadata (structured array), file metadata (dict)]
+		return [taxData,metadata,None,{
+                    ConstantsBreadCrumbs.c_strIDKey:ConstantsBreadCrumbs.c_strDefaultPCLID,
+                    ConstantsBreadCrumbs.c_strDateKey:str(datetime.date.today()),
+                    ConstantsBreadCrumbs.c_strFormatKey:ConstantsBreadCrumbs.c_strDefaultPCLFileFormateType,
+                    ConstantsBreadCrumbs.c_strSourceKey:ConstantsBreadCrumbs.c_strDefaultPCLGenerationSource,
+                    ConstantsBreadCrumbs.c_strTypekey:ConstantsBreadCrumbs.c_strDefaultPCLFileTpe,
+                    ConstantsBreadCrumbs.c_strURLKey:ConstantsBreadCrumbs.c_strDefaultPCLURL,
+                    ConstantsBreadCrumbs.c_strSparsityKey:ConstantsBreadCrumbs. c_fDefaultPCLSparsity}]
 
-#TODO heirarchy is misspelled?
 #	def funcAdd(self,abndTwo,strFileName=None):
 #		"""
 #		Allows one to add an abundance table to an abundance table. They both must be the same state of normalization or summation
@@ -504,8 +576,8 @@ class AbundanceTable:
 #
 #		#Normalize Feature names
 #    		#Get if the abundance tables have clades
-#    		fAbndInputHasClades = self.funcHasFeatureHeirachy()
-#    		fAbndCompareHasClades = abndTwo.funcHasFeatureHeirachy()
+#    		fAbndInputHasClades = self.funcHasFeatureHierarchy()
+#    		fAbndCompareHasClades = abndTwo.funcHasFeatureHierarchy()
 #
 #    		if(fAbndInputHasClades or fAbndCompareHasClades):
 #			#If feature delimiters do not match, switch
@@ -724,12 +796,12 @@ class AbundanceTable:
 		return ldAverageSample
 
 	#Tested 2 cases
-	def funcHasFeatureHeirachy(self):
+	def funcHasFeatureHierarchy(self):
 		"""
-		Returns an indicator of having a heirarchy in the features indicated by the existance of the
+		Returns an indicator of having a hierarchy in the features indicated by the existance of the
 		feature delimiter.
 
-		:return	Boolean:	True (Has a heirarchy) or False (Does not have a heirarchy)
+		:return	Boolean:	True (Has a hierarchy) or False (Does not have a hierarchy)
 		"""
 
 		if ( self._npaFeatureAbundance == None ):
@@ -746,7 +818,7 @@ class AbundanceTable:
 
 	def funcGetCladePrefixes(self):
 		"""
-		Returns the list of prefixes to use on biological sample heirarchy
+		Returns the list of prefixes to use on biological sample hierarchy
 
 		:return	List:	List of strings
 		"""
@@ -755,12 +827,12 @@ class AbundanceTable:
 	#3 test cases
 	def funcAddCladePrefixToFeatures(self):
 		"""
-		As a standardized clade prefix to indicate biological clade given heirarchy.
+		As a standardized clade prefix to indicate biological clade given hierarchy.
 		Will not add a prefix to already prefixes feature names.
 		Will add prefix to feature names that do not have them or clades in a feature name that
 		do not have them while leaving ones that do as is.
 
-		:return	Boolean:	True (Has a heirarchy) or False (Does not have a heirarchy)
+		:return	Boolean:	True (Has a hierarchy) or False (Does not have a hierarchy)
 		"""
 
 		if ( self._npaFeatureAbundance == None ):
@@ -1761,11 +1833,7 @@ class AbundanceTable:
 		f = open( xOutputFile, "w" ) if isinstance(xOutputFile, str) else xOutputFile
 		f.write(BiomTable.getBiomFormatJsonString(ConstantsBreadCrumbs.c_biom_file_generated_by))
 		f.close()
-		return  
-		
-		
-		
-		
+		return
 
 	#Testing Status: 1 Happy path test
 	@staticmethod
@@ -1973,9 +2041,9 @@ class AbundanceTable:
 	def _funcBiomToStructuredArray(xInputFile = None):	
 		"""
 		Reads the biom input file and builds a "BiomCommonArea"  that contains:
-			1.BiomCommonArea['sLastMetadata'] - This is the name of the last Metadata (String)
-		    2.BiomCommonArea['BiomTaxData']- dict() - going to be used as  lcontents[0]==TaxData 
- 		    3.BiomCommonArea['Metadata']   - dict() -  going to be used as lcontents[1]==MetaData
+		1.BiomCommonArea['sLastMetadata'] - This is the name of the last Metadata (String)
+		2.BiomCommonArea['BiomTaxData']- dict() - going to be used as  lcontents[0]==TaxData 
+ 		3.BiomCommonArea['Metadata']   - dict() -  going to be used as lcontents[1]==MetaData
   		:param	xInputFile:	File path of biom file to read.
 		:type:	String	File path.
 		:return:   BiomCommonArea  (See description above)
