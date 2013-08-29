@@ -112,6 +112,7 @@ class ConstantsBreadCrumbs():
     #File URL
     c_strURLKey = "url"
     c_strDefaultPCLURL = None
+    c_strFormatUrl =  "format_url"
 
     #File sparse matrix
     c_strSparsityKey = "sparsity"
@@ -141,6 +142,11 @@ class ConstantsBreadCrumbs():
     c_biom_file_generated_by = "AbundanceTable conversion program"
     c_strPCLFile = "pcl"
     c_taxonomy = "taxonomy"
+    c_npRowsMetadata = "npRowsMetadata"
+    c_BiomFileInfo = "BiomFileInfo"
+    c_MatrixTtype = "matrix_type"
+    c_GeneratedBy = "generated_by"
+
 
     def __init__(self):
       pass
