@@ -128,6 +128,7 @@ class ConstantsBreadCrumbs():
     # Biom file extension
     c_strBiomFile = "biom"
     c_BiomTaxData = "BiomTaxData"
+    c_MetadataID = "column_metadata_id"
     c_Metadata = "Metadata"
     c_metadata_lowercase = "metadata"
     c_sLastMetadata = "sLastMetadata"

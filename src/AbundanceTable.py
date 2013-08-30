@@ -220,8 +220,13 @@ class AbundanceTable:
 					BiomCommonArea[ConstantsBreadCrumbs.c_Metadata],
 					BiomCommonArea[ ConstantsBreadCrumbs.c_npRowsMetadata],
 					BiomCommonArea[ConstantsBreadCrumbs.c_BiomFileInfo]
-					]	 
-				strLastMetadata = BiomCommonArea[ConstantsBreadCrumbs.c_sLastMetadata]
+					]
+
+				# Update last metadata and id if given
+				if not sLastMetadata: 
+					strLastMetadata = BiomCommonArea[ConstantsBreadCrumbs.c_sLastMetadata]
+				if not sMetadataID:
+					sMetadataID = BiomCommonArea[ConstantsBreadCrumbs.c_MetadataID]
 
 			else:
 				# return false on failure
@@ -2047,12 +2052,12 @@ class AbundanceTable:
 		2.BiomCommonArea['BiomTaxData']- dict() - going to be used as  lcontents[0]==TaxData 
  		3.BiomCommonArea['Metadata']   - dict() -  going to be used as lcontents[1]==MetaData
 		4.BiomCommonArea['BiomFileInfo'] - dict() - going to be used as lcontents[2]==FileInfo (id, format:eg. Biological Observation Matrix 0.9.1) etc.
+		5.BiomCommonArea['column_metadata_id'] - This is a string which is the name of the column id
   		:param	xInputFile:	File path of biom file to read.
 		:type:	String	File path.
 		:return:   BiomCommonArea  (See description above)
 		:type:	dict()		
 		"""	
- 
  
 		#*******************************************
 		#* Build the metadata                      *
@@ -2129,6 +2134,7 @@ class AbundanceTable:
 			1. BiomCommonArea['Metadata'] 
 			2. BiomCommonArea['Dtype']
 			3. BiomCommonArea['sLastMetadata']
+			4. BiomCommonArea['column_metadata_id'] - This is a string which is the name of the column id
 			These elements will be formatted and passed down the line to build the AbundanceTable
  		:param	BiomValue:	The "columns" Metadata from the biom file (Contains the Metadata information)
 		:type:	dict()	 
@@ -2140,13 +2146,18 @@ class AbundanceTable:
 
 		BiomCommonArea[ConstantsBreadCrumbs.c_sLastMetadata] = None	#Initialize the LastMetadata element 
 		BiomCommonArea['npRowsMetadata'] = None				#Initialize for cases that there is no metadata in the rows
+
+		strLastMetadata = None
+		strIDMetadata = None
+
 		lenBiomValue = len(BiomValue)
 		BiomMetadata = dict()				 
 		for cntMetadata in range(0, lenBiomValue):
 			BiomMetadataEntry = BiomValue[cntMetadata]
  
 			for key, value in BiomMetadataEntry.iteritems(): 		#Loop on the entries
- 				if 	key == ConstantsBreadCrumbs.c_id_lowercase:		#If id - process it
+ 				if key == ConstantsBreadCrumbs.c_id_lowercase:		#If id - process it
+					strIDMetadata = ConstantsBreadCrumbs.c_ID
 					if  ConstantsBreadCrumbs.c_ID  not in BiomMetadata:	#If ID  not in the common area - initalize it
 						BiomMetadata[ConstantsBreadCrumbs.c_ID] = list() #Initialize a list
 						for indx in range(0, lenBiomValue):			#And post the values
@@ -2167,6 +2178,8 @@ class AbundanceTable:
 								MDvalueAscii = MDvalue 
 							
 							if  len(MDkeyAscii) > 0:		#Search for the last metadata
+									if not strIDMetadata:
+										strIDMetadata = MDkeyAscii
 									BiomCommonArea[ConstantsBreadCrumbs.c_sLastMetadata] =  MDkeyAscii #Set the last Metadata
 							if  MDkeyAscii  not in BiomMetadata:
 								BiomMetadata[MDkeyAscii] = list()
@@ -2174,10 +2187,9 @@ class AbundanceTable:
 									BiomMetadata[MDkeyAscii].append(None)
 							BiomMetadata[MDkeyAscii][cntMetadata] = MDvalueAscii 
  
-	
 
-			
-		BiomCommonArea[ConstantsBreadCrumbs.c_Metadata] = BiomMetadata				
+		BiomCommonArea[ConstantsBreadCrumbs.c_Metadata] = BiomMetadata
+		BiomCommonArea[ConstantsBreadCrumbs.c_MetadataID] = strIDMetadata		
 		#**********************************************
 		#*    Build dtype                             *
 		#**********************************************

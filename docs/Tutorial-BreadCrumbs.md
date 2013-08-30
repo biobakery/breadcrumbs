@@ -8,7 +8,7 @@ Enjoy and happy researching!
 
 ## Contents: ##
 1. scriptPCoA  
-2. scriptManipulateFeature.py  
+2. scriptManipulateTable.py  
 I. Manipulating the measurements  
 II. Filtering  
 III. Filtering with knowledge of feature hierarchical relationship
@@ -16,7 +16,7 @@ IV. Manipulate samples by metadata
 V. Manipulate the feature names
 3. scriptPlotFeature.py
 4. scriptBiplotPCL.R
-5. scriptConvertBetweenBIOMAndPCL.py
+5. scriptConvertBetweenBIOMAndPCL.py ***please note: under construction***
 
 ## scriptPCoA.py ##
 This script allows one to plot a PCoA of an abundance table. In the plot each sample is one marker. The marker shape and color is determined by a metadata (of your choice). The distances between each sample is determined by a specific beta-diversity distance metric. By default Bray-curtis distance is used. This can be changed as needed. You will notice for every call you must give it the sample id (-i) and the last metadata which should be the row before your first data (-l). This helps the scripts understand what is a data measurement and what is a metadata.
@@ -53,7 +53,7 @@ F. How do I make a PCoA using unifrac type metrics.
 
 There already exists a collection of functionality surrounding unifrac distances in Qiime and related software. We support these metrics here for completeness, if your need is not met here, please look into Qiime and related software for a solutions with a more rich collection of functionality.
 
-## scriptManipulateFeature.py ##
+## scriptManipulateTable.py ##
 Abundance tables can be difficult to manipulate. This script captures frequent tasks that may be important to manipulating an abundance table including normalization, summing, filtering, stratifying the tables into subsets (for instance breaking up a large HMP table into tables, one for each body site), and other functionality. You will notice for every call you must give it the sample id (-i) and the last metadata which should be the row before your first data (-l). This helps the scripts understand what is a data measurement and what is a metadata.
 
 _Remember you can do multiple tasks or use multiple arguments at the same time._
@@ -260,24 +260,31 @@ P. How do I scale arrows in the plot. Use -z and a number to weight how much the
 > ./scripts/scriptBiplotTSV.R -z 2 STSite demo_input/Test-Biplot.tsv
 
 ## scriptConvertBetweenBIOMAndPCL.py ##
-The script allows one to convert between PCL and BIOM file formats.
+The script allows one to convert between PCL and BIOM file formats. ID and last metadata are optional information in the script call. These are used to dictate placement of certain key sample metadata in the PCL file. Typically, it is helpful to set the first row (or sample metadata) and the row which seperates the metadata from the measurements (indicated as last metadata) to specific metadata which are known to the user of the file. This aids in the consistent and reliable manipulation of these files. If the are not given, a guess will be made to the ID and last metadata, and the file can be modified later if needed.
+
+*** Please note under construction. BIOM to PCL currently available, the rest to come shortly. ***
 
 A. The minimal call to convert from BIOM file to a PCL file or visa versa. This call provides which metadata entry is the sample id and which is the last listed metadata in a pcl file before the data measurements. If there are no metadata and only a metadata id then -l is not required.
+
+> ./scripts/scriptConvertBetweenBIOMAndPCL.py demo_input/Test.pcl
+> ./scripts/scriptConvertBetweenBIOMAndPCL.py demo_input/Test.biom
+
+B. Specifying ID and lastmetadata
 
 > ./scripts/scriptConvertBetweenBIOMAndPCL.py -i TID -l STSite demo_input/Test.pcl
 > ./scripts/scriptConvertBetweenBIOMAndPCL.py -i TID -l STSite demo_input/Test.biom
 
-The case where there are no metadata, just sample IDs
+C. The case where there are no metadata, just sample IDs
 
 > ./scripts/scriptConvertBetweenBIOMAndPCL.py -i TID demo_input/Test_no_metadata.pcl
 > ./scripts/scriptConvertBetweenBIOMAndPCL.py -i TID demo_input/Test_no_metadata.biom
 
-B. Although the output file name can be automatically generated, the output file name can be given if needed.
+D. Although the output file name can be automatically generated, the output file name can be given if needed.
 
 > ./scripts/scriptConvertBetweenBIOMAndPCL.py -i TID -l STSite demo_input/Test.biom CustomFileName.pcl
 > ./scripts/scriptConvertBetweenBIOMAndPCL.py -i TID -l STSite demo_input/Test.pcl CustomFileName.biom
 
-C. Indicate the use of a pcl file using a delimiter that is not tab or indicate the creation of a pcl file using a delimier that is not tab.
+E. Indicate the use of a pcl file using a delimiter that is not tab or indicate the creation of a pcl file using a delimier that is not tab.
 
 > ./scripts/scriptConvertBetweenBIOMAndPCL.py -i TID -l STSite -f , demo_input/Test-comma.pcl
 > ./scripts/scriptConvertBetweenBIOMAndPCL.py -i TID -l STSite -f , demo_input/Test-comma.biom

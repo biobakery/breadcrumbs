@@ -26,8 +26,8 @@ argp = argparse.ArgumentParser( prog = "convertBetweenBIOMAndPCL.py",
 
 #Arguments
 #For table
-argp.add_argument("-i","--id", dest="sID", default = "", metavar= "Sample ID", help="The metadata indicating the sample ID.")
-argp.add_argument("-l","--meta", dest="sLastMetadataName", default = "", metavar= "Last Metadata Name", help="The last listed metadata before the first data measurement in the pcl file or to be in the pcl file.")
+argp.add_argument("-i","--id", dest="sID", default = None, metavar= "Sample ID", help="The metadata indicating the sample ID.")
+argp.add_argument("-l","--meta", dest="sLastMetadataName", default = None, metavar= "Last Metadata Name", help="The last listed metadata before the first data measurement in the pcl file or to be in the pcl file.")
 argp.add_argument("-f","--delim", dest= "cFileDelimiter", action= "store", metavar="File Delimiter", default="\t", help="File delimiter, default tab") 
 argp.add_argument("strFileAbund", metavar = "Abundance file", help ="Input data file")
 argp.add_argument("strOutputFile", default = "", nargs="?", metavar = "Selection Output File", help ="Output file")
