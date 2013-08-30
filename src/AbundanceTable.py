@@ -2116,7 +2116,7 @@ class AbundanceTable:
 			BiomTaxDataWork.append(tuple(BiomTaxDataEntry))	
 	
 		BiomCommonArea[ConstantsBreadCrumbs.c_BiomTaxData] = np.array(BiomTaxDataWork,dtype=np.dtype(BiomCommonArea[ConstantsBreadCrumbs.c_Dtype]))
-		BiomCommonArea['npRowsMetadata'] = npRowsMetadata
+		BiomCommonArea[ConstantsBreadCrumbs.c_npRowsMetadata] = npRowsMetadata
 		del(BiomCommonArea[ConstantsBreadCrumbs.c_Dtype])			#Not needed anymore
  
 		return BiomCommonArea
@@ -2177,7 +2177,7 @@ class AbundanceTable:
 	
 
 			
-		BiomCommonArea['Metadata'] = BiomMetadata				
+		BiomCommonArea[ConstantsBreadCrumbs.c_Metadata] = BiomMetadata				
 		#**********************************************
 		#*    Build dtype                             *
 		#**********************************************
@@ -2225,29 +2225,29 @@ class AbundanceTable:
 				if  sKeyRowMetadata not in dMetadataInfo: 
 					MetadataOrder.append(sKeyRowMetadata)
 					dMetadataInfo[sKeyRowMetadata] = dict()
-					dMetadataInfo[sKeyRowMetadata]['MetadataEntriesTotal'] = len(ValueRowMetadata)			#Number of metadata entries 
+					dMetadataInfo[sKeyRowMetadata][ConstantsBreadCrumbs.c_MetadataEntriesTotal] = len(ValueRowMetadata)			#Number of metadata entries 
 					if  ValueRowMetadata[0].__class__.__name__ == "unicode": 	# First element dictates the type
 						dMetadataInfo[sKeyRowMetadata]['Type'] = 'str'
-						dMetadataInfo[sKeyRowMetadata]['MaximumLength'] = [0]*len( ValueRowMetadata )
+						dMetadataInfo[sKeyRowMetadata][ConstantsBreadCrumbs.c_MaximumLength] = [0]*len( ValueRowMetadata )
 					if  ValueRowMetadata[0].__class__.__name__ == "int": 		#  If the input was int
 						dMetadataInfo[sKeyRowMetadata]['Type'] = 'int'
 					if  ValueRowMetadata[0].__class__.__name__ == "float":		 #  If the input was float
 						dMetadataInfo[sKeyRowMetadata]['Type'] = 'float'
 						
 				#Check the current entry vs the dictionary 			
-				if  len(ValueRowMetadata) >  dMetadataInfo[sKeyRowMetadata]['MetadataEntriesTotal']:
-					dMetadataInfo[sKeyRowMetadata]['MetadataEntriesTotal'] = len(ValueRowMetadata)
+				if  len(ValueRowMetadata) >  dMetadataInfo[sKeyRowMetadata][ConstantsBreadCrumbs.c_MetadataEntriesTotal]:
+					dMetadataInfo[sKeyRowMetadata][ConstantsBreadCrumbs.c_MetadataEntriesTotal] = len(ValueRowMetadata)
 					iZerosToAdd = len(ValueRowMetadata) - len(dMetadataInfo[sKeyRowMetadata]['MaximumLength'])  
 					for indf in range(0, iZerosToAdd):
-						dMetadataInfo[sKeyRowMetadata]['MaximumLength'].append(0)
+						dMetadataInfo[sKeyRowMetadata][ConstantsBreadCrumbs.c_MaximumLength].append(0)
 				
 
 				if dMetadataInfo[sKeyRowMetadata]['Type'] == 'str':
 					indv = -1
 					for v in  ValueRowMetadata:
 						indv +=1
-						if len(v) > dMetadataInfo[sKeyRowMetadata]['MaximumLength'][indv]:
-							dMetadataInfo[sKeyRowMetadata]['MaximumLength'][indv] = len(v)
+						if len(v) > dMetadataInfo[sKeyRowMetadata][ConstantsBreadCrumbs.c_MaximumLength][indv]:
+							dMetadataInfo[sKeyRowMetadata][ConstantsBreadCrumbs.c_MaximumLength][indv] = len(v)
 	
 	
 		#Build the dtype data
@@ -2257,11 +2257,11 @@ class AbundanceTable:
 	
 		for  sMetadataEntry in  MetadataOrder:
  
-			for indr in range(0, dMetadataInfo[sMetadataEntry]['MetadataEntriesTotal']):
+			for indr in range(0, dMetadataInfo[sMetadataEntry][ConstantsBreadCrumbs.c_MetadataEntriesTotal]):
 				MetaDescriptionName = str(sMetadataEntry + str( indr + 1 ))   #Post the index 
 				MetaDescriptionLength = "a20"			#Set that as default
 				if  dMetadataInfo[sMetadataEntry]['Type'] ==  'str':
-					MetaDescriptionLength = "a" + str(2*  dMetadataInfo[sMetadataEntry]['MaximumLength'][indr])	#Double the length of the maximum length	
+					MetaDescriptionLength = "a" + str(2*  dMetadataInfo[sMetadataEntry][ConstantsBreadCrumbs.c_MaximumLength][indr])	#Double the length of the maximum length	
 				if  dMetadataInfo[sMetadataEntry]['Type'] ==  'int' or dMetadataInfo[sMetadataEntry]['Type'] ==  'float':
 					MetaDescriptionLength = "f4"  	
 				MetadataDescription = (MetaDescriptionName,MetaDescriptionLength)	#Add the current entry
@@ -2275,8 +2275,8 @@ class AbundanceTable:
 			for sKeyRowMetadata,  ValueRowMetadata  in BiomValue[iIndexRowMetaData][ConstantsBreadCrumbs.c_metadata_lowercase].iteritems(): 
 				for v in ValueRowMetadata:	
 					MetadataEntry.append( str(v) )
-				if len(ValueRowMetadata) < dMetadataInfo[ sKeyRowMetadata]['MetadataEntriesTotal']:
-					iEntriesToAdd = dMetadataInfo[ sKeyRowMetadata]['MetadataEntriesTotal'] - len(ValueRowMetadata)
+				if len(ValueRowMetadata) < dMetadataInfo[ sKeyRowMetadata][ConstantsBreadCrumbs.c_MetadataEntriesTotal]:
+					iEntriesToAdd = dMetadataInfo[ sKeyRowMetadata][ConstantsBreadCrumbs.c_MetadataEntriesTotal] - len(ValueRowMetadata)
 					for indg in range(0, iEntriesToAdd):
 						MetadataEntry.append(None)
 					
@@ -2311,12 +2311,6 @@ class AbundanceTable:
 			
 		if  BiomKey == ConstantsBreadCrumbs.c_MatrixTtype:
 			strInsertKey = ConstantsBreadCrumbs.c_strSparsityKey
-			
-		####if  BiomKey == ConstantsBreadCrumbs.c_GeneratedBy:  <---Need to follow up with BIOM
-			#####strInsertKey = ConstantsBreadCrumbs.c_strSourceKey	
-		
-
-			
 			
 		BiomCommonArea[ConstantsBreadCrumbs.c_BiomFileInfo][strInsertKey] = BiomValue
 		return BiomCommonArea

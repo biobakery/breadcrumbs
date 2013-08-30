@@ -146,6 +146,8 @@ class ConstantsBreadCrumbs():
     c_BiomFileInfo = "BiomFileInfo"
     c_MatrixTtype = "matrix_type"
     c_GeneratedBy = "generated_by"
+    c_MetadataEntriesTotal = "MetadataEntriesTotal"
+    c_MaximumLength = "MaximumLength"
 
 
     def __init__(self):
