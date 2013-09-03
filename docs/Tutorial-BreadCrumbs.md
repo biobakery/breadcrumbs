@@ -262,12 +262,13 @@ P. How do I scale arrows in the plot. Use -z and a number to weight how much the
 ## scriptConvertBetweenBIOMAndPCL.py ##
 The script allows one to convert between PCL and BIOM file formats. ID and last metadata are optional information in the script call. These are used to dictate placement of certain key sample metadata in the PCL file. Typically, it is helpful to set the first row (or sample metadata) and the row which seperates the metadata from the measurements (indicated as last metadata) to specific metadata which are known to the user of the file. This aids in the consistent and reliable manipulation of these files. If the are not given, a guess will be made to the ID and last metadata, and the file can be modified later if needed.
 
-*** Please note under construction. BIOM to PCL currently available, the rest to come shortly. ***
+*** Please note under construction. ***
 
-A. The minimal call to convert from BIOM file to a PCL file or visa versa. This call provides which metadata entry is the sample id and which is the last listed metadata in a pcl file before the data measurements. If there are no metadata and only a metadata id then -l is not required.
+A. The minimal call to convert from BIOM file to a PCL file or visa versa. This call provides which metadata entry is the sample id and which is the last listed metadata in a pcl file before the data measurements. When converting a PCL file, if there are no metadata and only a metadata id, -l  and -i is not required. If there are multiple metadata in a pcl file the -l (last metadata) field is required. Neither of these fields are required for biom files.
 
-> ./scripts/scriptConvertBetweenBIOMAndPCL.py demo_input/Test.pcl
+> ./scripts/scriptConvertBetweenBIOMAndPCL.py demo_input/Test_no_metadata.pcl
 > ./scripts/scriptConvertBetweenBIOMAndPCL.py demo_input/Test.biom
+> ./scripts/scriptConvertBetweenBIOMAndPCL.py -l STSite demo_input/Test.pcl
 
 B. Specifying ID and lastmetadata
 

@@ -140,7 +140,7 @@ class ConstantsBreadCrumbs():
     c_ID = "ID"	
     c_id_lowercase = "id"	
     c_f4 = "f4"		
-    c_biom_file_generated_by = "AbundanceTable conversion program"
+    c_biom_file_generated_by = "BreadCrumbs"
     c_strPCLFile = "pcl"
     c_taxonomy = "taxonomy"
     c_npRowsMetadata = "npRowsMetadata"

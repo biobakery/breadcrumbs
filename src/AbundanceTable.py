@@ -225,9 +225,6 @@ class AbundanceTable:
 				# Update last metadata and id if given
 				if not sLastMetadata: 
 					strLastMetadata = BiomCommonArea[ConstantsBreadCrumbs.c_sLastMetadata]
-				if not sMetadataID:
-					sMetadataID = BiomCommonArea[ConstantsBreadCrumbs.c_MetadataID]
-
 			else:
 				# return false on failure
 				lContents = False
@@ -1809,6 +1806,7 @@ class AbundanceTable:
 		#**************************
 		lData = list()
 		lAbundanceCopyResultArray = self.funcGetAbundanceCopy()
+
 		for r in lAbundanceCopyResultArray:
 			lr = list(r)
 			lr.pop(0)	#Remove metadata
@@ -2086,8 +2084,7 @@ class AbundanceTable:
 			##or BiomKey == ConstantsBreadCrumbs.c_GeneratedBy  #<---Need to follow up with Biom as always BiomValue = "" even though in the file has a value
 			or BiomKey == ConstantsBreadCrumbs.c_strDateKey):
 				BiomCommonArea = AbundanceTable._funcInsertKeyToCommonArea(BiomCommonArea, BiomKey, BiomValue)
-				
-			
+
 			if BiomKey == ConstantsBreadCrumbs.c_rows:
 				iMaxIdLen = 0 
 				for iIndexRowMetaData in range(0, len(BiomValue)):
@@ -2100,9 +2097,8 @@ class AbundanceTable:
 				if ConstantsBreadCrumbs.c_metadata_lowercase in BiomValue[0] and BiomValue[0][ConstantsBreadCrumbs.c_metadata_lowercase] != None :
 					npRowsMetadata = AbundanceTable._funcBiomBuildRowMetadata(BiomValue,  iMaxIdLen )	
  
-					
 			if BiomKey == ConstantsBreadCrumbs.c_columns:
-				BiomCommonArea = AbundanceTable._funcDecodeBiomMetadata(BiomCommonArea,BiomValue, iMaxIdLen)	#Call the subroutine to Build the metadata
+				BiomCommonArea = AbundanceTable._funcDecodeBiomMetadata(BiomCommonArea, BiomValue, iMaxIdLen)	#Call the subroutine to Build the metadata
  
 	 
 		#*******************************************
@@ -2189,7 +2185,8 @@ class AbundanceTable:
  
 
 		BiomCommonArea[ConstantsBreadCrumbs.c_Metadata] = BiomMetadata
-		BiomCommonArea[ConstantsBreadCrumbs.c_MetadataID] = strIDMetadata		
+		BiomCommonArea[ConstantsBreadCrumbs.c_MetadataID] = strIDMetadata
+		
 		#**********************************************
 		#*    Build dtype                             *
 		#**********************************************
@@ -2263,7 +2260,7 @@ class AbundanceTable:
 	
 	
 		#Build the dtype data
-		MetadataList =  list()
+		MetadataList = list()
 		tId = ('ID',"a" + str(2*iMaxIdLen))					#Build the first tuple
 		MetadataList.append(tId)		
 	

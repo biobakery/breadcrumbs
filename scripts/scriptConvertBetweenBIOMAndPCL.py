@@ -34,9 +34,6 @@ argp.add_argument("strOutputFile", default = "", nargs="?", metavar = "Selection
 
 args = argp.parse_args( )
 
-print("args")
-print(args)
-
 # Make the output file name (if not given) and get the type of output file name
 # Change the extension from BIOM to pcl
 lsFilePieces = os.path.splitext(args.strFileAbund)
