@@ -1754,7 +1754,7 @@ class AbundanceTable:
 		:param	xOutputFile:	File stream or File path to write the file to.
 		:type:	String	File Path	
 		"""
-
+		
 		#**************************
 		# Get Sample Names        *
 		#**************************
@@ -1810,28 +1810,37 @@ class AbundanceTable:
 		for r in lAbundanceCopyResultArray:
 			lr = list(r)
 			lr.pop(0)	#Remove metadata
-			lData.append(lr)
+			lAbundanceValues = list()
+			for AbundanceEntry in lr:
+				flAbundanceEntry = float(AbundanceEntry)
+				lAbundanceValues.append(flAbundanceEntry)
+			#lData.append(lr)
+			lData.append(lAbundanceValues)
 		arrData = array(lData)  #Convert list to array
+
+		
 
 		#**************************
 		# Invoke the              *
 		# biom table factory      *     
 		#**************************
 		
-		if  bTaxonomyInRowsFlag == False:
-			BiomTable = table_factory(arrData,
+
+		#if  bTaxonomyInRowsFlag == False:
+		BiomTable = table_factory(arrData,
 							  lSampNames,
 							  lObservationIds,
 							  lMetaData,
 							  constructor=SparseOTUTable)
-		else:				#There was metadata in the rows
-			BiomTable = table_factory(arrData,
-							  lSampNames,
-							  lObservationIds,
-							  lMetaData,
-							  lObservationMetadataTable,
-							  constructor=SparseOTUTable)	
+		#else:				#There was metadata in the rows
+			#BiomTable = table_factory(arrData,
+							  #lSampNames,
+							  #lObservationIds,
+							  #lMetaData,
+							  #lObservationMetadataTable,
+							  #constructor=SparseOTUTable)	
 
+						  
 		#**************************
 		# Generate biom Output    *   
 		#**************************
