@@ -1814,7 +1814,6 @@ class AbundanceTable:
 			for AbundanceEntry in lr:
 				flAbundanceEntry = float(AbundanceEntry)
 				lAbundanceValues.append(flAbundanceEntry)
-			#lData.append(lr)
 			lData.append(lAbundanceValues)
 		arrData = array(lData)  #Convert list to array
 
@@ -2088,10 +2087,11 @@ class AbundanceTable:
 			or BiomKey == ConstantsBreadCrumbs.c_strFormatUrl  
 			or BiomKey == ConstantsBreadCrumbs.c_MatrixTtype
 			or BiomKey == ConstantsBreadCrumbs.c_strTypekey
-			####or BiomKey == ConstantsBreadCrumbs.c_strIDKey #Same as below
-			##or BiomKey == ConstantsBreadCrumbs.c_GeneratedBy  #<---Need to follow up with Biom as always BiomValue = "" even though in the file has a value
-			or BiomKey == ConstantsBreadCrumbs.c_strDateKey):
+			or BiomKey == ConstantsBreadCrumbs.c_strIDKey #Same as below
+			or BiomKey == ConstantsBreadCrumbs.c_GeneratedBy  #<---Need to follow up with Biom as always BiomValue = "" even though in the file has a value
+			or BiomKey == ConstantsBreadCrumbs.c_strDateKey):  #Same as above
 				BiomCommonArea = AbundanceTable._funcInsertKeyToCommonArea(BiomCommonArea, BiomKey, BiomValue)
+
 
 			if BiomKey == ConstantsBreadCrumbs.c_rows:
 				iMaxIdLen = 0 
@@ -2319,16 +2319,24 @@ class AbundanceTable:
 		:return:   BiomCommonArea  - The updated common area
 		:type:	dict()		
 		"""	
+	
 		if ConstantsBreadCrumbs.c_BiomFileInfo not in BiomCommonArea:
 				BiomCommonArea[ConstantsBreadCrumbs.c_BiomFileInfo] = dict()
-				
+			
 		strInsertKey = BiomKey			#Set Default - But it is now always the same... (eg. URL is not: format_url -->url and others)
+		PostBiomValue = BiomValue		#The default value to be posted 
 		if  BiomKey == ConstantsBreadCrumbs.c_strFormatUrl:
 			strInsertKey = ConstantsBreadCrumbs.c_strURLKey
 			
 		if  BiomKey == ConstantsBreadCrumbs.c_MatrixTtype:
 			strInsertKey = ConstantsBreadCrumbs.c_strSparsityKey
 			
-		BiomCommonArea[ConstantsBreadCrumbs.c_BiomFileInfo][strInsertKey] = BiomValue
+		if  BiomKey == ConstantsBreadCrumbs.c_GeneratedBy:
+			PostBiomValue = None
+
+		if  BiomKey == ConstantsBreadCrumbs.c_strDateKey:
+			PostBiomValue = None			
+			
+		BiomCommonArea[ConstantsBreadCrumbs.c_BiomFileInfo][strInsertKey] = PostBiomValue
 		return BiomCommonArea
 		
