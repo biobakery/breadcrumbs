@@ -1825,20 +1825,19 @@ class AbundanceTable:
 		# biom table factory      *     
 		#**************************
 		
-
-		#if  bTaxonomyInRowsFlag == False:
-		BiomTable = table_factory(arrData,
+		if  bTaxonomyInRowsFlag == False:
+			BiomTable = table_factory(arrData,
 							  lSampNames,
 							  lObservationIds,
 							  lMetaData,
 							  constructor=SparseOTUTable)
-		#else:				#There was metadata in the rows
-			#BiomTable = table_factory(arrData,
-							  #lSampNames,
-							  #lObservationIds,
-							  #lMetaData,
-							  #lObservationMetadataTable,
-							  #constructor=SparseOTUTable)	
+		else:				#There was metadata in the rows
+			BiomTable = table_factory(arrData,
+							  lSampNames,
+							  lObservationIds,
+							  lMetaData,
+							  lObservationMetadataTable,
+							  constructor=SparseOTUTable)	
 
 						  
 		#**************************
