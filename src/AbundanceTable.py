@@ -2244,7 +2244,7 @@ class AbundanceTable:
 				dMetadataTempDict[key] = value
 			dRowsMetadata[str(BiomValue[iIndexRowMetaData][ConstantsBreadCrumbs.c_id_lowercase])][ConstantsBreadCrumbs.c_metadata_lowercase] =  dMetadataTempDict
 		return dRowsMetadata
-	ConstantsBreadCrumbs.c_metadata_lowercase
+	
 		
 
  			
