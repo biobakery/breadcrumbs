@@ -218,7 +218,7 @@ class AbundanceTable:
 			if  BiomCommonArea:
 				lContents = [BiomCommonArea[ConstantsBreadCrumbs.c_BiomTaxData],
 					BiomCommonArea[ConstantsBreadCrumbs.c_Metadata],
-					BiomCommonArea[ ConstantsBreadCrumbs.c_npRowsMetadata],
+					BiomCommonArea[ ConstantsBreadCrumbs.c_dRowsMetadata],
 					BiomCommonArea[ConstantsBreadCrumbs.c_BiomFileInfo]
 					]
 
@@ -1781,46 +1781,26 @@ class AbundanceTable:
 				else:
 					lMetaData[iMetadataEntryCounter][sMetadataName ] = sMetadataEntry
 
+
 		#**************************
 		# Observation Ids         *
+		# and row metadata        *
 		#**************************
-		bTaxonomyInRowsFlag = False			#Initialize flag
+		bTaxonomyInRowsFlag = False	
+		if  self._npaRowMetadata  is not None:
+				bTaxonomyInRowsFlag = True	
+			
+		lObservationMetadataTable = list()
+	
+
 		lObservationIds = list()
 		lFeatureNamesResultArray = self.funcGetFeatureNames()
 		for sFeatureName  in  lFeatureNamesResultArray:
 			lObservationIds.append(sFeatureName)
-			
-			
-		#***********************************
-		#* Build the row mtadata           *
-		#***********************************
-		if  self._npaRowMetadata  is not None:
-			bTaxonomyInRowsFlag = True	
-			lObservationMetadataTable = list()
-			for sMetadataRowEntry in self._npaRowMetadata:
-				iIndxRowMetadata = -1
-				dMetadataRowDict = dict()
-				for sMetadataRowEntryValue in sMetadataRowEntry:
-					iIndxRowMetadata+=1
-					dMetadataRowDict[str(self._npaRowMetadata.dtype.names[iIndxRowMetadata])] = str(sMetadataRowEntryValue)
-				lObservationMetadataTable.append(dMetadataRowDict)
-				
-		
-		#strFeatureDelimiter = self.funcGetFeatureDelimiter()
-		#if lFeatureNamesResultArray[0].find(strFeatureDelimiter) > -1:	#Is there a taxonomy in the AbundanceTable rows?
-			#bTaxonomyInRowsFlag = True
-			#lObservationMetadata = dict()    #If there is metadata we have to build the element
-			#lObservationMetadataTable = list() 
-		#for sObservationId in lFeatureNamesResultArray:
-			#if  bTaxonomyInRowsFlag == False:
-				#lObservationIds.append(sObservationId)
-			#else:
-				#lObservationsNames = sObservationId.split(strFeatureDelimiter)  #List of Observation names
-				#lObservationIds.append(lObservationsNames[-1])  #Put in the last one
-				#lObservationMetadata[ConstantsBreadCrumbs.c_taxonomy] = list()  #Initialize the taxonomy 
-				#for iIndxMetadataRow in range(0, len(lObservationsNames)-1): 
-					#lObservationMetadata[ConstantsBreadCrumbs.c_taxonomy].append(lObservationsNames[iIndxMetadataRow])
-				#lObservationMetadataTable.append(lObservationMetadata)	
+			if  self._npaRowMetadata  is not None:
+				RowMetadataEntry = self._npaRowMetadata[sFeatureName][ConstantsBreadCrumbs.c_metadata_lowercase]	
+				lObservationMetadataTable.append( RowMetadataEntry )
+
 		#**************************
 		# Data                    *
 		#**************************
@@ -2096,7 +2076,7 @@ class AbundanceTable:
  
 		BiomCommonArea = dict()		
 		dBugNames = list()			#Bug Names Table
-		npRowsMetadata = None		#Initialize the np.array of the Rows metadata
+		dRowsMetadata = None		#Initialize the np.array of the Rows metadata
 		BiomElements  =  BiomTable.getBiomFormatObject('')	
 		for BiomKey, BiomValue in BiomElements.iteritems():
 		#****************************************************
@@ -2123,7 +2103,7 @@ class AbundanceTable:
 							iMaxIdLen  =  len(sBugName)
 		
 				if ConstantsBreadCrumbs.c_metadata_lowercase in BiomValue[0] and BiomValue[0][ConstantsBreadCrumbs.c_metadata_lowercase] != None :
- 					npRowsMetadata = AbundanceTable._funcBiomBuildRowMetadata(BiomValue,  iMaxIdLen )
+ 					dRowsMetadata = AbundanceTable._funcBiomBuildRowMetadata(BiomValue,  iMaxIdLen )
 
  
 			if BiomKey == ConstantsBreadCrumbs.c_columns:
@@ -2146,7 +2126,7 @@ class AbundanceTable:
 			BiomTaxDataWork.append(tuple(BiomTaxDataEntry))	
 	
 		BiomCommonArea[ConstantsBreadCrumbs.c_BiomTaxData] = np.array(BiomTaxDataWork,dtype=np.dtype(BiomCommonArea[ConstantsBreadCrumbs.c_Dtype]))
-		BiomCommonArea[ConstantsBreadCrumbs.c_npRowsMetadata] = npRowsMetadata
+		BiomCommonArea[ConstantsBreadCrumbs.c_dRowsMetadata] = dRowsMetadata
 		del(BiomCommonArea[ConstantsBreadCrumbs.c_Dtype])			#Not needed anymore
  
 		return BiomCommonArea
@@ -2170,7 +2150,7 @@ class AbundanceTable:
 		"""
 
 		BiomCommonArea[ConstantsBreadCrumbs.c_sLastMetadata] = None	#Initialize the LastMetadata element 
-		BiomCommonArea['npRowsMetadata'] = None				#Initialize for cases that there is no metadata in the rows
+		BiomCommonArea['dRowsMetadata'] = None				#Initialize for cases that there is no metadata in the rows
 
 		strLastMetadata = None
 		strIDMetadata = None
@@ -2251,86 +2231,23 @@ class AbundanceTable:
 		:type:	dict()
 		:param	iMaxIdLen - Maximum length of all the IDs
 		:type:	int
-		:return:   npRowsMetadata - np Array containing the rows metadata
-		:type:	np.array		
+		:return:   dRowsMetadata - np Array containing the rows metadata
+		:type:	dict()		
 		"""	
-		
 		# Build the table containing the summary of the row metadata structure  
-		dMetadataInfo = dict()
-		MetadataOrder = list()
+		dRowsMetadata = dict()
 		for iIndexRowMetaData in range(0, len(BiomValue)):
- 			for sKeyRowMetadata,  ValueRowMetadata  in BiomValue[iIndexRowMetaData][ConstantsBreadCrumbs.c_metadata_lowercase].iteritems(): 
- 
-				if  sKeyRowMetadata not in dMetadataInfo: 
-					MetadataOrder.append(sKeyRowMetadata)
-					dMetadataInfo[sKeyRowMetadata] = dict()
-					dMetadataInfo[sKeyRowMetadata][ConstantsBreadCrumbs.c_MetadataEntriesTotal] = len(ValueRowMetadata)			#Number of metadata entries 
-					if  ValueRowMetadata[0].__class__.__name__ == "unicode": 	# First element dictates the type
-						dMetadataInfo[sKeyRowMetadata]['Type'] = 'str'
-						dMetadataInfo[sKeyRowMetadata][ConstantsBreadCrumbs.c_MaximumLength] = [0]*len( ValueRowMetadata )
-					if  ValueRowMetadata[0].__class__.__name__ == "int": 		#  If the input was int
-						dMetadataInfo[sKeyRowMetadata]['Type'] = 'int'
-					if  ValueRowMetadata[0].__class__.__name__ == "float":		 #  If the input was float
-						dMetadataInfo[sKeyRowMetadata]['Type'] = 'float'
-					
+			dRowsMetadata[str(BiomValue[iIndexRowMetaData][ConstantsBreadCrumbs.c_id_lowercase])] = dict()
+			RowMetadataEntryFromTable = BiomValue[iIndexRowMetaData][ConstantsBreadCrumbs.c_metadata_lowercase]
+			dMetadataTempDict = dict()
+			for key, value in RowMetadataEntryFromTable.iteritems():
+				dMetadataTempDict[key] = value
+			dRowsMetadata[str(BiomValue[iIndexRowMetaData][ConstantsBreadCrumbs.c_id_lowercase])][ConstantsBreadCrumbs.c_metadata_lowercase] =  dMetadataTempDict
+		return dRowsMetadata
+	ConstantsBreadCrumbs.c_metadata_lowercase
+		
 
-
-				
-					
-				#Check the current entry vs the dictionary 			
-				if  len(ValueRowMetadata) >  dMetadataInfo[sKeyRowMetadata][ConstantsBreadCrumbs.c_MetadataEntriesTotal]:
-					dMetadataInfo[sKeyRowMetadata][ConstantsBreadCrumbs.c_MetadataEntriesTotal] = len(ValueRowMetadata)
-					iZerosToAdd = len(ValueRowMetadata) - len(dMetadataInfo[sKeyRowMetadata]['MaximumLength'])  
-					for indf in range(0, iZerosToAdd):
-						dMetadataInfo[sKeyRowMetadata][ConstantsBreadCrumbs.c_MaximumLength].append(0)
-				
-
-				if dMetadataInfo[sKeyRowMetadata]['Type'] == 'str':
-					indv = -1
-					for v in  ValueRowMetadata:
-						indv +=1
-						if len(v) > dMetadataInfo[sKeyRowMetadata][ConstantsBreadCrumbs.c_MaximumLength][indv]:
-							dMetadataInfo[sKeyRowMetadata][ConstantsBreadCrumbs.c_MaximumLength][indv] = len(v)
-	
-	
-		#Build the dtype data
-		MetadataList = list()
-		tId = ('ID',"a" + str(2*iMaxIdLen))					#Build the first tuple
-		MetadataList.append(tId)		
-	
-		for  sMetadataEntry in  MetadataOrder:
- 
-			for indr in range(0, dMetadataInfo[sMetadataEntry][ConstantsBreadCrumbs.c_MetadataEntriesTotal]):
-				MetaDescriptionName = str(sMetadataEntry + str( indr + 1 ))   #Post the index 
-				MetaDescriptionLength = "a20"			#Set that as default
-				if  dMetadataInfo[sMetadataEntry]['Type'] ==  'str':
-					MetaDescriptionLength = "a" + str(2*  dMetadataInfo[sMetadataEntry][ConstantsBreadCrumbs.c_MaximumLength][indr])	#Double the length of the maximum length	
-				if  dMetadataInfo[sMetadataEntry]['Type'] ==  'int' or dMetadataInfo[sMetadataEntry]['Type'] ==  'float':
-					MetaDescriptionLength = "f4"  	
-				MetadataDescription = (MetaDescriptionName,MetaDescriptionLength)	#Add the current entry
-				MetadataList.append(MetadataDescription)
-	
-			
- 		#   Build the np.array data   entries
-		MetadataValues = list( )
-		for iIndexRowMetaData in range(0, len(BiomValue)):
-			MetadataEntry = list()
-			for sKeyRowMetadata,  ValueRowMetadata  in BiomValue[iIndexRowMetaData][ConstantsBreadCrumbs.c_metadata_lowercase].iteritems(): 
-				for v in ValueRowMetadata:	
-					MetadataEntry.append( str(v) )
-				if len(ValueRowMetadata) < dMetadataInfo[ sKeyRowMetadata][ConstantsBreadCrumbs.c_MetadataEntriesTotal]:
-					iEntriesToAdd = dMetadataInfo[ sKeyRowMetadata][ConstantsBreadCrumbs.c_MetadataEntriesTotal] - len(ValueRowMetadata)
-					for indg in range(0, iEntriesToAdd):
-						MetadataEntry.append(None)
-					
-					
-			MetadataEntry.insert(0,str(BiomValue[iIndexRowMetaData]['id'])) 
-			MetadataEntryTuple = tuple(MetadataEntry)				
-			MetadataValues.append(MetadataEntryTuple) 	
  			
-
-		npRowsMetadata = np.array(MetadataValues, dtype=np.dtype(MetadataList))
-		return npRowsMetadata	
 		
 	@staticmethod
 	def _funcInsertKeyToCommonArea(BiomCommonArea, BiomKey, BiomValue):

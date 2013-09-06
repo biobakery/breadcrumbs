@@ -143,7 +143,7 @@ class ConstantsBreadCrumbs():
     c_biom_file_generated_by = "BreadCrumbs"
     c_strPCLFile = "pcl"
     c_taxonomy = "taxonomy"
-    c_npRowsMetadata = "npRowsMetadata"
+    c_dRowsMetadata = "dRowsMetadata"
     c_BiomFileInfo = "BiomFileInfo"
     c_MatrixTtype = "matrix_type"
     c_GeneratedBy = "generated_by"
