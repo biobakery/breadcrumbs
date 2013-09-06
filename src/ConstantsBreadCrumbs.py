@@ -139,7 +139,7 @@ class ConstantsBreadCrumbs():
     c_Dtype = "Dtype"	
     c_ID = "ID"	
     c_id_lowercase = "id"	
-    c_f4 = "float"		
+    c_f4 = "f8"		
     c_biom_file_generated_by = "BreadCrumbs"
     c_strPCLFile = "pcl"
     c_taxonomy = "taxonomy"

@@ -1763,6 +1763,7 @@ class AbundanceTable:
 		#**************************
 		# Metadata Names          *
 		#**************************
+
 		dictMetadataCopy = self.funcGetMetadataCopy()
 		lMetaData = list()
 		iKeysCounter = 0
@@ -1786,24 +1787,44 @@ class AbundanceTable:
 		bTaxonomyInRowsFlag = False			#Initialize flag
 		lObservationIds = list()
 		lFeatureNamesResultArray = self.funcGetFeatureNames()
-		strFeatureDelimiter = self.funcGetFeatureDelimiter()
-		if lFeatureNamesResultArray[0].find(strFeatureDelimiter) > -1:	#Is there a taxonomy in the AbundanceTable rows?
-			bTaxonomyInRowsFlag = True
-			lObservationMetadata = dict()    #If there is metadata we have to build the element
-			lObservationMetadataTable = list() 
-		for sObservationId in lFeatureNamesResultArray:
-			if  bTaxonomyInRowsFlag == False:
-				lObservationIds.append(sObservationId)
-			else:
-				lObservationsNames = sObservationId.split(strFeatureDelimiter)  #List of Observation names
-				lObservationIds.append(lObservationsNames[-1])  #Put in the last one
-				lObservationMetadata[ConstantsBreadCrumbs.c_taxonomy] = list()  #Initialize the taxonomy 
-				for iIndxMetadataRow in range(0, len(lObservationsNames)-1): 
-					lObservationMetadata[ConstantsBreadCrumbs.c_taxonomy].append(lObservationsNames[iIndxMetadataRow])
-				lObservationMetadataTable.append(lObservationMetadata)	
+		for sFeatureName  in  lFeatureNamesResultArray:
+			lObservationIds.append(sFeatureName)
+			
+			
+		#***********************************
+		#* Build the row mtadata           *
+		#***********************************
+		if  self._npaRowMetadata  is not None:
+			bTaxonomyInRowsFlag = True	
+			lObservationMetadataTable = list()
+			for sMetadataRowEntry in self._npaRowMetadata:
+				iIndxRowMetadata = -1
+				dMetadataRowDict = dict()
+				for sMetadataRowEntryValue in sMetadataRowEntry:
+					iIndxRowMetadata+=1
+					dMetadataRowDict[str(self._npaRowMetadata.dtype.names[iIndxRowMetadata])] = str(sMetadataRowEntryValue)
+				lObservationMetadataTable.append(dMetadataRowDict)
+				
+		
+		#strFeatureDelimiter = self.funcGetFeatureDelimiter()
+		#if lFeatureNamesResultArray[0].find(strFeatureDelimiter) > -1:	#Is there a taxonomy in the AbundanceTable rows?
+			#bTaxonomyInRowsFlag = True
+			#lObservationMetadata = dict()    #If there is metadata we have to build the element
+			#lObservationMetadataTable = list() 
+		#for sObservationId in lFeatureNamesResultArray:
+			#if  bTaxonomyInRowsFlag == False:
+				#lObservationIds.append(sObservationId)
+			#else:
+				#lObservationsNames = sObservationId.split(strFeatureDelimiter)  #List of Observation names
+				#lObservationIds.append(lObservationsNames[-1])  #Put in the last one
+				#lObservationMetadata[ConstantsBreadCrumbs.c_taxonomy] = list()  #Initialize the taxonomy 
+				#for iIndxMetadataRow in range(0, len(lObservationsNames)-1): 
+					#lObservationMetadata[ConstantsBreadCrumbs.c_taxonomy].append(lObservationsNames[iIndxMetadataRow])
+				#lObservationMetadataTable.append(lObservationMetadata)	
 		#**************************
 		# Data                    *
 		#**************************
+		
 		lData = list()
 		lAbundanceCopyResultArray = self.funcGetAbundanceCopy()
 
@@ -1823,7 +1844,6 @@ class AbundanceTable:
 		# Invoke the              *
 		# biom table factory      *     
 		#**************************
-		
 		if  bTaxonomyInRowsFlag == False:
 			BiomTable = table_factory(arrData,
 							  lSampNames,
@@ -2103,7 +2123,8 @@ class AbundanceTable:
 							iMaxIdLen  =  len(sBugName)
 		
 				if ConstantsBreadCrumbs.c_metadata_lowercase in BiomValue[0] and BiomValue[0][ConstantsBreadCrumbs.c_metadata_lowercase] != None :
-					npRowsMetadata = AbundanceTable._funcBiomBuildRowMetadata(BiomValue,  iMaxIdLen )	
+ 					npRowsMetadata = AbundanceTable._funcBiomBuildRowMetadata(BiomValue,  iMaxIdLen )
+
  
 			if BiomKey == ConstantsBreadCrumbs.c_columns:
 				BiomCommonArea = AbundanceTable._funcDecodeBiomMetadata(BiomCommonArea, BiomValue, iMaxIdLen)	#Call the subroutine to Build the metadata
@@ -2239,6 +2260,7 @@ class AbundanceTable:
 		MetadataOrder = list()
 		for iIndexRowMetaData in range(0, len(BiomValue)):
  			for sKeyRowMetadata,  ValueRowMetadata  in BiomValue[iIndexRowMetaData][ConstantsBreadCrumbs.c_metadata_lowercase].iteritems(): 
+ 
 				if  sKeyRowMetadata not in dMetadataInfo: 
 					MetadataOrder.append(sKeyRowMetadata)
 					dMetadataInfo[sKeyRowMetadata] = dict()
@@ -2250,7 +2272,11 @@ class AbundanceTable:
 						dMetadataInfo[sKeyRowMetadata]['Type'] = 'int'
 					if  ValueRowMetadata[0].__class__.__name__ == "float":		 #  If the input was float
 						dMetadataInfo[sKeyRowMetadata]['Type'] = 'float'
-						
+					
+
+
+				
+					
 				#Check the current entry vs the dictionary 			
 				if  len(ValueRowMetadata) >  dMetadataInfo[sKeyRowMetadata][ConstantsBreadCrumbs.c_MetadataEntriesTotal]:
 					dMetadataInfo[sKeyRowMetadata][ConstantsBreadCrumbs.c_MetadataEntriesTotal] = len(ValueRowMetadata)
@@ -2302,7 +2328,7 @@ class AbundanceTable:
 			MetadataEntryTuple = tuple(MetadataEntry)				
 			MetadataValues.append(MetadataEntryTuple) 	
  			
- 
+
 		npRowsMetadata = np.array(MetadataValues, dtype=np.dtype(MetadataList))
 		return npRowsMetadata	
 		
