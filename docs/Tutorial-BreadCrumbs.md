@@ -275,8 +275,8 @@ B. Specifying ID and lastmetadata
 
 C. The case where there are no metadata, just sample IDs
 
-> ./scripts/scriptConvertBetweenBIOMAndPCL.py -i TID demo_input/Test_no_metadata.pcl
-> ./scripts/scriptConvertBetweenBIOMAndPCL.py -i TID demo_input/Test_no_metadata.biom
+> ./scripts/scriptConvertBetweenBIOMAndPCL.py -i ID demo_input/Test_no_metadata.pcl
+> ./scripts/scriptConvertBetweenBIOMAndPCL.py -i ID demo_input/Test_no_metadata.biom
 
 D. Although the output file name can be automatically generated, the output file name can be given if needed.
 

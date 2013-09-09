@@ -62,8 +62,37 @@ class RowMetadata:
 		self.dictRowMetadata = dictRowMetadata
 		self.iLongestMetadataEntry = iLongestMetadataEntry
 
-#	def funcGetIDs(self):
+		self.dictMetadataIDs = {}
+		# Get the ids for the metadata
+		if self.dictRowMetadata:
+			for dictMetadata in self.dictRowMetadata.values():
+				dictMetadata = dictMetadata.get(ConstantsBreadCrumbs.c_metadata_lowercase, None)
 
+				if dictMetadata:
+					for key,value in dictMetadata.items():
+						if self.dictMetadataIDs.get(key, None):
+							self.dictMetadataIDs[key] = max(self.dictMetadataIDs[key],len(dictMetadata[key]))
+						else:
+							self.dictMetadataIDs[key] = len(dictMetadata[key])
+
+	def funcMakeIDs(self):
+		lsIDs = []
+		lsKeys = []
+
+		for key, value in self.dictMetadataIDs.items():
+			lsKeys.append(key)
+			lsIDs.extend( [ "_".join( [ key, str( iIndex ) ] ) for iIndex in xrange( value ) ] )
+		return [ lsIDs, lsKeys ]
+
+	def funGetFeatureMetadata(self, sFeature, sMetadata):
+		lsMetadata = []
+		if self.dictRowMetadata:
+			dictFeature = self.dictRowMetadata.get( sFeature, None )
+			if dictFeature:
+				dictFeatureMetadata = dictFeature.get(ConstantsBreadCrumbs.c_metadata_lowercase, None)
+				if dictFeatureMetadata:
+					lsMetadata = dictFeatureMetadata.get(sMetadata, None)
+		return lsMetadata
 
 class AbundanceTable:
 	"""
@@ -146,9 +175,7 @@ class AbundanceTable:
 		#Data sparsity type
 		self.fSparseMatrix = dictFileMetadata.get(ConstantsBreadCrumbs.c_strSparsityKey,False) if dictFileMetadata else False
 
-
 		### Data metadata
-
 		#The column (sample) metdata
 		self._dictTableMetadata = dictMetadata
 
@@ -1739,22 +1766,33 @@ class AbundanceTable:
 		:param	cDelimiter:	Delimiter for the output file.
 		:type:	Character	If cDlimiter is not specified, the internally stored file delimiter is used.
 		"""
-		
-		
+
 		f = csv.writer(open( xOutputFile, "w" ) if isinstance(xOutputFile, str) else xOutputFile, csv.excel_tab, delimiter=cDelimiter)
 		
+		# Get Row metadata id info (IDs for column header, keys that line up with the ids)
+		lsRowMetadataIDs, lsRowMetadataIDKeys = self.rwmtRowMetadata.funcMakeIDs()
+
 		#Write Ids
-		f.writerows([[self.funcGetIDMetadataName()]+list(self.funcGetSampleNames())])
-	
+		f.writerows([[self.funcGetIDMetadataName()]+lsRowMetadataIDs+list(self.funcGetSampleNames())])
+
+		#Write column metadata
 		lsKeys = list(set(self._dictTableMetadata.keys())-set([self.funcGetIDMetadataName(),self.funcGetLastMetadataName()]))
 		lMetadataIterations = list(set(lsKeys+[self.funcGetLastMetadataName()] ) -set([None]))  #Try to remove None ---> Need to recheck!!!!
 
-		f.writerows([[sMetaKey]+self.funcGetMetadata(sMetaKey) for sMetaKey in lMetadataIterations if sMetaKey != self.funcGetIDMetadataName()])  
+		f.writerows([[sMetaKey]+([ConstantsBreadCrumbs.c_strEmptyDataMetadata]*len(lsRowMetadataIDs))+self.funcGetMetadata(sMetaKey) for sMetaKey in lMetadataIterations if sMetaKey != self.funcGetIDMetadataName()]) 
+
 		#Write abundance
 		lsOutput = list()
 		curAbundance = self._npaFeatureAbundance.tolist()
+
 		for curAbundanceRow in curAbundance:
-			f.writerows([[str(curAbundanceElement) for curAbundanceElement in curAbundanceRow]])
+			# Make feature metadata, padding with NA as needed
+			lsMetadata = []
+			for sMetadataId in lsRowMetadataIDKeys:
+				lsMetadata = lsMetadata + self.rwmtRowMetadata.funGetFeatureMetadata( curAbundanceRow[0], sMetadataId )
+				lsMetadata = lsMetadata + ( [ ConstantsBreadCrumbs.c_strEmptyDataMetadata ] * 
+					( self.rwmtRowMetadata.dictMetadataIDs.get( sMetadataId, 0 ) - len( lsMetadata ) ) )
+			f.writerows([[curAbundanceRow[0]]+lsMetadata+[str(curAbundanceElement) for curAbundanceElement in curAbundanceRow[1:]]])
 		return
 
 	def _funcWriteBiomFile(self, xOutputFile):
