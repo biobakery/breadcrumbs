@@ -1,10 +1,10 @@
 # BreadCrumbs Tutorial #
 
-This is a brief tutorial to get you acquainted with the scripts provided in breadcrumbs. This is broke up by script and task. Examples are given using the Test.pcl file which is included in the BreadCrumbs package. Each of these commands should work from the command line in the breadcrumbs directory.
+This is a brief tutorial to get you acquainted with the scripts provided in breadcrumbs. This tutorial is oragnized by script and task. Examples are given using files in the demo_input folder which is included in the BreadCrumbs package. Each of these commands should work from the command line in the breadcrumbs directory.
 
-Please note all of the following calls expect you to be in the breadcrumbs directory and to have both the ./breadcrumbs/src and ./breadcrumbs/scripts in your path.
+Please note all of the following calls expect you to be in the breadcrumbs directory and to have both the ./breadcrumbs/src and ./breadcrumbs/scripts in your path and or python path.
 
-Enjoy and happy researching!
+Enjoy and happy research!
 
 ## Contents: ##
 1. scriptPCoA  
@@ -20,8 +20,6 @@ V. Manipulate the feature names
 
 ## scriptPCoA.py ##
 This script allows one to plot a PCoA of an abundance table. In the plot each sample is one marker. The marker shape and color is determined by a metadata (of your choice). The distances between each sample is determined by a specific beta-diversity distance metric. By default Bray-curtis distance is used. This can be changed as needed. You will notice for every call you must give it the sample id (-i) and the last metadata which should be the row before your first data (-l). This helps the scripts understand what is a data measurement and what is a metadata.
-
-*Note this tutorial assumes you are in the breadcrumbs directory*
 
 A. How do I make a PCoA of an abundance table, painting (coloring) it by a specific metadata?
 
@@ -264,7 +262,7 @@ The script allows one to convert between PCL and BIOM file formats. ID and last 
 
 *** Please note under construction. ***
 
-A. The minimal call to convert from BIOM file to a PCL file or visa versa. This call provides which metadata entry is the sample id and which is the last listed metadata in a pcl file before the data measurements. When converting a PCL file, if there are no metadata and only a metadata id, -l  and -i is not required. If there are multiple metadata in a pcl file the -l (last metadata) field is required. Neither of these fields are required for biom files.
+A. The minimal call to convert from BIOM file to a PCL file or visa versa. This call indicates the metadata entry which is the sample id and which is the last listed metadata in a pcl file (before the data measurements). When converting a PCL file, if there are no metadata and only a metadata id, -l  and -i is not required. If there are multiple metadata in a pcl file the -l (last metadata) field is required. Neither of these fields are required for biom file conversion to pcl.
 
 > ./scripts/scriptConvertBetweenBIOMAndPCL.py demo_input/Test_no_metadata.pcl
 > ./scripts/scriptConvertBetweenBIOMAndPCL.py demo_input/Test.biom
