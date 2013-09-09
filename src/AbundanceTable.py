@@ -53,6 +53,18 @@ c_fRound	= False
 c_iSumAllCladeLevels = -1
 c_fOutputLeavesOnly = False
 
+class RowMetadata:
+	"""
+	Holds the row (feature) metadata and associated functions.
+	"""
+
+	def __init__(self, dictRowMetadata, iLongestMetadataEntry=None):
+		self.dictRowMetadata = dictRowMetadata
+		self.iLongestMetadataEntry = iLongestMetadataEntry
+
+#	def funcGetIDs(self):
+
+
 class AbundanceTable:
 	"""
 	Represents an abundance table and contains common function to perform on the object.
@@ -65,7 +77,7 @@ class AbundanceTable:
 	This object is currently not hashable.
 	"""
 
-	def __init__(self, npaAbundance, dictMetadata, strName, strLastMetadata, npaRowMetadata=None, dictFileMetadata=None, lOccurenceFilter = None, cFileDelimiter = ConstantsBreadCrumbs.c_cTab, cFeatureNameDelimiter="|"):
+	def __init__(self, npaAbundance, dictMetadata, strName, strLastMetadata, rwmtRowMetadata=None, dictFileMetadata=None, lOccurenceFilter = None, cFileDelimiter = ConstantsBreadCrumbs.c_cTab, cFeatureNameDelimiter="|"):
 		"""
 		Constructor for an abundance table.
 
@@ -140,9 +152,8 @@ class AbundanceTable:
 		#The column (sample) metdata
 		self._dictTableMetadata = dictMetadata
 
-		#The row (feature) metadata numpy array
-		self._npaRowMetadata = npaRowMetadata
-
+		#The row (feature) metadata (Row Metadata object)
+		self.rwmtRowMetadata = rwmtRowMetadata
 
 		### Data
 
@@ -234,7 +245,7 @@ class AbundanceTable:
 				sMetadataID = sMetadataID, sLastMetadata = sLastMetadata, ostmOutputFile = outputFile)
 
 		#If contents is not a false then set contents to appropriate objects
-		return AbundanceTable(npaAbundance=lContents[0], dictMetadata=lContents[1], strName=str(xInputFile), strLastMetadata=sLastMetadata, npaRowMetadata = lContents[2],
+		return AbundanceTable(npaAbundance=lContents[0], dictMetadata=lContents[1], strName=str(xInputFile), strLastMetadata=sLastMetadata, rwmtRowMetadata = lContents[2],
 		dictFileMetadata = lContents[3], lOccurenceFilter = lOccurenceFilter, cFileDelimiter=cDelimiter, cFeatureNameDelimiter=cFeatureNameDelimiter) if lContents else False
 
 	#Testing Status: Light happy path testing
@@ -551,7 +562,7 @@ class AbundanceTable:
 		# Returns a none currently because the PCL file specification this originally worked on did not have feature metadata
  		# Can be updated in the future.
 		#[Data (structured array), column metadata (dict), row metadata (structured array), file metadata (dict)]
-		return [taxData,metadata,None,{
+		return [taxData,metadata,RowMetadata(None),{
                     ConstantsBreadCrumbs.c_strIDKey:ConstantsBreadCrumbs.c_strDefaultPCLID,
                     ConstantsBreadCrumbs.c_strDateKey:str(date.today()),
                     ConstantsBreadCrumbs.c_strFormatKey:ConstantsBreadCrumbs.c_strDefaultPCLFileFormateType,
@@ -1707,8 +1718,6 @@ class AbundanceTable:
 		if not cDelimiter:
 			cDelimiter = self._cDelimiter
 
-			
-			
 		#  Check file type: If pcl: Write pcl file; If biom: write biom file;  If None - write pcl file
 		if(cFileType == None):		
 				cFileType == ConstantsBreadCrumbs.c_strPCLFile 
@@ -1787,18 +1796,18 @@ class AbundanceTable:
 		# and row metadata        *
 		#**************************
 		bTaxonomyInRowsFlag = False	
-		if  self._npaRowMetadata  is not None:
+		if  self.rwmtRowMetadata.dictRowMetadata  is not None:
 				bTaxonomyInRowsFlag = True	
 			
 		lObservationMetadataTable = list()
-	
 
 		lObservationIds = list()
 		lFeatureNamesResultArray = self.funcGetFeatureNames()
 		for sFeatureName  in  lFeatureNamesResultArray:
 			lObservationIds.append(sFeatureName)
-			if  self._npaRowMetadata  is not None:
-				RowMetadataEntry = self._npaRowMetadata[sFeatureName][ConstantsBreadCrumbs.c_metadata_lowercase]	
+
+			if self.rwmtRowMetadata and self.rwmtRowMetadata.dictRowMetadata:
+				RowMetadataEntry = self.rwmtRowMetadata.dictRowMetadata[sFeatureName][ConstantsBreadCrumbs.c_metadata_lowercase]	
 				lObservationMetadataTable.append( RowMetadataEntry )
 
 		#**************************
@@ -1831,14 +1840,14 @@ class AbundanceTable:
 							  lMetaData,
 							  constructor=SparseOTUTable)
 		else:				#There was metadata in the rows
+
 			BiomTable = table_factory(arrData,
 							  lSampNames,
 							  lObservationIds,
 							  lMetaData,
 							  lObservationMetadataTable,
 							  constructor=SparseOTUTable)	
-
-						  
+	  
 		#**************************
 		# Generate biom Output    *   
 		#**************************
@@ -2126,7 +2135,7 @@ class AbundanceTable:
 			BiomTaxDataWork.append(tuple(BiomTaxDataEntry))	
 	
 		BiomCommonArea[ConstantsBreadCrumbs.c_BiomTaxData] = np.array(BiomTaxDataWork,dtype=np.dtype(BiomCommonArea[ConstantsBreadCrumbs.c_Dtype]))
-		BiomCommonArea[ConstantsBreadCrumbs.c_dRowsMetadata] = dRowsMetadata
+		BiomCommonArea[ConstantsBreadCrumbs.c_dRowsMetadata] = RowMetadata(dRowsMetadata)
 		del(BiomCommonArea[ConstantsBreadCrumbs.c_Dtype])			#Not needed anymore
  
 		return BiomCommonArea
