@@ -438,16 +438,24 @@ class AbundanceTable:
 		if self.funcGetFileDelimiter() != objOther.funcGetFileDelimiter():
 			return False
 
+			
+			
+			
+		#************************************************** 
+		#* Commented out                                  *  
+		#************************************************** 			
+        #Check name  - Commented out by GW on 2013/09/14 because
+		#If we import pcl file into biom file and then export to pcl, the file names might be different but the tables might be the same
                 #Check name
-		if self.funcGetName() != objOther.funcGetName():
-			return  False
+		#if self.funcGetName() != objOther.funcGetName():
+			#return  False
 		
 
 	        #Check sample metadata
 		#Go through the metadata
 		result1 = self.funcGetMetadataCopy()
 		result2 = objOther.funcGetMetadataCopy()
-		if sorted(result1.keys()) != sorted(results2.keys()):
+		if sorted(result1.keys()) != sorted(result2.keys()):
 			return False
 		for strKey in result1.keys():
 			if strKey not in result2:
@@ -470,9 +478,16 @@ class AbundanceTable:
 		if self.strFileFormatType != objOther.strFileFormatType:
 			return False
 
+			
+
+		#************************************************** 
+		#* Commented out                                  *  
+		#************************************************** 			
+		#Check source  - Commented out by GW on 2013/09/14 because
+		#If we import pcl file into biom file and then export to pcl, the file names might be different but the tables might be the same			
 		#Check the source
-		if self.strFileGenerationSource != objOther.strFileGenerationSource:
-			return False
+		#if self.strFileGenerationSource != objOther.strFileGenerationSource:
+			#return False
 
 		#Check the type
 		if self.strFileType != objOther.strFileType:
@@ -495,10 +510,17 @@ class AbundanceTable:
 			
 		if sorted_result1 != sorted_result2 :
 			return  False
-						
+				
+
+		#************************************************** 
+		#* Commented out                                  *  
+		#************************************************** 			
+		#Check AbundanceTable.__str__(self)  - Commented out by GW on 2013/09/14 because
+		#If we import pcl file into biom file and then export to pcl, the file names might be different but the tables might be the same						
+				
 		#Check string representation
-		if AbundanceTable.__str__(self) !=  AbundanceTable.__str__(objOther):
-				return False
+		#if AbundanceTable.__str__(self) !=  AbundanceTable.__str__(objOther):
+				#return False
 					
 		#Check if sample ids are the same and in the same order
 		if self.funcGetSampleNames() != objOther.funcGetSampleNames():
