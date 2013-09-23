@@ -33,7 +33,7 @@ A quick description of the scripts include:
 
 * *Hclust.py* Flexible script to create a visualization of hierarchical clustering of abundance tables (or other matrices).
 
-* *scriptBiplotPCL.R* Allows one to plot a pcl as a biplot using nonmetric multidimensional scaling.
+* *scriptBiplotTSV.R* Allows one to plot a tsv file as a biplot using nonmetric multidimensional scaling.
 
 * *scriptPlotFeature.py* Allows one to plot a histogram, boxplot, or scatter plot of a bug or metadata in an abundance table. Will work on any row in a matrix.
 

@@ -164,6 +164,7 @@ c_sDefaultNAColor = NULL
 c_sDefaultShapeBy = NULL
 c_sDefaultShapes = NULL
 c_sDefaultMarker = "16"
+c_fDefaultPlotArrows = TRUE
 c_sDefaultRotateByMetadata = NULL
 c_sDefaultResizeArrow = 1
 c_sDefaultTitle = "Custom Biplot of Bugs and Samples - Metadata Plotted with Centroids"
@@ -173,8 +174,9 @@ c_sDefaultOutputFile = NULL
 pArgs <- OptionParser( usage = "%prog last_metadata input.tsv" )
 
 # Selecting features to plot
-pArgs <- add_option( pArgs, c("-b", "--bugs"), type="character", action="store", default=NULL, dest="sBugs", metavar="BugsToPlot", help="Comma delimited list of data to plot as text. Bug|1,Bug|2")
-pArgs <- add_option( pArgs, c("-m", "--metadata"), type="character", action="store", default=NULL, dest="sMetadata", metavar="MetadataToPlot", help="Comma delimited list of metadata to plot as arrows. metadata1,metadata2,metadata3")
+pArgs <- add_option( pArgs, c("-b", "--bugs"), type="character", action="store", default=NULL, dest="sBugs", metavar="BugsToPlot", help="Comma delimited list of data to plot as text. To not plot metadata pass a blank or empty space. Bug|1,Bug|2")
+# The default needs to stay null for metadata or code needs to be changed in the plotting for a check to see if the metadata was default. Search for "#!# metadata default dependent"
+pArgs <- add_option( pArgs, c("-m", "--metadata"), type="character", action="store", default=NULL, dest="sMetadata", metavar="MetadataToPlot", help="Comma delimited list of metadata to plot as arrows. To not plot metadata pass a blank or empty space. metadata1,metadata2,metadata3")
 
 # Colors
 pArgs <- add_option( pArgs, c("-c", "--colorBy"), type="character", action="store", default=c_sDefaultColorBy, dest="sColorBy", metavar="MetadataToColorBy", help="The id of the metadatum to use to make the marker colors. Expected to be a continuous metadata.")
@@ -192,6 +194,7 @@ pArgs <- add_option( pArgs, c("-d", "--defaultMarker"), type="character", action
 # Plot manipulations
 pArgs <- add_option( pArgs, c("-e","--rotateByMetadata"), type="character", action="store", default=c_sDefaultRotateByMetadata, dest="sRotateByMetadata", metavar="RotateByMetadata", help="Rotate the ordination by a metadata. Give both the metadata and value to weight it by. The larger the weight, the more the ordination is influenced by the metadata. If the metadata is continuous, use the metadata id; if the metadata is discrete, the ordination will be by one of the levels so use the metadata ID and level seperated by a '_'. Discrete example -e Environment_HighLumninosity,100 ; Continuous example -e Environment,100 .")
 pArgs <- add_option( pArgs, c("-z","--resizeArrow"), type="numeric", action="store", default=c_sDefaultResizeArrow, dest="dResizeArrow", metavar="ArrowScaleFactor", help="A constant to multiple the length of the arrow to expand or shorten all arrows together. This will not change the angle of the arrow nor the relative length of arrows to each other.")
+pArgs <- add_option( pArgs, c("-A", "--noArrows"), type="logical", action="store_true", default=FALSE, dest="fNoPlotMetadataArrows", metavar="DoNotPlotArrows", help="Adding this flag allows one to plot metadata labels without the arrows.")
 
 # Misc
 pArgs <- add_option( pArgs, c("-i", "--title"), type="character", action="store", default=c_sDefaultTitle, dest="sTitle", metavar="Title", help="This is the title text to add to the plot.")
@@ -222,9 +225,11 @@ sShapes = c_sDefaultShapes,
 sDefaultMarker = c_sDefaultMarker,
 ### The default marker shape to use if shapes are not otherwise indicated.
 sRotateByMetadata = c_sDefaultRotateByMetadata,
-### Metadta and value to rotate by. example Environment_HighLumninosity,100
+### Metadata and value to rotate by. example Environment_HighLumninosity,100
 dResizeArrow = c_sDefaultResizeArrow,
 ### Scale factor to resize tthe metadata arrows
+fPlotArrow = c_fDefaultPlotArrows,
+### A flag which can be used to turn off arrow plotting.
 sTitle = c_sDefaultTitle,
 ### The title for the figure.
 sInputFileName,
@@ -382,8 +387,9 @@ sOutputFileName = c_sDefaultOutputFile
   }
   row.names(mMetadataCoordinates) = vsRowNames
 
+  #!# metadata default dependent
   # Plot the biplot with the centroid constructed metadata coordinates
-  if(length(viMetadataDummy)==0)
+  if( ( length( viMetadataDummy ) == 0 ) && ( is.null( sMetadata ) ) )
   {
     viMetadataDummy = 1:nrow(mMetadataCoordinates)
   }
@@ -421,12 +427,16 @@ sOutputFileName = c_sDefaultOutputFile
   # Plot Metadata
   if(length(viMetadataDummy)>0)
   {
-    for(i in viMetadataDummy)
+    if(fPlotArrow)
     {
-      curCoordinates = mMetadataCoordinates[i,]
-      curCoordinates = curCoordinates * dResizeArrow
-      # Plot Arrow
-      arrows(0,0, curCoordinates[1] * 0.8, curCoordinates[2] * 0.8, col=sArrowColor, length=0.1 )
+      # Plot arrows
+      for(i in viMetadataDummy)
+      {
+        curCoordinates = mMetadataCoordinates[i,]
+        curCoordinates = curCoordinates * dResizeArrow
+        # Plot Arrow
+        arrows(0,0, curCoordinates[1] * 0.8, curCoordinates[2] * 0.8, col=sArrowColor, length=0.1 )
+      }
     }
     # Plot text
     if(length(viMetadataDummy)==1)
@@ -461,6 +471,9 @@ if( identical( environment( ), globalenv( ) ) &&
 {
   lsArgs <- parse_args( pArgs, positional_arguments=TRUE )
 
+  print("lsArgs")
+  print(lsArgs)
+
   funcDoBiplot(
     sBugs = lsArgs$options$sBugs,
     sMetadata = lsArgs$options$sMetadata,
@@ -475,6 +488,7 @@ if( identical( environment( ), globalenv( ) ) &&
     sDefaultMarker = lsArgs$options$sDefaultMarker,
     sRotateByMetadata = lsArgs$options$sRotateByMetadata,
     dResizeArrow = lsArgs$options$dResizeArrow,
+    fPlotArrow = !lsArgs$options$fNoPlotMetadataArrows,
     sTitle = lsArgs$options$sTitle,
     sInputFileName = lsArgs$args[2],
     sLastMetadata = lsArgs$args[1],
