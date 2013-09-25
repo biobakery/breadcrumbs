@@ -559,19 +559,29 @@ class AbundanceTable:
 										[Numpy structured Array, Dictionary, Numpy structured array]
 		"""
 
+		# Open file from a stream or file path
 		istmInput = open( xInputFile, 'rU' ) if isinstance(xInputFile, str) else xInputFile
+		# Flag that when incremented will switch from metadata parsing to data parsing
 		iFirstDataRow = -1
+		# Sample id row
 		namesRow = None
+		# Holds metadata {ID:[list of values]}
 		metadata = dict()
+		# Holds the data measurements [(tuple fo values)]
 		dataMatrix = []
+		# Positional index
 		iIndex = -1
+		# File handle
 		csvw = None
+
+		# Read in files
 		if ostmOutputFile:
 			csvw = csv.writer( open(ostmOutputFile,'w') if isinstance(ostmOutputFile, str) else ostmOutputFile, csv.excel_tab, delimiter = cDelimiter )
+		# For each line in the file, and assume the tax id is the first element and the data follows
 		for lsLineElements in csv.reader( istmInput, dialect = csv.excel_tab, delimiter = cDelimiter ):
 			iIndex += 1
 			taxId, sampleReads = lsLineElements[0], lsLineElements[1:]
-			#Data
+			# Read through data measurements
 			if iFirstDataRow > 0:
 				try:
 					dataMatrix.append(tuple([taxId] + [( float(s) if s.strip( ) else 0 ) for s in sampleReads]))
@@ -579,14 +589,18 @@ class AbundanceTable:
 					sys.stderr.write( "AbundanceTable:textToStructuredArray::Error, non-numerical value on data row. File:" + str(xInputFile) +
 						" Row:" + str(lsLineElements) + "\n" )
 					return False
-			#Metadata
+			# Go through study measurements
 			else:
+				# Read in metadata values, if the entry is blank then give it the default empty metadata value.
 				for i, s in enumerate( sampleReads ):
 					if not s.strip( ):
 						sampleReads[i] = ConstantsBreadCrumbs.c_strEmptyDataMetadata
+				# 
 				if ( ( not sMetadataID ) and ( iIndex == 0 ) ) or ( taxId == sMetadataID ):
 					namesRow = lsLineElements
 				metadata[taxId]=sampleReads
+				# 
+				# If the last metadata name is not given it is assumed that there is only one metadata
 				if ( not sLastMetadata ) or ( taxId == sLastMetadata ):
 					iFirstDataRow = iIndex + 1
 			if csvw:
