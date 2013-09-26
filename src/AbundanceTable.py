@@ -58,9 +58,15 @@ class RowMetadata:
 	Holds the row (feature) metadata and associated functions.
 	"""
 
-	def __init__(self, dictRowMetadata, iLongestMetadataEntry=None):
+	def __init__(self, dictRowMetadata, iLongestMetadataEntry=None, lsRowMetadataIDs=None):
+		""" Constructor requires a dictionary or row metadata.
+		:param dictRowMetadata:	The row metadata values with the ids as the keys, must be stable (keep order)
+		:type:			{string feature id: {'metadata': {'taxonomy': [list of metadata values]}}}
+		"""
+
 		self.dictRowMetadata = dictRowMetadata
 		self.iLongestMetadataEntry = iLongestMetadataEntry
+		self.lsRowMetadataIDs = lsRowMetadataIDs
 
 		self.dictMetadataIDs = {}
 		# Get the ids for the metadata
@@ -76,15 +82,36 @@ class RowMetadata:
 							self.dictMetadataIDs[key] = len(dictMetadata[key])
 
 	def funcMakeIDs(self):
+		""" There should be a one to one mapping of row metadata ids and the values associated here with a feature ID.
+		    If not make ids from the key by appending numbers.
+		"""
+
+		# If there exists a ids list already return (this allows ID order to be given and preserved)
+		# Else make a list of IDs
+		if self.lsRowMetadataIDs:
+			return self.lsRowMetadataIDs
+
 		lsIDs = []
 		lsKeys = []
 
 		for key, value in self.dictMetadataIDs.items():
-			lsKeys.append(key)
-			lsIDs.extend( [ "_".join( [ key, str( iIndex ) ] ) for iIndex in xrange( value ) ] )
+			lsKeys.append( key )
+			if value > 1:
+				lsIDs.extend( [ "_".join( [ key, str( iIndex ) ] ) for iIndex in xrange( value ) ] )
+			else:
+				lsIDs.append( key )
 		return [ lsIDs, lsKeys ]
 
 	def funGetFeatureMetadata(self, sFeature, sMetadata):
+		"""
+		Returns a list of values in the order of row metadta ids for a microbial feature given an id.
+
+		:param sFeature:	Feature id to get metadata
+		:type:			string
+		:param sMetadata:	Metadata to get
+		:type:			string
+		:return:		list of metadata associated with the metadata
+		"""
 		lsMetadata = []
 		if self.dictRowMetadata:
 			dictFeature = self.dictRowMetadata.get( sFeature, None )
@@ -93,6 +120,7 @@ class RowMetadata:
 				if dictFeatureMetadata:
 					lsMetadata = dictFeatureMetadata.get(sMetadata, None)
 		return lsMetadata
+
 
 class AbundanceTable:
 	"""
@@ -106,7 +134,7 @@ class AbundanceTable:
 	This object is currently not hashable.
 	"""
 
-	def __init__(self, npaAbundance, dictMetadata, strName, strLastMetadata, rwmtRowMetadata=None, dictFileMetadata=None, lOccurenceFilter = None, cFileDelimiter = ConstantsBreadCrumbs.c_cTab, cFeatureNameDelimiter="|"):
+	def __init__(self, npaAbundance, dictMetadata, strName, strLastMetadata, rwmtRowMetadata = None, dictFileMetadata = None, lOccurenceFilter = None, cFileDelimiter = ConstantsBreadCrumbs.c_cTab, cFeatureNameDelimiter = "|"):
 		"""
 		Constructor for an abundance table.
 
@@ -220,7 +248,7 @@ class AbundanceTable:
 #		sys.stderr.write( "Abundance or metadata was None, should be atleast an empty object\n" )
 
 	@staticmethod
-	def funcMakeFromFile(xInputFile, cDelimiter = ConstantsBreadCrumbs.c_cTab, sMetadataID = None, sLastMetadata = None,
+	def funcMakeFromFile(xInputFile, cDelimiter = ConstantsBreadCrumbs.c_cTab, sMetadataID = None, sLastMetadataRow = None, sLastMetadata = None,
 	   lOccurenceFilter = None, cFeatureNameDelimiter="|", xOutputFile = None):
 		"""
 		Creates an abundance table from a table file.
@@ -231,6 +259,8 @@ class AbundanceTable:
 		:type:	Character	Character
 		:param	sMetadataID:	String ID that is a metadata row ID (found on the first column) and used as an ID for samples
 		:type:	String		String ID
+		:param sLastRowMetadata: The id of the last (most right column) row metadata
+		:type: String	String ID
 		:param	sLastMetadata:	The ID of the metadata that is the last metadata before measurement or feature rows.
 		:type:	String		String ID
 		:param	lOccurenceFilter: List of integers used in an occurence filter. [Min abundance, Min sample]
@@ -269,7 +299,7 @@ class AbundanceTable:
 		else:	
 			#Read in from text file to create the abundance and metadata structures
 			lContents = AbundanceTable._funcTextToStructuredArray(xInputFile=xInputFile, cDelimiter=cDelimiter,
-				sMetadataID = sMetadataID, sLastMetadata = sLastMetadata, ostmOutputFile = outputFile)
+				sMetadataID = sMetadataID, sLastMetadataRow = sLastMetadataRow, sLastMetadata = sLastMetadata, ostmOutputFile = outputFile)
 
 		#If contents is not a false then set contents to appropriate objects
 		return AbundanceTable(npaAbundance=lContents[0], dictMetadata=lContents[1], strName=str(xInputFile), strLastMetadata=sLastMetadata, rwmtRowMetadata = lContents[2],
@@ -534,8 +564,9 @@ class AbundanceTable:
 
 	  
 	#Testing Status: Light happy path testing
+        #TODO: Tim change static to class methods
 	@staticmethod
-	def _funcTextToStructuredArray(xInputFile = None, cDelimiter = ConstantsBreadCrumbs.c_cTab, sMetadataID = None, sLastMetadata = None, ostmOutputFile = None):
+	def _funcTextToStructuredArray(xInputFile = None, cDelimiter = ConstantsBreadCrumbs.c_cTab, sMetadataID = None, sLastMetadataRow = None, sLastMetadata = None, ostmOutputFile = None):
 		"""
 		Private method
 		Used to read in a file that is samples (column) and taxa (rows) into a structured array.
@@ -544,7 +575,10 @@ class AbundanceTable:
 		:type:	String		File stream or string path.
 		:param	cDelimiter:	Delimiter for parsing the input file.
 		:type:	Character	Character.
-		:param	sMetadataID:	String ID that is a metadata row ID (found on the first column) and used as an ID for samples
+		:param	sMetadataID:	String ID that is a metadata row ID (found on the first column) and used as an ID for samples. 
+					If not given it is assumed to be position 0
+		:type: String		String ID
+		:param sLastMetadataRow: String ID that is the last row metadat id (id of the most right column with row/feature metadata)
 		:type:	String		String ID
 		:param	sLastMetadata:	The ID of the metadata that is the last metadata before measurement or feature rows.
 		:type:	String		String ID
@@ -565,10 +599,16 @@ class AbundanceTable:
 		iFirstDataRow = -1
 		# Sample id row
 		namesRow = None
+		# Row metadata names
+		lsRowMetadataIDs = None
+		# Index of the last row metadata
+		iIndexLastMetadataRow = None
 		# Holds metadata {ID:[list of values]}
 		metadata = dict()
 		# Holds the data measurements [(tuple fo values)]
 		dataMatrix = []
+		# Holds row metadata { sID : [ list of values ] }
+		dictRowMetadata = {}
 		# Positional index
 		iIndex = -1
 		# File handle
@@ -582,9 +622,18 @@ class AbundanceTable:
 			iIndex += 1
 			taxId, sampleReads = lsLineElements[0], lsLineElements[1:]
 			# Read through data measurements
+			# Process them as a list of tuples (needed for structured array)
 			if iFirstDataRow > 0:
 				try:
-					dataMatrix.append(tuple([taxId] + [( float(s) if s.strip( ) else 0 ) for s in sampleReads]))
+					# Parse the sample reads, removing row metadata and storing row metadata if it exists
+					if lsRowMetadataIDs:
+						# Build expected dict for row metadata dictionary {string feature id: {'metadata': {metadatakey: [list of metadata values]}}}
+						dictFeature = dict([ [sID, [sKey]] for sID, sKey in zip( lsRowMetadataIDs, sampleReads[ 0 : iIndexLastMetadataRow ]) ])
+						if len( dictFeature ):
+							dictRowMetadata[ taxId ] = { ConstantsBreadCrumbs.c_metadata_lowercase: dictFeature }
+						dataMatrix.append(tuple([taxId] + [( float(s) if s.strip( ) else 0 ) for s in sampleReads[ iIndexLastMetadataRow: ]]))
+					else:
+						dataMatrix.append(tuple([taxId] + [( float(s) if s.strip( ) else 0 ) for s in sampleReads]))
 				except ValueError:
 					sys.stderr.write( "AbundanceTable:textToStructuredArray::Error, non-numerical value on data row. File:" + str(xInputFile) +
 						" Row:" + str(lsLineElements) + "\n" )
@@ -595,37 +644,57 @@ class AbundanceTable:
 				for i, s in enumerate( sampleReads ):
 					if not s.strip( ):
 						sampleReads[i] = ConstantsBreadCrumbs.c_strEmptyDataMetadata
-				# 
+
+				# If no id metadata (sample ids) is given then the first row is assumed to be the id row, otherwise look for the id for the metadata.
+				# Add the metadata to the containing dict
 				if ( ( not sMetadataID ) and ( iIndex == 0 ) ) or ( taxId == sMetadataID ):
 					namesRow = lsLineElements
-				metadata[taxId]=sampleReads
-				# 
+					# Remove the row metadata ids, these names are for the column ID and the samples ids
+					if sLastMetadataRow:
+						iIndexLastMetadataRow = lsLineElements.index(sLastMetadataRow)
+						lsRowMetadataIDs = namesRow[ 1 : iIndexLastMetadataRow + 1 ]
+						namesRow = [ namesRow[ 0 ] ] + namesRow[ iIndexLastMetadataRow + 1: ]
+
+						# If the sample metadata dictionary already has entries then remove the row metadata info from it.
+						if len( metadata ) and len( lsRowMetadataIDs ):
+							for sKey, lsValues in metadata.items():
+								metadata[ sKey ] = lsValues[ iIndexLastMetadataRow: ]
+
+				# Set the metadata without row metadata entries
+				metadata[taxId] = sampleReads[ iIndexLastMetadataRow: ] if len( lsRowMetadataIDs ) else sampleReads
+
+				# If the last metadata was just processed switch to data processing
 				# If the last metadata name is not given it is assumed that there is only one metadata
 				if ( not sLastMetadata ) or ( taxId == sLastMetadata ):
 					iFirstDataRow = iIndex + 1
+
+			# If writing out the data write back out the line read in.
+			# This happens at the end so that the above cleaning is captured and written.
 			if csvw:
 				csvw.writerow( [taxId] + sampleReads )
+
 		if sLastMetadata and ( not dataMatrix ):
 			sys.stderr.write( "AbundanceTable:textToStructuredArray::Error, did not find the row for the last metadata ID. File:" + str(xInputFile) +
 				" Identifier:" + sLastMetadata + "\n" )
 			return False
-		#Make sure the names are found
+
+		# Make sure the names are found
 		if namesRow == None:
 			sys.stderr.write( "AbundanceTable:textToStructuredArray::Error, did not find the row for the unique sample/column. File:" + str(xInputFile) +
 				" Identifier:" + sMetadataID + "\n" )
 			return False
 
-		#Now we know the longest taxId we can define the first column holding the tax id
-		#Gross requirement of Numpy structured arrays, a = ASCII followed by max # of characters (as a string)
+		# Now we know the longest taxId we can define the first column holding the tax id
+		# Gross requirement of Numpy structured arrays, a = ASCII followed by max # of characters (as a string)
 		longestTaxId = max( len(a[0]) for a in dataMatrix )
 		dataTypeVector = [(namesRow[0],'a' + str(longestTaxId*2))] + [(s, "f4") for s in namesRow[1:]]
-		#Create structured array
+		# Create structured array
 		taxData = np.array(dataMatrix,dtype=np.dtype(dataTypeVector))
 
 		# Returns a none currently because the PCL file specification this originally worked on did not have feature metadata
  		# Can be updated in the future.
-		#[Data (structured array), column metadata (dict), row metadata (structured array), file metadata (dict)]
-		return [taxData,metadata,RowMetadata(None),{
+		# [Data (structured array), column metadata (dict), row metadata (structured array), file metadata (dict)]
+		return [taxData, metadata, RowMetadata(dictRowMetadata = dictRowMetadata, lsRowMetadataIDs = lsRowMetadataIDs), {
                     ConstantsBreadCrumbs.c_strIDKey:ConstantsBreadCrumbs.c_strDefaultPCLID,
                     ConstantsBreadCrumbs.c_strDateKey:str(date.today()),
                     ConstantsBreadCrumbs.c_strFormatKey:ConstantsBreadCrumbs.c_strDefaultPCLFileFormateType,
@@ -2181,7 +2250,7 @@ class AbundanceTable:
 				for iIndexRowMetaData in range(0, len(BiomValue)):
 					if 'id' in BiomValue[iIndexRowMetaData]:
 						sBugName = BiomValue[iIndexRowMetaData][ConstantsBreadCrumbs.c_id_lowercase]
-						dBugNames.append(sBugName) 	#Post to the bug table
+						dBugNames.append(sBugName) 	 #Post to the bug table
 						if len(sBugName) > iMaxIdLen:    #We  are calculating dynamically the length of the ID
 							iMaxIdLen  =  len(sBugName)
 		
@@ -2303,35 +2372,29 @@ class AbundanceTable:
 		BiomCommonArea[ConstantsBreadCrumbs.c_Dtype] = BiomDtype
 		return BiomCommonArea
 
-		
-		
-
 	@staticmethod
-	def _funcBiomBuildRowMetadata(BiomValue, iMaxIdLen ):	
+	def _funcBiomBuildRowMetadata( BiomValue, iMaxIdLen ):	
 		"""
-		Builds the row metadata
-  		:param	BiomValue - Contains {id,metadata:[metadata1,...,metadatan]}
-		:type:	dict()
-		:param	iMaxIdLen - Maximum length of all the IDs
-		:type:	int
-		:return:   dRowsMetadata - np Array containing the rows metadata
-		:type:	dict()		
+		Builds the row metadata from a BIOM value
+
+  		:param	BiomValue:	BIOM Value from the BIOM JSON parsing
+		:type:			Complex dict of string pairs and dicts
+		:param	iMaxIdLen:	Maximum length of all the IDs
+		:type:			int
+		:return:		dictRowsMetadata - np Array containing the rows metadata
+		:type:			{string feature id: {'metadata': {'taxonomy': [list of metadata values]}}}	
 		"""	
-		# Build the table containing the summary of the row metadata structure  
-		dRowsMetadata = dict()
+		# Build the input dict for RowMetadata from a dict of dicts from a BIOM file 
+		dictRowsMetadata = dict()
 		for iIndexRowMetaData in range(0, len(BiomValue)):
-			dRowsMetadata[str(BiomValue[iIndexRowMetaData][ConstantsBreadCrumbs.c_id_lowercase])] = dict()
+			dictRowsMetadata[str(BiomValue[iIndexRowMetaData][ConstantsBreadCrumbs.c_id_lowercase])] = dict()
 			RowMetadataEntryFromTable = BiomValue[iIndexRowMetaData][ConstantsBreadCrumbs.c_metadata_lowercase]
 			dMetadataTempDict = dict()
 			for key, value in RowMetadataEntryFromTable.iteritems():
 				dMetadataTempDict[key] = value
-			dRowsMetadata[str(BiomValue[iIndexRowMetaData][ConstantsBreadCrumbs.c_id_lowercase])][ConstantsBreadCrumbs.c_metadata_lowercase] =  dMetadataTempDict
-		return dRowsMetadata
-	
-		
+			dictRowsMetadata[str(BiomValue[iIndexRowMetaData][ConstantsBreadCrumbs.c_id_lowercase])][ConstantsBreadCrumbs.c_metadata_lowercase] = dMetadataTempDict
+		return dictRowsMetadata
 
- 			
-		
 	@staticmethod
 	def _funcInsertKeyToCommonArea(BiomCommonArea, BiomKey, BiomValue):
 		"""

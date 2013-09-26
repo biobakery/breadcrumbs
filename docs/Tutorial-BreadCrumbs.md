@@ -266,11 +266,31 @@ R. How do I plot the biplot without metadata?
 > ./scripts/scriptBiplotTSV.R -m "" STSite demo_input/Test-Biplot.tsv
 
 ## scriptConvertBetweenBIOMAndPCL.py ##
-The script allows one to convert between PCL and BIOM file formats. ID and last metadata are optional information in the script call. These are used to dictate placement of certain key sample metadata in the PCL file. Typically, it is helpful to set the first row (or sample metadata) and the row which seperates the metadata from the measurements (indicated as last metadata) to specific metadata which are known to the user of the file. This aids in the consistent and reliable manipulation of these files. If the are not given, a guess will be made to the ID and last metadata, and the file can be modified later if needed.
+The script allows one to convert between PCL and BIOM file formats. ID, last feature (row) metadata, and last sample metadata are optional information in the script call (when converting from PCL to BIOM). These are used to dictate placement of certain key sample metadata in the PCL file. Typically, it is helpful to set these arguments. This aids in the consistent and reliable manipulation of these files. If the are not given, a guess will be made to the ID and it will be assumed no metadata exist.
 
-*** Please note, PCL files with feature metadata are NOT supported (these are stored as columns in the PCL file before the sample measurements). Sample metadata ARE supported (these are stored as rows before the feature / bug measurement row). We are actively working to add in feature metadata support. ***
+A quick definition:
+*ID or sample id* -  typically your first row in the PCL file (the Ids of all your samples) in the example below "ID"
+*Feature (row) metadata* - columns in your PCL file which describe your features. These come after your feature IDs but before your measurements.
+*Sample metadata* - rows in your PCL file which come before your measurements and describe your samples
 
-A. The minimal call to convert from BIOM file to a PCL file or visa versa. This call indicates the metadata entry which is the sample id and which is the last listed metadata in a pcl file (before the data measurements). When converting a PCL file, if there are no metadata and only a metadata id, -l  and -i is not required. If there are multiple metadata in a pcl file the -l (last metadata) field is required. Neither of these fields are required for biom file conversion to pcl.
+Here is a repsentation of a PCL file and immediately afterwards the pieces
+<table>
+ <tr><td>ID</td><td>Kingdom</td><td>Genus</td><td>Sample 1</td><td>Sample 2</td></tr>
+ <tr><td>Cohort</td><td>NA</td><td>NA</td><td>Test</td><td>Control</td></tr>
+ <tr><td>Age</td><td>NA</td><td>NA</td><td>34</td><td>43</td></tr>
+ <tr><td>1232</td><td>Bacteria</td><td>Bacteroides</td><td>.23</td><td>.16</td></tr>
+ <tr><td>543</td><td>Bacteria</td><td>Dorea</td><td>.001</td><td>.0021</td></tr>
+</table>
+
+<table>
+ <tr><td>ID</td><td>Feature metadata ID</td><td>last feature metadata ID</td><td>sample ID</td><td>ample ID</td></tr>
+ <tr><td>metadata ID</td><td>NA</td><td>NA</td><td>sample metadata</td><td>sample metadata</td></tr>
+ <tr><td>last metadata ID</td><td>NA</td><td>NA</td><td>sample metadata</td><td>sample metadata</td></tr>
+ <tr><td>Feature ID</td><td>Feature (row) metadata</td><td>Feature (row) metadata</td><td>Data measurement</td><td>Data measurement</td></tr>
+ <tr><td>Feature ID</td><td>Feature (row) metadata</td><td>Feature (row) metadata</td><td>Data measurement</td><td>Data measurement</td></tr>
+</table>
+
+A. The minimal call to convert from BIOM file to a PCL file or visa versa. This call indicates the sample metadata entry which is the sample id and which is the last listed metadata in a pcl file (before the data measurements). When converting a PCL file, if there are no metadata and only a metadata id, -l  and -i is not required. If there are multiple metadata in a pcl file the -l (last metadata) field is required. Neither of these fields are required for biom file conversion to pcl.
 
 > ./scripts/scriptConvertBetweenBIOMAndPCL.py demo_input/Test_no_metadata.pcl
 > ./scripts/scriptConvertBetweenBIOMAndPCL.py demo_input/Test.biom
@@ -281,17 +301,21 @@ B. Specifying ID and lastmetadata
 > ./scripts/scriptConvertBetweenBIOMAndPCL.py -i TID -l STSite demo_input/Test.pcl
 > ./scripts/scriptConvertBetweenBIOMAndPCL.py -i TID -l STSite demo_input/Test.biom
 
-C. The case where there are no metadata, just sample IDs
+C. The case where there are no sample metadata, just sample IDs. Indicate the ID and if no last metadata is indicated (-l) it is assumed no sample metadata exist.
 
 > ./scripts/scriptConvertBetweenBIOMAndPCL.py -i ID demo_input/Test_no_metadata.pcl
 > ./scripts/scriptConvertBetweenBIOMAndPCL.py -i ID demo_input/Test_no_metadata.biom
 
-D. Although the output file name can be automatically generated, the output file name can be given if needed.
+D. The case when converting a PCL file with Feature (row) metadata (for example taxonomy_5). Include the last column with feature metadata.
+
+> ./scripts/scriptConvertBetweenBIOMAndPCL.py -i ID -r taxonomy_5 -l STSite ./demo_input/testFeatureMetadata.pcl testFeatureMetadata.biom
+
+E. Although the output file name can be automatically generated, the output file name can be given if needed.
 
 > ./scripts/scriptConvertBetweenBIOMAndPCL.py -i TID -l STSite demo_input/Test.biom CustomFileName.pcl
 > ./scripts/scriptConvertBetweenBIOMAndPCL.py -i TID -l STSite demo_input/Test.pcl CustomFileName.biom
 
-E. Indicate the use of a pcl file using a delimiter that is not tab or indicate the creation of a pcl file using a delimier that is not tab.
+F. Indicate the use of a pcl file using a delimiter that is not tab or indicate the creation of a pcl file using a delimier that is not tab.
 
 > ./scripts/scriptConvertBetweenBIOMAndPCL.py -i TID -l STSite -f , demo_input/Test-comma.pcl
 > ./scripts/scriptConvertBetweenBIOMAndPCL.py -i TID -l STSite -f , demo_input/Test-comma.biom
