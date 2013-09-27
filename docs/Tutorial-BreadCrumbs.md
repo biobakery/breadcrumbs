@@ -274,6 +274,7 @@ A quick definition:
 *Sample metadata* - rows in your PCL file which come before your measurements and describe your samples
 
 Here is a repsentation of a PCL file and immediately afterwards the pieces
+
 <table>
  <tr><td>ID</td><td>Kingdom</td><td>Genus</td><td>Sample 1</td><td>Sample 2</td></tr>
  <tr><td>Cohort</td><td>NA</td><td>NA</td><td>Test</td><td>Control</td></tr>
