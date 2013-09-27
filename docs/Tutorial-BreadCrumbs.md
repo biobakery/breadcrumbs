@@ -275,21 +275,18 @@ A quick definition:
 
 Here is a repsentation of a PCL file and immediately afterwards the pieces
 
-<table>
- <tr><td>ID</td><td>Kingdom</td><td>Genus</td><td>Sample 1</td><td>Sample 2</td></tr>
- <tr><td>Cohort</td><td>NA</td><td>NA</td><td>Test</td><td>Control</td></tr>
- <tr><td>Age</td><td>NA</td><td>NA</td><td>34</td><td>43</td></tr>
- <tr><td>1232</td><td>Bacteria</td><td>Bacteroides</td><td>.23</td><td>.16</td></tr>
- <tr><td>543</td><td>Bacteria</td><td>Dorea</td><td>.001</td><td>.0021</td></tr>
-</table>
+ID      Kingdom   Genus        Sample 1  Sample 2
+Cohort  NA        NA           Test      Control
+Age     NA        NA           34        43
+1232    Bacteria  Bacteroides  .23       .16
+543     Bacteria  Dorea        .001      .0021
 
-<table>
- <tr><td>ID</td><td>Feature metadata ID</td><td>last feature metadata ID</td><td>sample ID</td><td>ample ID</td></tr>
- <tr><td>metadata ID</td><td>NA</td><td>NA</td><td>sample metadata</td><td>sample metadata</td></tr>
- <tr><td>last metadata ID</td><td>NA</td><td>NA</td><td>sample metadata</td><td>sample metadata</td></tr>
- <tr><td>Feature ID</td><td>Feature (row) metadata</td><td>Feature (row) metadata</td><td>Data measurement</td><td>Data measurement</td></tr>
- <tr><td>Feature ID</td><td>Feature (row) metadata</td><td>Feature (row) metadata</td><td>Data measurement</td><td>Data measurement</td></tr>
-</table>
+ID                Feature metadata ID     Last feature metadata ID    sample ID          sample ID
+Metadata ID       NA                      NA                          sample metadata    sample metadata
+Last metadata ID  NA                      NA                          sample metadata    sample metadata
+Feature ID        Feature (row) metadata  Feature (row) metadata      Data measurement   Data measurement
+Feature ID        Feature (row) metadata  Feature (row) metadata      Data measurement   Data measurement
+
 
 A. The minimal call to convert from BIOM file to a PCL file or visa versa. This call indicates the sample metadata entry which is the sample id and which is the last listed metadata in a pcl file (before the data measurements). When converting a PCL file, if there are no metadata and only a metadata id, -l  and -i is not required. If there are multiple metadata in a pcl file the -l (last metadata) field is required. Neither of these fields are required for biom file conversion to pcl.
 
