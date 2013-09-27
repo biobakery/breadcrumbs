@@ -1,0 +1,17 @@
+Although this example is delimeted with spaces for consisten visualiztion, in a PCL file each element would be delimited by one tab.
+
+Here is an example of a very small PCL file.
+
+ID      Kingdom   Genus        Sample 1  Sample 2
+Cohort  NA        NA           Test      Control
+Age     NA        NA           34        43
+1232    Bacteria  Bacteroides  .23       .16
+543     Bacteria  Dorea        .001      .0021
+
+These are the different parts of the PCL file.
+
+ID                Feature metadata ID     Last feature metadata ID    sample ID          sample ID
+Metadata ID       NA                      NA                          sample metadata    sample metadata
+Last metadata ID  NA                      NA                          sample metadata    sample metadata
+Feature ID        Feature (row) metadata  Feature (row) metadata      Data measurement   Data measurement
+Feature ID        Feature (row) metadata  Feature (row) metadata      Data measurement   Data measurement

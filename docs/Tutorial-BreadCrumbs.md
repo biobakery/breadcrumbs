@@ -273,20 +273,7 @@ A quick definition:
 *Feature (row) metadata* - columns in your PCL file which describe your features. These come after your feature IDs but before your measurements.
 *Sample metadata* - rows in your PCL file which come before your measurements and describe your samples
 
-Here is a repsentation of a PCL file and immediately afterwards the pieces
-
-ID      Kingdom   Genus        Sample 1  Sample 2
-Cohort  NA        NA           Test      Control
-Age     NA        NA           34        43
-1232    Bacteria  Bacteroides  .23       .16
-543     Bacteria  Dorea        .001      .0021
-
-ID                Feature metadata ID     Last feature metadata ID    sample ID          sample ID
-Metadata ID       NA                      NA                          sample metadata    sample metadata
-Last metadata ID  NA                      NA                          sample metadata    sample metadata
-Feature ID        Feature (row) metadata  Feature (row) metadata      Data measurement   Data measurement
-Feature ID        Feature (row) metadata  Feature (row) metadata      Data measurement   Data measurement
-
+For a description of a PCL and it's parts please look in the docs folder for PCL-Description.txt
 
 A. The minimal call to convert from BIOM file to a PCL file or visa versa. This call indicates the sample metadata entry which is the sample id and which is the last listed metadata in a pcl file (before the data measurements). When converting a PCL file, if there are no metadata and only a metadata id, -l  and -i is not required. If there are multiple metadata in a pcl file the -l (last metadata) field is required. Neither of these fields are required for biom file conversion to pcl.
 
