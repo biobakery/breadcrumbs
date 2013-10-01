@@ -661,7 +661,7 @@ class AbundanceTable:
 								metadata[ sKey ] = lsValues[ iIndexLastMetadataRow: ]
 
 				# Set the metadata without row metadata entries
-				metadata[taxId] = sampleReads[ iIndexLastMetadataRow: ] if len( lsRowMetadataIDs ) else sampleReads
+				metadata[taxId] = sampleReads[ iIndexLastMetadataRow: ] if (lsRowMetadataIDs and len( lsRowMetadataIDs )) else sampleReads
 
 				# If the last metadata was just processed switch to data processing
 				# If the last metadata name is not given it is assumed that there is only one metadata
