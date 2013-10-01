@@ -584,13 +584,16 @@ class AbundanceTable:
 		:type:	String		String ID
 		:param	ostmOutputFile:	Output File to write to if needed. None does not write the file.
 		:type:	FileStream or String
-		:return	[taxData,metadata,rowmetadata]:	Numpy Structured Array of abundance data and dictionary of metadata.
-										Metadata is a dictionary as such {"ID", [value,value,values...]}
-										Values are in the order thety are read in (and the order of the sample names).
-										ID is the first column in each metadata row.
-										rowmetadata is a optional Numpy strucured array (can be None if not made)
-										The rowmetadata and taxData row Ids should match
-										[Numpy structured Array, Dictionary, Numpy structured array]
+		:return	[taxData,metadata,rowmetadata]: Numpy Structured Array of abundance data and dictionary of metadata.
+ 										Metadata is a dictionary as such {"ID", [value,value,values...]}
+ 										Values are in the order thety are read in (and the order of the sample names).
+ 										ID is the first column in each metadata row.
+-										rowmetadata is a optional Numpy strucured array (can be None if not made)
++										rowmetadata is a optional RowMetadata object (can be None if not made)
+ 										The rowmetadata and taxData row Ids should match
+-										[Numpy structured Array, Dictionary, Numpy structured array]
++										The last dict is a collection of BIOM fielparameters when converting from a BIOM file
++										[Numpy structured Array, Dictionary, Numpy structured array, dict]
 		"""
 
 		# Open file from a stream or file path
@@ -621,6 +624,7 @@ class AbundanceTable:
 		for lsLineElements in csv.reader( istmInput, dialect = csv.excel_tab, delimiter = cDelimiter ):
 			iIndex += 1
 			taxId, sampleReads = lsLineElements[0], lsLineElements[1:]
+
 			# Read through data measurements
 			# Process them as a list of tuples (needed for structured array)
 			if iFirstDataRow > 0:
@@ -1875,7 +1879,7 @@ class AbundanceTable:
 		f = csv.writer(open( xOutputFile, "w" ) if isinstance(xOutputFile, str) else xOutputFile, csv.excel_tab, delimiter=cDelimiter)
 		
 		# Get Row metadata id info (IDs for column header, keys that line up with the ids)
-		lsRowMetadataIDs, lsRowMetadataIDKeys = self.rwmtRowMetadata.funcMakeIDs()
+		lsRowMetadataIDs, lsRowMetadataIDKeys = self.rwmtRowMetadata.funcMakeIDs() if self.rwmtRowMetadata else [[],[]]
 
 		#Write Ids
 		f.writerows([[self.funcGetIDMetadataName()]+lsRowMetadataIDs+list(self.funcGetSampleNames())])
@@ -1983,12 +1987,11 @@ class AbundanceTable:
 							  lMetaData,
 							  constructor=SparseOTUTable)
 		else:				#There was metadata in the rows
-
 			BiomTable = table_factory(arrData,
 							  lSampNames,
 							  lObservationIds,
 							  lMetaData,
-							  lObservationMetadataTable,
+							  lObservationMetadataTable if len(lObservationMetadataTable) > 0 else None,
 							  constructor=SparseOTUTable)	
 	  
 		#**************************

@@ -277,19 +277,19 @@ For a description of a PCL and it's parts please look in the docs folder for PCL
 
 A. The minimal call to convert from BIOM file to a PCL file or visa versa. This call indicates the sample metadata entry which is the sample id and which is the last listed metadata in a pcl file (before the data measurements). When converting a PCL file, if there are no metadata and only a metadata id, -l  and -i is not required. If there are multiple metadata in a pcl file the -l (last metadata) field is required. Neither of these fields are required for biom file conversion to pcl.
 
-> ./scripts/scriptConvertBetweenBIOMAndPCL.py demo_input/Test_no_metadata.pcl
-> ./scripts/scriptConvertBetweenBIOMAndPCL.py demo_input/Test.biom
-> ./scripts/scriptConvertBetweenBIOMAndPCL.py -l STSite demo_input/Test.pcl
+> ./scripts/scriptConvertBetweenBIOMAndPCL.py demo_input/Test_no_metadata.pcl example1.biom
+> ./scripts/scriptConvertBetweenBIOMAndPCL.py demo_input/Test.biom example2.pcl
+> ./scripts/scriptConvertBetweenBIOMAndPCL.py -l STSite demo_input/Test.pcl example3.biom
 
 B. Specifying ID and lastmetadata
 
-> ./scripts/scriptConvertBetweenBIOMAndPCL.py -i TID -l STSite demo_input/Test.pcl
-> ./scripts/scriptConvertBetweenBIOMAndPCL.py -i TID -l STSite demo_input/Test.biom
+> ./scripts/scriptConvertBetweenBIOMAndPCL.py -i TID -l STSite demo_input/Test.pcl example4.biom
+> ./scripts/scriptConvertBetweenBIOMAndPCL.py -i TID -l STSite demo_input/Test.biom example5.pcl
 
 C. The case where there are no sample metadata, just sample IDs. Indicate the ID and if no last metadata is indicated (-l) it is assumed no sample metadata exist.
 
-> ./scripts/scriptConvertBetweenBIOMAndPCL.py -i ID demo_input/Test_no_metadata.pcl
-> ./scripts/scriptConvertBetweenBIOMAndPCL.py -i ID demo_input/Test_no_metadata.biom
+> ./scripts/scriptConvertBetweenBIOMAndPCL.py -i ID demo_input/Test_no_metadata.pcl example6.biom
+> ./scripts/scriptConvertBetweenBIOMAndPCL.py -i ID demo_input/Test_no_metadata.biom example7.pcl
 
 D. The case when converting a PCL file with Feature (row) metadata (for example taxonomy_5). Include the last column with feature metadata.
 
