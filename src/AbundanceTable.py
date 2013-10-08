@@ -187,6 +187,7 @@ class AbundanceTable:
 		self.strId = dictFileMetadata.get(ConstantsBreadCrumbs.c_strIDKey,None) if dictFileMetadata else None
 
 		#The lastmetadata name (which should be preserved when writing the file)
+		# Can be a None if biom file is read in.
 		self._strLastMetadataName = strLastMetadata
 
 		#The original number of features in the table
@@ -1886,9 +1887,9 @@ class AbundanceTable:
 
 		#Write column metadata
 		lsKeys = list(set(self._dictTableMetadata.keys())-set([self.funcGetIDMetadataName(),self.funcGetLastMetadataName()]))
-		lMetadataIterations = list(set(lsKeys+[self.funcGetLastMetadataName()] ) -set([None]))  #Try to remove None ---> Need to recheck!!!!
+		lMetadataIterations = list(set(lsKeys+[self.funcGetLastMetadataName()] ))
 
-		f.writerows([[sMetaKey]+([ConstantsBreadCrumbs.c_strEmptyDataMetadata]*len(lsRowMetadataIDs))+self.funcGetMetadata(sMetaKey) for sMetaKey in lMetadataIterations if sMetaKey != self.funcGetIDMetadataName()]) 
+		f.writerows([[sMetaKey]+([ConstantsBreadCrumbs.c_strEmptyDataMetadata]*len(lsRowMetadataIDs))+self.funcGetMetadata(sMetaKey) for sMetaKey in lMetadataIterations if sMetaKey != self.funcGetIDMetadataName() and not sMetaKey is None]) 
 
 		#Write abundance
 		lsOutput = list()
@@ -2251,7 +2252,7 @@ class AbundanceTable:
 			if BiomKey == ConstantsBreadCrumbs.c_rows:
 				iMaxIdLen = 0 
 				for iIndexRowMetaData in range(0, len(BiomValue)):
-					if 'id' in BiomValue[iIndexRowMetaData]:
+					if ConstantsBreadCrumbs.c_id_lowercase in BiomValue[iIndexRowMetaData]:
 						sBugName = BiomValue[iIndexRowMetaData][ConstantsBreadCrumbs.c_id_lowercase]
 						dBugNames.append(sBugName) 	 #Post to the bug table
 						if len(sBugName) > iMaxIdLen:    #We  are calculating dynamically the length of the ID
