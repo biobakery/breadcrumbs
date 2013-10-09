@@ -27,14 +27,48 @@ __maintainer__ = "Timothy Tickle"
 __email__ = "ttickle@sph.harvard.edu"
 __status__ = "Development"
 
+<<<<<<< local
+MIN_SETUPTOOLS = '0.6.28'
+
+import sys
+=======
+>>>>>>> other
 import subprocess
 
+<<<<<<< local
+import setuptools
+from distutils.version import StrictVersion
+
+arguments = sys.argv[1:]
+
+if StrictVersion(setuptools.__version__) < StrictVersion(MIN_SETUPTOOLS):
+    print "Your version of distribute (%s) it too low. (must be >= %s)" %(
+        setuptools.__version__, MIN_SETUPTOOLS)
+    print "Now upgrading distribute..."
+
+    subprocess.check_call('pip install --upgrade distribute'.split())
+
+    print "Complete. New version: %s" %(setuptools.__version__)
+=======
 from setuptools import setup, find_packages
+>>>>>>> other
 
 subprocess.check_call('pip install numpy==1.7.1'.split())
+<<<<<<< local
+=======
 subprocess.check_call('pip install scipy==0.12.0'.split())
+>>>>>>> other
 subprocess.check_call('pip install https://github.com/bipy/pyqi/archive/v0.2.0.tar.gz#egg=pyqi-0.2.0'.split())
+<<<<<<< local
+subprocess.check_call('pip install -r requirements.txt'.split())
+cmd = 'python actually_setup.py'.split()
+cmd.extend(arguments)
+subprocess.check_call(cmd)
+=======
+>>>>>>> other
 
+<<<<<<< local
+=======
 setup(
     name='breadcrumbs',
     author="Timothy Tickle",
@@ -51,7 +85,10 @@ setup(
         'matplotlib==1.3.0',
         'numpy==1.7.1',
         'scipy==0.12.0',
+>>>>>>> other
 
+<<<<<<< local
+=======
         'pyqi==0.2.0',
         'biom-format==1.2.0',
     ],
@@ -62,3 +99,4 @@ setup(
         "Development Status :: 4 - Beta"
     ],
 )
+>>>>>>> other
