@@ -73,9 +73,9 @@ B. How do I normalize a table?
 *Filtering*  
 C. How do I filter a normalized table by percentage?
 
-This filters out bugs that are not in the top 0.95 percentage of at least 0.05 percent of the samples (a good default).
+This filters out bugs that are not in the top 95 percentage of at least 5 percent of the samples (a good default).
 
-> scripts/scriptManipulateTable.py -i TID -l STSite -P 0.95,0.05 demo_input/Test.pcl
+> scripts/scriptManipulateTable.py -i TID -l STSite -P 95,5 demo_input/Test.pcl
 
 D. How do I filter a normalized table by a minimum abundance?  
 
