@@ -250,7 +250,7 @@ class AbundanceTable:
 
 	@staticmethod
 	def funcMakeFromFile(xInputFile, cDelimiter = ConstantsBreadCrumbs.c_cTab, sMetadataID = None, sLastMetadataRow = None, sLastMetadata = None,
-	   lOccurenceFilter = None, cFeatureNameDelimiter="|", xOutputFile = None):
+	   lOccurenceFilter = None, cFeatureNameDelimiter="|", xOutputFile = None, strFormat = None):
 		"""
 		Creates an abundance table from a table file.
 
@@ -281,8 +281,9 @@ class AbundanceTable:
 		#    Check if file is a biom file - if so invoke the biom routine               #
 		#################################################################################
 		strFileName = xInputFile if isinstance(xInputFile, str) else xInputFile.name
+
                 # Determine the file read function by file extension
-		if  strFileName.endswith(ConstantsBreadCrumbs.c_strBiomFile):
+		if strFileName.endswith(ConstantsBreadCrumbs.c_strBiomFile) or (strFormat == ConstantsBreadCrumbs.c_strBiomFile):
 			BiomCommonArea = AbundanceTable._funcBiomToStructuredArray(xInputFile)
 			if  BiomCommonArea:
 				lContents = [BiomCommonArea[ConstantsBreadCrumbs.c_BiomTaxData],
@@ -297,10 +298,13 @@ class AbundanceTable:
 			else:
 				# return false on failure
 				lContents = False
-		else:	
+		elif( strFileName.endswith(ConstantsBreadCrumbs.c_strPCLFile) or (strFormat == ConstantsBreadCrumbs.c_strPCLFile) ):	
 			#Read in from text file to create the abundance and metadata structures
 			lContents = AbundanceTable._funcTextToStructuredArray(xInputFile=xInputFile, cDelimiter=cDelimiter,
 				sMetadataID = sMetadataID, sLastMetadataRow = sLastMetadataRow, sLastMetadata = sLastMetadata, ostmOutputFile = outputFile)
+                else:
+                  print("I do not understand the format to read and write the data as, please use the correct file extension or indicate a type.")
+                  return( false )
 
 		#If contents is not a false then set contents to appropriate objects
 		return AbundanceTable(npaAbundance=lContents[0], dictMetadata=lContents[1], strName=str(xInputFile), strLastMetadata=sLastMetadata, rwmtRowMetadata = lContents[2],
@@ -568,6 +572,7 @@ class AbundanceTable:
         #TODO: Tim change static to class methods
 	@staticmethod
 	def _funcTextToStructuredArray(xInputFile = None, cDelimiter = ConstantsBreadCrumbs.c_cTab, sMetadataID = None, sLastMetadataRow = None, sLastMetadata = None, ostmOutputFile = None):
+
 		"""
 		Private method
 		Used to read in a file that is samples (column) and taxa (rows) into a structured array.
@@ -1857,7 +1862,7 @@ class AbundanceTable:
 
 		#  Check file type: If pcl: Write pcl file; If biom: write biom file;  If None - write pcl file
 		if(cFileType == None):		
-				cFileType == ConstantsBreadCrumbs.c_strPCLFile 
+			cFileType == ConstantsBreadCrumbs.c_strPCLFile 
 				
 		if(cFileType == ConstantsBreadCrumbs.c_strPCLFile):
 			# Write as a pcl file

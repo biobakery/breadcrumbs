@@ -304,3 +304,8 @@ F. Indicate the use of a pcl file using a delimiter that is not tab or indicate 
 
 > ./scripts/scriptConvertBetweenBIOMAndPCL.py -i TID -l STSite -f , demo_input/Test-comma.pcl
 > ./scripts/scriptConvertBetweenBIOMAndPCL.py -i TID -l STSite -f , demo_input/Test-comma.biom
+
+G. Piping the input and output data. If piping is used (-p) one must pipe in and out in stdin and stdout. As well, indicate what format the file should be written in with -m . Here is an example
+
+> cat demo_input/Test_no_metadata.pcl | ./scripts/scriptConvertBetweenBIOMAndPCL.py -p -m biom
+> cat demo_input/Test_no_metadata.biom | ./scripts/scriptConvertBetweenBIOMAndPCL.py -p -m pcl
