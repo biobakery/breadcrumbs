@@ -49,6 +49,7 @@ if StrictVersion(setuptools.__version__) < StrictVersion(MIN_SETUPTOOLS):
 subprocess.check_call('pip install numpy==1.7.1'.split())
 subprocess.check_call('pip install scipy==0.12.0'.split())
 subprocess.check_call('pip install https://github.com/bipy/pyqi/archive/v0.2.0.tar.gz#egg=pyqi-0.2.0'.split())
+subprocess.check_call('pip install -r requirements.txt'.split())
 cmd = 'python actually_setup.py'.split()
 cmd.extend(arguments)
 subprocess.check_call(cmd)
