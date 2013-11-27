@@ -15,11 +15,11 @@ __status__ = "Development"
 
 import sys
 import argparse
-from AbundanceTable import AbundanceTable
-from Metric import Metric
+from breadcrumbs.src import AbundanceTable
+from breadcrumbs.src import Metric
 import csv
 import os
-from PCoA import PCoA
+from breadcrumbs.src import PCoA
 
 #Set up arguments reader
 argp = argparse.ArgumentParser( prog = "scriptPcoa.py",

@@ -13,9 +13,9 @@ __maintainer__ = "Timothy Tickle"
 __email__ = "ttickle@hsph.harvard.edu"
 __status__ = "Development"
 
-from AbundanceTable import AbundanceTable
+from breadcrumbs.src import AbundanceTable
 import argparse
-from ConstantsBreadCrumbs import ConstantsBreadCrumbs
+from breadcrumbs.src import ConstantsBreadCrumbs
 import os
 import sys
 

@@ -19,9 +19,8 @@ import sys
 import re
 import os
 import numpy as np
-from AbundanceTable import AbundanceTable
-#from src.PCA import PCA
-from ValidateData import ValidateData
+from breadcrumbs.src import AbundanceTable
+from breadcrumbs.src import ValidateData
 
 #Set up arguments reader
 argp = argparse.ArgumentParser( prog = "scriptManipulateTable.py",
