@@ -13,6 +13,8 @@ BreadCrumbs is an unofficial collection of scripts and code intended to consolid
 6. SciPy 		http://www.scipy.org/install.html
 7. biom support 	http://biom-format.org/
 
+*Dependencies will install, if needed, with the setup.py install function.*
+
 
 ## How to download ##
 
@@ -24,6 +26,13 @@ To update BreadCrumbs, in the BreadCrumbs directory use the 2 commands sequentia
 
 > hg pull  
 > hg update
+
+
+## Install: ##
+
+To install please use the setup.py script in a terminal.
+
+> python setup.py install
 
 
 ## Scripts: ##
@@ -99,7 +108,7 @@ Brief descriptions of classes are as follows. More detailed descriptions are giv
 
 
 ## Contributing Authors: ##
-Timothy Tickle, George Weingart, Nicola Segata, Curtis Huttenhower
+Timothy Tickle, George Weingart, Nicola Segata, Randall Schwager, Curtis Huttenhower
 
 
 ## Contact: ##

@@ -17,9 +17,9 @@ import sys
 import argparse
 import csv
 import os
-from breadcrumbs.src import BoxPlot
-from breadcrumbs.src import Histogram
-from breadcrumbs.src import ScatterPlot
+from breadcrumbs.src.BoxPlot import BoxPlot
+from breadcrumbs.src.Histogram import Histogram
+from breadcrumbs.src.ScatterPlot import ScatterPlot
 
 def funcPlotBoxPlot(lxVariable1,lxVariable2,fOneIsNumeric):
 

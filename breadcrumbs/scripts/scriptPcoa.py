@@ -15,11 +15,11 @@ __status__ = "Development"
 
 import sys
 import argparse
-from breadcrumbs.src import AbundanceTable
-from breadcrumbs.src import Metric
+from breadcrumbs.src.AbundanceTable import AbundanceTable
+from breadcrumbs.src.Metric import Metric
 import csv
 import os
-from breadcrumbs.src import PCoA
+from breadcrumbs.src.PCoA import PCoA
 
 #Set up arguments reader
 argp = argparse.ArgumentParser( prog = "scriptPcoa.py",
@@ -36,7 +36,7 @@ argp.add_argument("-n","--doNorm", dest="fDoNormData", action="store_true", defa
 argp.add_argument("-s","--doSum", dest="fDoSumData", action="store_true", default=False, help="Flag to turn on summation")
 
 argp.add_argument("-p","--paint", dest="sLabel", metavar= "Label", default=None, help="Label to paint in the PCoA")
-argp.add_argument("-m","--metric", dest="strMetric", metavar = "distance", default = PCoA.c_BRAY_CURTIS, help ="Distance metric to use. Pick from braycurtis, canberra, chebyshev, cityblock, correlation, cosine, euclidean, hamming, spearman, sqeuclidean, unifrac_unweighted, unifrac_weighted")
+argp.add_argument("-m","--metric", dest="strMetric", metavar = "distance", default = "braycurtis", help ="Distance metric to use. Pick from braycurtis, canberra, chebyshev, cityblock, correlation, cosine, euclidean, hamming, spearman, sqeuclidean, unifrac_unweighted, unifrac_weighted")
 argp.add_argument("-o","--outputFile", dest="strOutFile", metavar= "outputFile", default=None, help="Specify the path for the output figure.")
 argp.add_argument("-D","--DistanceMatrix", dest="strFileDistanceMatrix", metavar= "strFileDistanceMatrix", default=None, help="Specify the path for outputing the distance matrix (if interested). Default this will not output.")
 argp.add_argument("-C","--CoordinatesMatrix", dest="strFileCoordinatesMatrix", metavar= "strFileCoordinatesMatrix", default=None, help="Specify the path for outputing the x,y coordinates matrix (Dim 1 and 2). Default this will not output.")
