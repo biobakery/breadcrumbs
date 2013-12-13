@@ -219,7 +219,7 @@ class PCoA:
         return(self.lsIDs)
 
     #Happy path tested
-    def plot(self, tempPlotName="PCOA.png", tempColorGrouping=None, tempShape=None, tempLabels=None, tempShapeSize=None, tempAlpha = 1.0, tempLegendLocation="upper right", tempInvert=False, iDim1 = 1, iDim2 = 2):
+    def plot(self, tempPlotName="PCOA.png", tempColorGrouping=None, tempShape=None, tempLabels=None, tempShapeSize=None, tempAlpha = 1.0, tempLegendLocation="upper right", tempInvert=False, iDim1=1, iDim2=2, fPlotOutline=True):
         """
         Plots the provided data by the given distance matrix in the file.
         All lists should be in order in relation to each other.
@@ -247,6 +247,8 @@ class PCoA:
         :type: Integer Greater than 1.
         :param iDim2: Second dimension to plot.
         :type: Integer Greater than 1.
+        :param fPlotOutline: Draw outline line around markers
+        :type: boolean (True indicates draw outline)
         :return boolean: Indicator of success (True)
         """
 
@@ -331,7 +333,7 @@ class PCoA:
                 print "PCoA::plot:Size list length=", len(tempShapeSize) 
                 print "PCoA::plot:iPointCount=", iPointCount
                 return False
-            elif ValidateData.funcIsValidInteger(tempShapeSize):
+            elif(ValidateData.funcIsValidInteger(tempShapeSize)):
                 tempShapeSize = [tempShapeSize] * iPointCount
             else:
                 print "PCoA::plot:tempShapeSize was of an unexpected type. Expecting None, List, string, or char."
@@ -351,7 +353,7 @@ class PCoA:
             imgSubplot.yaxis.label.set_color(self.objFigureControl.c_strDetailsColorLetter)
             imgSubplot.tick_params(axis='x', colors=self.objFigureControl.c_strDetailsColorLetter)
             imgSubplot.tick_params(axis='y', colors=self.objFigureControl.c_strDetailsColorLetter)
-            charMarkerEdgeColor = self.objFigureControl.c_strDetailsColorLetter
+            charMarkerEdgeColor = self.objFigureControl.c_strDetailsColorLetter if fPlotOutline else "none"  
 
             #If given a list of colors, each color will be plotted individually stratified by shape
             #Plot colors seperately so the legend will pick up on the labels and make a legend
@@ -468,7 +470,7 @@ class PCoA:
                             #Separate out the background printing
                             dictPlotGroups.setdefault(len(aiXPointsPerShape), []).append([aiXPointsPerShape,aiYPointsPerShape,[charColor],aCharShapeElement,tempAlpha,strShapeLabel[0],strShapeSizes,charMarkerEdgeColor])
 
-                    #Plot each color starting with largest color amount to smallest color anmount so small groups will not be covered up by larger groups
+                    #Plot each color starting with largest color amount to smallest color amount so small groups will not be covered up by larger groups
                     #Plot other colors in increasing order
                     for sPlotGroupKey in sorted(list(dictPlotGroups.keys()), reverse=True):
                         lslsCurPlotGroup = dictPlotGroups[sPlotGroupKey]
@@ -684,7 +686,7 @@ class PCoA:
         return ldWedge
 
     #Happy Path Tested
-    def plotList(self, lsLabelList, strOutputFileName, iSize=20, dAlpha=1.0, charForceColor=None, charForceShape=None, fInvert=False, iDim1=1, iDim2=2):
+    def plotList(self, lsLabelList, strOutputFileName, iSize=20, dAlpha=1.0, charForceColor=None, charForceShape=None, fInvert=False, iDim1=1, iDim2=2, fPlotOutline=True, sLegendLocation="upper right"):
         """
         Convenience method used to plot data in the PCoA given a label list (which is in order of the underlying data).
         This is for the scenario where you do not care that the color or shape of the data will be as long as it varies
@@ -702,8 +704,8 @@ class PCoA:
         :type: Double between 0.0 and 1.0
         :param charForceColor: Color to force the points to. (Must be understandable by matplotlib as a color [ie. 'k','m','c','r','g','b','y','w'])
         :type: Character
-        :param charForceShape: Shape to force the points to. (Must be understandable by matplotlib as a shape [ie. 'o','s','^','v','<','>','8','p','h'])
-        :type: Character
+        :param charForceShape: Shape to force the points to. (Must be understandable by matplotlib as a shape [ie. 'o','s','^','v','<','>','8','p','h']), False makes all shapes a circle.
+        :type: Character or False
         :param fInvert: Allows one to invert the background and plot details from white to black (True == background is black).
         :type: Boolean
         :param iDim1: The first dimension to plot
@@ -729,6 +731,8 @@ class PCoA:
                 return False
             #Make label shapes
             alLabelShapes = [ acharShapes[acharUniqueValues.index(sMetadata)] for sMetadata in lsLabelList ]
+        elif charForceShape == False:
+            alLabelShapes = [ self.objFigureControl.c_cPCoAShapeDefault ] * len(lsLabelList)
         else:
             alLabelShapes = charForceShape
 
@@ -736,24 +740,10 @@ class PCoA:
         if charForceColor == None:
             #Get colors based on labels
             atupldColors = [Utility.RGBToHex(cm.jet(float(iUniqueValueIndex)/float(iCountUniqueValues))) for iUniqueValueIndex in xrange(0,iCountUniqueValues)]
-            #Make sure generated colors are unique
-            if not iCountUniqueValues == len(set(atupldColors)):
-                print "PCoA::plotList:Error, generated colors were not unique for each unique label value."
-                print "Labels"
-                print lsLabelList
-                print len(lsLabelList)
-                print "Unique Labels"
-                print set(lsLabelList)
-                print len(set(lsLabelList))
-                print "Colors"
-                print atupldColors
-                print len(atupldColors)
-                print "Unique Colors"
-                print set(atupldColors)
-                print len(set(atupldColors))
-                return False
             #Make label coloring
-            atupldLabelColors = [ atupldColors[acharUniqueValues.index(sMetadata)] for sMetadata in lsLabelList ]
+            atupldLabelColors = [ atupldColors[acharUniqueValues.index(sMetadata) ] for sMetadata in lsLabelList ]
+        elif type( charForceColor ) is dict:
+            atupldLabelColors = [ charForceColor.get(sMetadata,self.objFigureControl.c_cPCoAColorDefault) for sMetadata in lsLabelList ]
         #If the coloring is forced, color so it is based on the charForcedColor list
         elif(ValidateData.funcIsValidList(charForceColor)):
             atupldLabelColors = charForceColor[0]
@@ -772,7 +762,7 @@ class PCoA:
             atupldLabelColors = charForceColor
 
         #Call plot
-        self.plot(tempPlotName=strOutputFileName, tempColorGrouping=atupldLabelColors, tempShape=alLabelShapes, tempLabels=lsLabelList, tempShapeSize = iSize, tempAlpha=dAlpha, tempInvert = fInvert, iDim1=iDim1, iDim2=iDim2)
+        self.plot(tempPlotName=strOutputFileName, tempColorGrouping=atupldLabelColors, tempShape=alLabelShapes, tempLabels=lsLabelList, tempShapeSize = iSize, tempAlpha=dAlpha, tempLegendLocation=sLegendLocation , tempInvert = fInvert, iDim1=iDim1, iDim2=iDim2, fPlotOutline=fPlotOutline)
 
     def funcForceXAxis(self, dList):
         """

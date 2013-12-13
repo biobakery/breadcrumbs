@@ -49,6 +49,39 @@ F. How do I make a PCoA using unifrac type metrics.
 > scriptPcoa.py -m unifrac_weighted -t demo_input/GreenGenesCore-May09.ref.tre -e demo_input/fastunifrac_Ley_et_al_NRM_2_sample_id_map.txt -c demo_input/fastunifrac_Ley_et_al_NRM_2_sample_id_map-colors.txt
 > scriptPcoa.py -m unifrac_unweighted -t demo_input/GreenGenesCore-May09.ref.tre -e demo_input/fastunifrac_Ley_et_al_NRM_2_sample_id_map.txt -c demo_input/fastunifrac_Ley_et_al_NRM_2_sample_id_map-colors.txt
 
+G. How do I change the marker transparency?
+Use -a , --alpha . Change alpha to .5 (half) remember 0-1 are the range of values, 0 = invisible, 1 = no transparency
+
+> python scriptPcoa.py -a .5 -i TID -l STSite -p STSite -o TestChangeAlpha.pdf ../demo_input/Test.pcl
+
+H. How do I turn off marker outlining (black outlining line)
+Use -u or --outlining
+> python scriptPcoa.py -u -i TID -l STSite -p STSite -o TestNoOutline.pdf ../demo_input/Test.pcl
+
+I. How do i make the markers bigger in size? Use the -z or --size argument with an integer value (default 20). Bigger numbers are bigger shapes.
+
+> python scriptPcoa.py -z 40 -i TID -l STSite -p STSite -o TestSizeBigMarkers.pdf ../demo_input/Test.pcl
+
+J. How do I make the markers smaller in size? Use the -z or --size argument with an integer value (default 20). Smaller numbers are smaller shapes, no negative numbers please.
+
+> python scriptPcoa.py -z 5 -i TID -l STSite -p STSite -o TestSizeSmallMarkers.pdf ../demo_input/Test.pcl
+
+K. How do I move the lengend?
+Use the -g or --legend (valid locations are upper_right, upper_left, lower_left, lower_right, right, center_left, center_right, lower_center, upper_center, center)
+
+> python scriptPcoa.py -g lower_right -i TID -l STSite -p STSite -o TestLegend.pdf ../demo_input/Test.pcl
+
+L. How do I turn off the shapes?
+Use -S, --noShape to make all the markers circles.
+
+> python scriptPcoa.py -S -i TID -l STSite -p STSite -o TestNoShape.pdf ../demo_input/Test.pcl
+
+M. How do I force the coloring of the markers?
+Use the -r, --customColor and give colors based on the legend labels. Pairs are label:color and are comma delimited, no white spaces please!
+
+> python scriptPcoa.py -r "R_Retroauricular_crease:red,R_Antecubital_fossa:orange,L_Antecubital_fossa:yellow,L_Retroauricular_crease:green,Subgingival_plaque:blue" -i TID -l STSite -p STSite -o TestCustomColor.pdf ../demo_input/Test.pcl
+
+
 There already exists a collection of functionality surrounding unifrac distances in Qiime and related software. We support these metrics here for completeness, if your need is not met here, please look into Qiime and related software for a solutions with a more rich collection of functionality.
 
 ## scriptManipulateTable.py ##

@@ -25,6 +25,10 @@ from breadcrumbs.src.PCoA import PCoA
 argp = argparse.ArgumentParser( prog = "scriptPcoa.py",
     description = """PCoAs an abundance file given a metadata.\nExample:python scriptPcoa.py -i TID -l STSite""" )
 
+lsLegendLocations=["upper_right","upper_left","lower_left","lower_right","right","center_left","center_right","lower_center","upper_center","center"]
+
+#Todo make dict from coloring, check help.
+
 #Arguments
 #For table
 argp.add_argument("-i","--id", dest="sIDName", default="ID", help="Abundance Table ID")
@@ -36,10 +40,18 @@ argp.add_argument("-n","--doNorm", dest="fDoNormData", action="store_true", defa
 argp.add_argument("-s","--doSum", dest="fDoSumData", action="store_true", default=False, help="Flag to turn on summation")
 
 argp.add_argument("-p","--paint", dest="sLabel", metavar= "Label", default=None, help="Label to paint in the PCoA")
-argp.add_argument("-m","--metric", dest="strMetric", metavar = "distance", default = "braycurtis", help ="Distance metric to use. Pick from braycurtis, canberra, chebyshev, cityblock, correlation, cosine, euclidean, hamming, spearman, sqeuclidean, unifrac_unweighted, unifrac_weighted")
+argp.add_argument("-m","--metric", dest="strMetric", metavar = "distance", default = "braycurtis", help ="Distance metric to use default is braycurtis. Pick from braycurtis, canberra, chebyshev, cityblock, correlation, cosine, euclidean, hamming, spearman, sqeuclidean, unifrac_unweighted, unifrac_weighted")
 argp.add_argument("-o","--outputFile", dest="strOutFile", metavar= "outputFile", default=None, help="Specify the path for the output figure.")
 argp.add_argument("-D","--DistanceMatrix", dest="strFileDistanceMatrix", metavar= "strFileDistanceMatrix", default=None, help="Specify the path for outputing the distance matrix (if interested). Default this will not output.")
 argp.add_argument("-C","--CoordinatesMatrix", dest="strFileCoordinatesMatrix", metavar= "strFileCoordinatesMatrix", default=None, help="Specify the path for outputing the x,y coordinates matrix (Dim 1 and 2). Default this will not output.")
+
+# Visualization
+argp.add_argument("-a","--alpha", dest="iAlpha", default = 1.0,  action="store", type = float, help="Level of transparency for plotting points.")
+argp.add_argument("-u","--outlining", dest="fOutline", default = True, action="store_false", help="Flag which is used to turn off black line outlining of markers.")
+argp.add_argument("-z","--size", dest="iSize", default=20, action="store", type = int, help="The size of the markers, default is 20.")
+argp.add_argument("-g","--legend", dest="sLocation", default=lsLegendLocations[0], choices=lsLegendLocations, action="store", help="Location of the legend. Default="+lsLegendLocations[0]+" Can be any of the following "+",".join(lsLegendLocations)+".")
+argp.add_argument("-S","--noShape", dest="fDoNotPlotShapes", default=False, action="store_true", help="Will plot all shapes the same (in scenarios where you have many labels.")
+argp.add_argument("-r","--customColor", dest="sCustomColor", default=None, action="store", help="A comma delimited list of label color pairs delimited by : , example label1:color1,label2:color2,label2,color3 or gut:cyan,skin:red,tongue:orange")
 
 # Unifrac arguments
 argp.add_argument("-t","--unifracTree", dest="istrmTree", metavar="UnifracTreeFile", default=None, help="Optional file only needed for UniFrac calculations.")
@@ -47,8 +59,13 @@ argp.add_argument("-e","--unifracEnv", dest="istrmEnvr", metavar="UnifracEnvFile
 argp.add_argument("-c","--unifracColor", dest="fileUnifracColor", metavar="UnifracColorFile", default = None, help="A text file indicating the groupings of metadata to color. Each line in the file is a group to color. An example file line would be  'GroupName:ID,ID,ID,ID'")
 
 argp.add_argument("strFileAbund", metavar = "Abundance file", nargs="?", help ="Input data file")
-
 args = argp.parse_args( )
+
+# Update the legend location
+args.sLocation = args.sLocation.replace("_"," ")
+# Make forced coloring in to a dict if provided
+if args.sCustomColor:
+  args.sCustomColor = dict( [ sPair.split(":") for sPair in args.sCustomColor.split(",")] )
 
 #Read in abundance table
 abndTable = None
@@ -105,13 +122,15 @@ if lsKeys:
 
     pcoa.plotList(lsLabelList = lsMetadata,
       strOutputFileName = lsFilePieces[0]+"-"+lsKeys[iIndex]+lsFilePieces[1],
-      iSize=20,
-      dAlpha=1.0,
-      charForceColor=None,
-      charForceShape=None,
-      fInvert=False,
-      iDim1=1,
-      iDim2=2)
+      iSize=args.iSize,
+      dAlpha=args.iAlpha,
+      sLegendLocation = args.sLocation,
+      charForceColor = args.sCustomColor,
+      charForceShape = False if args.fDoNotPlotShapes else None,
+      fInvert = False,
+      iDim1 = 1,
+      iDim2 = 2,
+      fPlotOutline = args.fOutline)
 
 if args.strMetric in [Metric.c_strUnifracUnweighted,Metric.c_strUnifracWeighted]:
 
@@ -134,10 +153,12 @@ if args.strMetric in [Metric.c_strUnifracUnweighted,Metric.c_strUnifracWeighted]
 
   pcoa.plotList(lsLabelList = lsGroupLabels,
       strOutputFileName = lsFilePieces[0]+"-"+args.strMetric+lsFilePieces[1],
-      iSize=20,
-      dAlpha=1.0,
-      charForceColor=None,
-      charForceShape=None,
+      iSize=args.iSize,
+      dAlpha=args.iAlpha,
+      sLegendLocation = args.sLocation,
+      charForceColor=args.sCustomColor,
+      charForceShape=False if args.fDoNotPlotShapes else None,
       fInvert=False,
       iDim1=1,
-      iDim2=2)
+      iDim2=2,
+      fPlotOutline = args.fOutline)

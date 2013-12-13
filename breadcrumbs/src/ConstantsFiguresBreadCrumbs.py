@@ -44,7 +44,7 @@ class ConstantsFiguresBreadCrumbs():
     c_strDetailsColorWord = "black"
     c_strDetailsColorLetter = "k"
 
-    #PCOA Markers
+    #PCoA Markers
     c_charPCOAPieChart = "o"
     c_charPCOASquarePieChart = "s"
     iMarkerSize = 100
