@@ -5,6 +5,9 @@ BreadCrumbs is an unofficial collection of scripts and code intended to consolid
 
 ## Dependencies: ##
 
+NOTE: Dependencies will be installed, if needed, with the setup.py install function below.
+Manual installs of the following dependencies should not be required.
+
 1. Cogent 		https://pypi.python.org/pypi/cogent
 2. MatplotLib 		http://matplotlib.org/downloads.html
 3. Mercurial 		http://mercurial.selenic.com/ (optional for downloading)
@@ -12,9 +15,9 @@ BreadCrumbs is an unofficial collection of scripts and code intended to consolid
 5. Python 2.x 		http://www.python.org/download/
 6. SciPy 		http://www.scipy.org/install.html
 7. biom support 	http://biom-format.org/
-
-*Dependencies will install, if needed, with the setup.py install function.*
-
+8. blist		https://pypi.python.org/pypi/blist/
+9. R			http://www.r-project.org/
+10. R libraries including vegan, optparse
 
 ## How to download ##
 
@@ -33,6 +36,19 @@ To update BreadCrumbs, in the BreadCrumbs directory use the 2 commands sequentia
 To install please use the setup.py script in a terminal.
 
 > python setup.py install
+
+
+## Note to Mac users: ##
+
+Before using the setup.py script you will need to install:
+GCC compiler		Go to https://developer.apple.com/downloads/index.action
+			Register for an Apple account you do not have one (it is free)
+			In the Developer Tools category download "Command Line Tools for Xcode"
+			Download and install.
+Fortran Compiler	See Fortran section of http://www.scipy.org/scipylib/building/macosx.html
+
+You may also need to run the command: (errors referencing the egg).
+> pip install setuptools --upgrade
 
 
 ## Scripts: ##
