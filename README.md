@@ -40,12 +40,14 @@ To install please use the setup.py script in a terminal.
 
 ## Note to Mac users: ##
 
-Before using the setup.py script you will need to install:
-GCC compiler		Go to https://developer.apple.com/downloads/index.action
+Before using the setup.py script you will need to install the following.
+
+1. GCC compiler		Go to https://developer.apple.com/downloads/index.action
 			Register for an Apple account you do not have one (it is free)
 			In the Developer Tools category download "Command Line Tools for Xcode"
 			Download and install.
-Fortran Compiler	See Fortran section of http://www.scipy.org/scipylib/building/macosx.html
+
+2. Fortran Compiler	See Fortran section of http://www.scipy.org/scipylib/building/macosx.html
 
 You may also need to run the command: (errors referencing the egg).
 > pip install setuptools --upgrade
