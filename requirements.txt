@@ -3,5 +3,5 @@ scipy==0.12.0
 Cython==0.19.1
 cogent==1.5.3
 matplotlib>=1.1.1
-https://github.com/biom-format/biom-format/archive/v1.2.0.tar.gz#egg=biom-format-1.2.0
+https://github.com/biom-format/biom-format/archive/1.2.0.tar.gz#egg=biom-format-1.2.0
 
