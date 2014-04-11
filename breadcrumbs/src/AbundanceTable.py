@@ -2262,7 +2262,8 @@ class AbundanceTable:
 						dBugNames.append(sBugName) 	 #Post to the bug table
 						if len(sBugName) > iMaxIdLen:    #We  are calculating dynamically the length of the ID
 							iMaxIdLen  =  len(sBugName)
-		
+				
+
 				if ConstantsBreadCrumbs.c_metadata_lowercase in BiomValue[0] and BiomValue[0][ConstantsBreadCrumbs.c_metadata_lowercase] != None :
  					dRowsMetadata = AbundanceTable._funcBiomBuildRowMetadata(BiomValue,  iMaxIdLen )
 
@@ -2394,12 +2395,27 @@ class AbundanceTable:
 		:type:			{string feature id: {'metadata': {'taxonomy': [list of metadata values]}}}	
 		"""	
 		# Build the input dict for RowMetadata from a dict of dicts from a BIOM file 
+
+
 		dictRowsMetadata = dict()
 		for iIndexRowMetaData in range(0, len(BiomValue)):
 			dictRowsMetadata[str(BiomValue[iIndexRowMetaData][ConstantsBreadCrumbs.c_id_lowercase])] = dict()
 			RowMetadataEntryFromTable = BiomValue[iIndexRowMetaData][ConstantsBreadCrumbs.c_metadata_lowercase]
 			dMetadataTempDict = dict()
+			#****************************************************************************
+			#*  Modification log                                                        *
+			#*  April 11, 2014                                                          *
+			#*  Tim Tickle and George Weingart                                          *
+                        #*  ---------- --- ---------------                                          *                                                                         *
+                        #*                                                                          *
+			#*  Modified the code so that when the row metadata is not a list           *
+			#*     but a unicode or string, we force it to be a list that contains      *
+			#*     the string representation of that unicode string                     *
+                        #*                                                                          *
+			#****************************************************************************
 			for key, value in RowMetadataEntryFromTable.iteritems():
+				if  type(value) ==  unicode or  type(value) ==  str: 	        #If the type of the metadata is unicode   DT20140411
+					value = [str(value)]					#Set up the value to be a list of strings DT20140411
 				dMetadataTempDict[key] = value
 			dictRowsMetadata[str(BiomValue[iIndexRowMetaData][ConstantsBreadCrumbs.c_id_lowercase])][ConstantsBreadCrumbs.c_metadata_lowercase] = dMetadataTempDict
 		return dictRowsMetadata
