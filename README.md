@@ -23,7 +23,7 @@ Manual installs of the following dependencies should not be required.
 
 To download BreadCrumbs from BitBucket use the command:
 
-> hg clone https://bitbucket.org/timothyltickle/breadcrumbs
+> hg clone https://bitbucket.org/biobakery/breadcrumbs
 
 To update BreadCrumbs, in the BreadCrumbs directory use the 2 commands sequentially:
 
