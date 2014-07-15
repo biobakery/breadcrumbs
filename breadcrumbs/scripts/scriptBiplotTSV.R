@@ -167,6 +167,7 @@ c_sDefaultMarker = "16"
 c_fDefaultPlotArrows = TRUE
 c_sDefaultRotateByMetadata = NULL
 c_sDefaultResizeArrow = 1
+c_fLegendMove = FALSE
 c_sDefaultTitle = "Custom Biplot of Bugs and Samples - Metadata Plotted with Centroids"
 c_sDefaultOutputFile = NULL
 
@@ -195,6 +196,7 @@ pArgs <- add_option( pArgs, c("-d", "--defaultMarker"), type="character", action
 pArgs <- add_option( pArgs, c("-e","--rotateByMetadata"), type="character", action="store", default=c_sDefaultRotateByMetadata, dest="sRotateByMetadata", metavar="RotateByMetadata", help="Rotate the ordination by a metadata. Give both the metadata and value to weight it by. The larger the weight, the more the ordination is influenced by the metadata. If the metadata is continuous, use the metadata id; if the metadata is discrete, the ordination will be by one of the levels so use the metadata ID and level seperated by a '_'. Discrete example -e Environment_HighLumninosity,100 ; Continuous example -e Environment,100 .")
 pArgs <- add_option( pArgs, c("-z","--resizeArrow"), type="numeric", action="store", default=c_sDefaultResizeArrow, dest="dResizeArrow", metavar="ArrowScaleFactor", help="A constant to multiple the length of the arrow to expand or shorten all arrows together. This will not change the angle of the arrow nor the relative length of arrows to each other.")
 pArgs <- add_option( pArgs, c("-A", "--noArrows"), type="logical", action="store_true", default=FALSE, dest="fNoPlotMetadataArrows", metavar="DoNotPlotArrows", help="Adding this flag allows one to plot metadata labels without the arrows.")
+pArgs <- add_option( pArgs, c("-l","--legendMove"), type="logical", action="store_true", default=FALSE, dest="fLegendMove", metavar="LegendMove", help="Ading this flag causes the legend to be placed outside the plot. By default the legend is placed in the plot.")
 
 # Misc
 pArgs <- add_option( pArgs, c("-i", "--title"), type="character", action="store", default=c_sDefaultTitle, dest="sTitle", metavar="Title", help="This is the title text to add to the plot.")
@@ -227,6 +229,8 @@ sDefaultMarker = c_sDefaultMarker,
 sRotateByMetadata = c_sDefaultRotateByMetadata,
 ### Metadata and value to rotate by. example Environment_HighLumninosity,100
 dResizeArrow = c_sDefaultResizeArrow,
+### Flag to indicate if legend should be moved to outside of plot
+fLegendMove = c_fLegendMove,
 ### Scale factor to resize tthe metadata arrows
 fPlotArrow = c_fDefaultPlotArrows,
 ### A flag which can be used to turn off arrow plotting.
@@ -407,7 +411,17 @@ sOutputFileName = c_sDefaultOutputFile
     }
   }
 
-  pdf(sOutputFileName,useDingbats=FALSE)
+  # if legend is to be outside of plot, increase the margins
+  if(fLegendMove)
+  {
+    pdf(sOutputFileName,useDingbats=FALSE, width=12, height=12)
+    par(mar=par()$mar + c(0,0,0,12))
+  }
+  else
+  {
+    pdf(sOutputFileName,useDingbats=FALSE)
+  }
+
   plot(mNMDSData$points, xlab=paste("NMDS1","Stress=",mNMDSData$stress), ylab="NMDS2", pch=vsShapes, col=vsColors)
   title(sTitle,line=3)
   # Plot Bugs
@@ -452,7 +466,14 @@ sOutputFileName = c_sDefaultOutputFile
   sLegendColors = c(vsColorRBG,rep(cDefaultColor,length(vsShapeValues)))
   if(length(sLegendText)>0)
   {
-    legend("topright",legend=sLegendText,pch=sLegendShapes,col=sLegendColors)
+	if(fLegendMove)
+	{
+	  legend(par("usr")[2]+ 0.15, mean(par("usr")[3:4]),legend=sLegendText,pch=sLegendShapes,col=sLegendColors,xpd=TRUE,yjust=0.5)
+	}
+	else
+	{
+          legend("topright",legend=sLegendText,pch=sLegendShapes,col=sLegendColors)
+	}
   }
 
   # Original biplot call if you want to check the custom ploting of the script
@@ -488,6 +509,7 @@ if( identical( environment( ), globalenv( ) ) &&
     sDefaultMarker = lsArgs$options$sDefaultMarker,
     sRotateByMetadata = lsArgs$options$sRotateByMetadata,
     dResizeArrow = lsArgs$options$dResizeArrow,
+    fLegendMove = lsArgs$options$fLegendMove,
     fPlotArrow = !lsArgs$options$fNoPlotMetadataArrows,
     sTitle = lsArgs$options$sTitle,
     sInputFileName = lsArgs$args[2],
