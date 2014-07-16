@@ -298,6 +298,10 @@ R. How do I plot the biplot without metadata?
 
 > scriptBiplotTSV.R -m "" STSite demo_input/Test-Biplot.tsv
 
+S. How do I move the legend so it is outside the plot?
+
+> scriptBiplotTSV.R --legendMove STSite demo_input/Test-Biplot.tsv
+
 ## scriptConvertBetweenBIOMAndPCL.py ##
 The script allows one to convert between PCL and BIOM file formats. ID, last feature (row) metadata, and last sample metadata are optional information in the script call (when converting from PCL to BIOM). These are used to dictate placement of certain key sample metadata in the PCL file. Typically, it is helpful to set these arguments. This aids in the consistent and reliable manipulation of these files. If the are not given, a guess will be made to the ID and it will be assumed no metadata exist.
 
