@@ -1374,7 +1374,7 @@ class AbundanceTable:
 				liKeepFeatures.append(iRowIndex)
 
 		#Compress array
-		self._npaFeatureAbundance = self._npaFeatureAbundance[liKeepFeatures,:]
+		self._npaFeatureAbundance = self._npaFeatureAbundance[[liKeepFeatures]]
 		#Update filter state
 		self._strCurrentFilterState += ":iMinSequence=" + str(iMinSequence) + ",iMinSamples=" + str(iMinSamples)
 
