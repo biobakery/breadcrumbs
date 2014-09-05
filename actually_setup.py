@@ -20,6 +20,12 @@
 #SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #####################################################################################
 import setuptools
+import os
+import glob
+
+here = os.path.realpath(os.path.dirname(__file__))
+scripts = os.path.join(here, 'breadcrumbs', 'scripts', '*.py')
+scripts = glob.glob(scripts)
 
 setuptools.setup(
     name='breadcrumbs',
@@ -30,6 +36,7 @@ setuptools.setup(
     description='Assorted metagenomics tools',
     packages=setuptools.find_packages(exclude=['ez_setup', 'tests', 'tests.*']),
     zip_safe=False,
+    scripts=scripts,
     classifiers=[
         "Development Status :: 4 - Beta"
     ],
