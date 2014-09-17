@@ -47,6 +47,8 @@ import string
 from ValidateData import ValidateData
 from biom.parse import *
 from biom.table import *
+from biom.util import biom_open  				#2014/09/16  Updated by George Weingart: Added the biom_open utility for biom2 support
+from numpy import array   						#2014/09/16  Updated by George Weingart
 
 c_dTarget	= 1.0
 c_fRound	= False
@@ -632,7 +634,7 @@ class AbundanceTable:
 			taxId, sampleReads = lsLineElements[0], lsLineElements[1:]
 
 			# Read through data measurements
-			# Process them as a list of tuples (needed for structured array)
+			# Process them as a list of tuples (needed for structured f)
 			if iFirstDataRow > 0:
 				try:
 					# Parse the sample reads, removing row metadata and storing row metadata if it exists
@@ -1978,34 +1980,71 @@ class AbundanceTable:
 				flAbundanceEntry = float(AbundanceEntry)
 				lAbundanceValues.append(flAbundanceEntry)
 			lData.append(lAbundanceValues)
-		arrData = array(lData)  #Convert list to array
+ 
+		arrData =  np.array(lData)  #Convert list to array
 
+		
+		
+		
+		#**************************************************************************************************************
+		# Modification LOG                                                                                            *
+		# ------------ ---                                                                                            *
+		#                                                                                                             *
+		# Implementing support for biom 2:                                                                            *     
+		# In biom2  the "table-factory" function was discontinued and instead a new function called "Table"  is used  *
+		# So we try using table-factory and if it fails,  that means that we are in biom2 environment and use the     *
+		# "Table"  function                                                                                           *
+		#                                                                                                             *
+		# George Weingart  09/16/2014  george.weingart@gmail.com                                                      *
+		#**************************************************************************************************************
 		
 
 		#**************************
 		# Invoke the              *
 		# biom table factory      *     
 		#**************************
-		if  bTaxonomyInRowsFlag == False:
-			BiomTable = table_factory(arrData,
-							  lSampNames,
-							  lObservationIds,
-							  lMetaData,
-							  constructor=SparseOTUTable)
-		else:				#There was metadata in the rows
-			BiomTable = table_factory(arrData,
-							  lSampNames,
-							  lObservationIds,
-							  lMetaData,
-							  lObservationMetadataTable if len(lObservationMetadataTable) > 0 else None,
-							  constructor=SparseOTUTable)	
-	  
-		#**************************
-		# Generate biom Output    *   
-		#**************************
-		f = open( xOutputFile, "w" ) if isinstance(xOutputFile, str) else xOutputFile
-		f.write(BiomTable.getBiomFormatJsonString(ConstantsBreadCrumbs.c_biom_file_generated_by))
-		f.close()
+		try:
+			if  bTaxonomyInRowsFlag == False:
+				BiomTable = table_factory(arrData,
+								  lSampNames,
+								  lObservationIds,
+								  lMetaData,
+								  constructor=SparseOTUTable)
+			else:				#There was metadata in the rows
+				BiomTable = table_factory(arrData,
+								  lSampNames,
+								  lObservationIds,
+								  lMetaData,
+								  lObservationMetadataTable if len(lObservationMetadataTable) > 0 else None,
+								  constructor=SparseOTUTable)	
+			#**************************
+			# Generate biom Output    *   
+			#**************************				  
+			f = open( xOutputFile, "w" ) if isinstance(xOutputFile, str) else xOutputFile
+			f.write(BiomTable.getBiomFormatJsonString(ConstantsBreadCrumbs.c_biom_file_generated_by))
+			f.close() 
+								  
+		except:					# GW 2014/09/16 If the try for table-factory failed - it means that we are in biom2  
+			if  bTaxonomyInRowsFlag == False:
+				BiomTable = Table(arrData,
+								lObservationIds,
+								lSampNames,
+								lMetaData,
+								table_id='Breadcrumbs_Generated_Table')
+			else:				#There was metadata in the rows
+				BiomTable = Table(arrData,
+								lObservationIds,
+								lSampNames,
+								lObservationMetadataTable if len(lObservationMetadataTable) > 0 else None,
+								lMetaData,
+								table_id = 'Breadcrumbs_Generated_Table')	
+	  			jsonBiomResults = BiomTable.to_json("Breadcrumbs_AbundanceTable_Program", direct_io=None)
+			#**************************
+			# Generate biom Output    *   
+			#**************************
+			f = open( xOutputFile, "w" ) if isinstance(xOutputFile, str) else xOutputFile
+			f.write(jsonBiomResults)
+			f.close()
 		return
 
 	#Testing Status: 1 Happy path test
@@ -2228,6 +2267,7 @@ class AbundanceTable:
 		#*******************************************
 		#* Build the metadata                      *
 		#*******************************************
+ 
 		try:
 			BiomTable = parse_biom_table(open(xInputFile,'U') if isinstance(xInputFile, str) else xInputFile)	#Import the biom file
 		except:
@@ -2238,7 +2278,16 @@ class AbundanceTable:
 		BiomCommonArea = dict()		
 		dBugNames = list()			#Bug Names Table
 		dRowsMetadata = None		#Initialize the np.array of the Rows metadata
-		BiomElements  =  BiomTable.getBiomFormatObject('')	
+		
+		#*******************************************
+		#* Handle  biom2 environment               *
+		#*******************************************
+		try:
+					BiomElements  =  BiomTable.getBiomFormatObject('')	 #For biom1
+		except:
+					BiomElements =   json.loads(BiomTable.to_json("Generated_by_AbundanceTable_Prog",direct_io=None))
+ 					
+					
 		for BiomKey, BiomValue in BiomElements.iteritems():
 		#****************************************************
 		#*     Checking the different keys:  format,        *
@@ -2275,9 +2324,15 @@ class AbundanceTable:
 		#*******************************************
 		#* Build the TaxData                       *
 		#*******************************************
+ 
+	
 	
 		BiomTaxDataWork = list()			#Initlialize TaxData
-		BiomObservations = BiomTable.iterObservations(conv_to_np=True)		#Invoke biom method to fetch data from the biom file
+		try:
+			BiomObservations = BiomTable.iterObservations(conv_to_np=True)		#Invoke biom1 method to fetch data from the biom file
+		except:
+			BiomObservations =  BiomTable.iter(axis="observation") 			#If it failed - we try biom2
+
 		for BiomObservationData in BiomObservations:
 			sBugName = str( BiomObservationData[1])
 			BiomTaxDataEntry = list()
@@ -2290,6 +2345,7 @@ class AbundanceTable:
 		BiomCommonArea[ConstantsBreadCrumbs.c_BiomTaxData] = np.array(BiomTaxDataWork,dtype=np.dtype(BiomCommonArea[ConstantsBreadCrumbs.c_Dtype]))
 		BiomCommonArea[ConstantsBreadCrumbs.c_dRowsMetadata] = RowMetadata(dRowsMetadata)
 		del(BiomCommonArea[ConstantsBreadCrumbs.c_Dtype])			#Not needed anymore
+ 
  
 		return BiomCommonArea
 	
@@ -2406,12 +2462,12 @@ class AbundanceTable:
 			#*  Modification log                                                        *
 			#*  April 11, 2014                                                          *
 			#*  Tim Tickle and George Weingart                                          *
-                        #*  ---------- --- ---------------                                          *                                                                         *
-                        #*                                                                          *
+			#*  ---------- --- ---------------                                          *                                                                         *
+			#*                                                                          *
 			#*  Modified the code so that when the row metadata is not a list           *
 			#*     but a unicode or string, we force it to be a list that contains      *
 			#*     the string representation of that unicode string                     *
-                        #*                                                                          *
+			#*                                                                          *
 			#****************************************************************************
 			for key, value in RowMetadataEntryFromTable.iteritems():
 				if  type(value) ==  unicode or  type(value) ==  str: 	        #If the type of the metadata is unicode   DT20140411
