@@ -81,13 +81,13 @@ class Utility():
         :return: A string (HEX formatted) representation of the RGB color
         """
 
-        charR = (hex(int(adColor[0]*255)))[2:]
-        if(str(charR) == "0"):
-            charR = "00"
-        charG = (hex(int(adColor[1]*255)))[2:]
-        if(str(charG) == "0"):
-            charG = "00"
-        charB = (hex(int(adColor[2]*255)))[2:]
-        if(str(charB) == "0"):
-            charB = "00"
-        return "".join(["#",charR, charG, charB])
+        hexstr = lambda num: hex(int(num*255))[2:]
+        rgb = adColor[:3] # ignore alpha
+        def _rgb():
+            for color_float in rgb:
+                hexval = hexstr(color_float)
+                if len(hexval) == 1: 
+                    hexval = '0' + hexval
+                yield hexval
+
+        return "#" + "".join(_rgb())
