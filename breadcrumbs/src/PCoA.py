@@ -739,7 +739,12 @@ class PCoA:
         #If the coloring is not forced, color so it is based on the labels
         if charForceColor == None:
             #Get colors based on labels
-            atupldColors = [Utility.RGBToHex(cm.jet(float(iUniqueValueIndex)/float(iCountUniqueValues))) for iUniqueValueIndex in xrange(0,iCountUniqueValues)]
+            atupldColors = [ 
+                Utility.RGBToHex(
+                    cm.jet( float(iUniqueValueIndex)/float(iCountUniqueValues) )
+                    ) 
+                for iUniqueValueIndex in xrange(0,iCountUniqueValues)
+                ]
             #Make label coloring
             atupldLabelColors = [ atupldColors[acharUniqueValues.index(sMetadata) ] for sMetadata in lsLabelList ]
         elif type( charForceColor ) is dict:
