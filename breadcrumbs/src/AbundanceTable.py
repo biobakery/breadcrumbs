@@ -300,7 +300,8 @@ class AbundanceTable:
 			else:
 				# return false on failure
 				lContents = False
-		elif( strFileName.endswith(ConstantsBreadCrumbs.c_strPCLFile) or (strFormat == ConstantsBreadCrumbs.c_strPCLFile) ):	
+		elif( strFileName.endswith(ConstantsBreadCrumbs.c_strPCLFile) or (strFormat == ConstantsBreadCrumbs.c_strPCLFile)\
+		or strFileName.endswith(ConstantsBreadCrumbs.c_strTSVFile) or (strFormat == ConstantsBreadCrumbs.c_strTSVFile)	): #Added support for tsv files GW 20141014	
 			#Read in from text file to create the abundance and metadata structures
 			lContents = AbundanceTable._funcTextToStructuredArray(xInputFile=xInputFile, cDelimiter=cDelimiter,
 				sMetadataID = sMetadataID, sLastMetadataRow = sLastMetadataRow, sLastMetadata = sLastMetadata, ostmOutputFile = outputFile)

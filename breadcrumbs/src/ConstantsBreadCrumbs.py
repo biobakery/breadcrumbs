@@ -149,7 +149,7 @@ class ConstantsBreadCrumbs():
     c_GeneratedBy = "generated_by"
     c_MetadataEntriesTotal = "MetadataEntriesTotal"
     c_MaximumLength = "MaximumLength"
-
+    c_strTSVFile = "tsv"				# George Weingart:  20141004 - Support for tsv files:  
 
     def __init__(self):
       pass
