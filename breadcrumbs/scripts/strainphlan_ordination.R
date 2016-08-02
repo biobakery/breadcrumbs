@@ -31,11 +31,14 @@ e.sir.dist <- read.table( args_list$args[1], sep = "\t", row.names = 1, header =
 colnames( e.sir.dist ) <- gsub( "X", "", colnames( e.sir.dist ))
 # make symmetric, add lower triangle to upper triangle
 e.sir.dist[lower.tri(e.sir.dist)] <- t(e.sir.dist)[lower.tri(e.sir.dist)]
-dim(e.sir.dist)  # should be 7 by 7 matrix
+# dim(e.sir.dist)  # should be 7 by 7 matrix with demo input files
 # ordinate on the distance matrix
 e.sir.pcoa <- cmdscale( e.sir.dist, eig = T )
 # variance explained 
-head(eigenvals(e.sir.pcoa)/sum(eigenvals(e.sir.pcoa)))
+variance <- head(eigenvals(e.sir.pcoa)/sum(eigenvals(e.sir.pcoa)))
+x_variance <- as.integer(variance[1]*100)
+y_variance <- as.integer(variance[2]*100)
+
 # get scores for plotting
 e.sir.scores <- as.data.frame( e.sir.pcoa$points )
 
@@ -57,6 +60,6 @@ ggplot( e.sir.scores.meta, aes(PCo1, PCo2, color=SubjectID) ) +
   theme(axis.line.x = element_line(colour = 'black', size=0.75, linetype='solid'),
         axis.line.y = element_line(colour = 'black', size=0.75, linetype='solid'),
         axis.ticks = element_blank(), axis.text = element_blank()) + 
-  xlab("PCo1 (60% variance explained)") + ylab( "PCo2 (29% variance explained)" )
+  xlab(paste("PCo1 (",x_variance,"% variance explained)")) + ylab(paste("PCo2 (",y_variance,"% variance explained)"))
 
 dev.off()
