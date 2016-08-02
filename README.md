@@ -17,7 +17,7 @@ Manual installs of the following dependencies should not be required.
 7. biom support 	http://biom-format.org/
 8. blist		https://pypi.python.org/pypi/blist/
 9. R			http://www.r-project.org/
-10. R libraries including vegan, optparse
+10. R libraries including vegan, optparse, ggplot2, ggtree
 
 ## How to download ##
 
@@ -70,6 +70,9 @@ A quick description of the scripts include:
 
 * *scriptConvertBetweenBIOMAndPCL.py* Allows one to convert between BIOM and PCL file formats.
 
+* *strainphlan_ggtree.R* Allows one to plot dendrograms from StrainPhlAn outputs.
+
+* *strainphlan_ordination.R* Allows one to plot an ordination from StrainPhlAn outputs.
 
 ## Programming Classes: ##
 
