@@ -1,15 +1,32 @@
-# Generate ordination plot from distance matrix calculated from StrainPhlAn multiple sequence alignment file
+#!/usr/bin/env Rscript
 
-# These files need to be in your working directory:
-# s__eubacterium_siraeum.distmat_4R.txt
-# metadata.txt
+# This script generates an ordination plot from the distance matrix calculated from StrainPhlAn multiple sequence alignment file
 
-# load libraries
+# load the optparse library
+library(optparse)
+
+# Create command line argument parser
+help_description <- "
+
+This script generates an ordination plot from StrainPhlAn output files.
+
+The following positional arguments are required:
+
+clade.distmat_4R.txt (Input file): This is the distmat output file (created by providing the StrainPhlAn MSA file)
+metadata.txt (Input file): This is the metadata file
+ordination.png (Output file): This is the ordination plot image written"
+
+args <- OptionParser(usage = "%prog clade.distmat_4R.txt metadata.txt ordination.png",
+                      add_help_option = TRUE, prog='strainphlan_ordination.R',
+                      description=help_description )
+args_list <- parse_args(args, positional_arguments=TRUE)
+
+# load libraries after optparse to not load them on help
 library(ggplot2)
 library(vegan)
 
 # load triangular distance matrix 
-e.sir.dist <- read.table( 's__eubacterium_siraeum.distmat_4R.txt', sep = "\t", row.names = 1, header = T )
+e.sir.dist <- read.table( args_list$args[1], sep = "\t", row.names = 1, header = T )
 # remove X from colnames
 colnames( e.sir.dist ) <- gsub( "X", "", colnames( e.sir.dist ))
 # make symmetric, add lower triangle to upper triangle
@@ -23,7 +40,7 @@ head(eigenvals(e.sir.pcoa)/sum(eigenvals(e.sir.pcoa)))
 e.sir.scores <- as.data.frame( e.sir.pcoa$points )
 
 # read in metadata file
-e.sir.meta <- read.delim( 'metadata.txt', header = T, sep = "\t", row.names = 1 )
+e.sir.meta <- read.delim( args_list$args[2], header = T, sep = "\t", row.names = 1 )
 # append to e.sir.scores
 e.sir.scores.meta <- merge( e.sir.scores, e.sir.meta, by = 'row.names' )
 # set first column as rownames and remove it
@@ -33,7 +50,7 @@ e.sir.scores.meta[,1] <- NULL
 colnames(e.sir.scores.meta) <- c( "PCo1", "PCo2", "SubjectID" )
 
 # plot ordination
-png( 'strainphlan_ordination.png', width = 750, height = 600, res = 150 )
+png( args_list$args[3], width = 750, height = 600, res = 150 )
 
 ggplot( e.sir.scores.meta, aes(PCo1, PCo2, color=SubjectID) ) + 
   geom_point(size = 4, alpha = 0.75) + theme_classic() + 
@@ -43,4 +60,3 @@ ggplot( e.sir.scores.meta, aes(PCo1, PCo2, color=SubjectID) ) +
   xlab("PCo1 (60% variance explained)") + ylab( "PCo2 (29% variance explained)" )
 
 dev.off()
-# NOTE that the two samples from subject 13530241 have identical strains, which in this case is an artefact of subsampling. 
