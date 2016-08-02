@@ -2,13 +2,6 @@
 
 # This script generates dendrograms from StrainPhlAn outputs.
 
-# load library ggtree
-library(ggplot2)
-library(ggtree)
-
-# load RColorBrewer library
-library(RColorBrewer)
-
 # load the optparse library
 library(optparse)
 
@@ -29,6 +22,11 @@ args <- OptionParser(usage = "%prog RAxML_bestTree.species.tree metadata.txt spe
                       add_help_option = TRUE, prog='strainphlan_ggtree.R',
                       description=help_description )
 args_list <- parse_args(args, positional_arguments=TRUE)
+
+# load other libraries after optparse to not load them on help
+library(ggplot2)
+library(ggtree)
+library(RColorBrewer)
 
 # read newick tree
 e.sir.tre <- read.tree( args_list$args[1] )
