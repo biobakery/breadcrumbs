@@ -62,4 +62,4 @@ ggplot( e.sir.scores.meta, aes(PCo1, PCo2, color=SubjectID) ) +
         axis.ticks = element_blank(), axis.text = element_blank()) + 
   xlab(paste("PCo1 (",x_variance,"% variance explained)")) + ylab(paste("PCo2 (",y_variance,"% variance explained)"))
 
-dev.off()
+temp <- dev.off()

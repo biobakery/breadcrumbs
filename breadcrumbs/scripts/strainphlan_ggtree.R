@@ -44,7 +44,7 @@ e.sir.gg +
   geom_tippoint( size = 3, aes( color = SubjectID ) ) + 
   aes( branch.length = 'length' ) +
   theme_tree2() + theme(legend.position="right")
-dev.off()
+temp <- dev.off()
 # visualize tree with multiple sequence alignment (MSA)
 
 # path to alignment file
@@ -56,6 +56,6 @@ msaplot( e.sir.gg + geom_tippoint( size = 3, aes( color = SubjectID ) ),
          e.sir.fasta, window = c( 490,540 ), 
          color = brewer.pal(4, "Set3") ) + 
   theme( legend.position = 'right' )
-dev.off()
+temp <- dev.off()
 
 
