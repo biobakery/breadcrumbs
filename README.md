@@ -17,7 +17,7 @@ Manual installs of the following dependencies should not be required.
 7. biom support 	http://biom-format.org/
 8. blist		https://pypi.python.org/pypi/blist/
 9. R			http://www.r-project.org/
-10. R libraries including vegan, optparse, ggplot2, ggtree
+10. R libraries including vegan, optparse, ggplot2, ggtree, RColorBrewer, and Biostrings
 
 ## How to download ##
 
