@@ -12,11 +12,11 @@ This script generates an ordination plot from StrainPhlAn output files.
 
 The following positional arguments are required:
 
-clade.distmat_4R.txt (Input file): This is the distmat output file (created by providing the StrainPhlAn MSA file)
+clade.distmat.txt (Input file): This is the distmat output file (created by providing the StrainPhlAn MSA file)
 metadata.txt (Input file): This is the metadata file
 ordination.png (Output file): This is the ordination plot image written"
 
-args <- OptionParser(usage = "%prog clade.distmat_4R.txt metadata.txt ordination.png",
+args <- OptionParser(usage = "%prog clade.distmat.txt metadata.txt ordination.png",
                       add_help_option = TRUE, prog='strainphlan_ordination.R',
                       description=help_description )
 args_list <- parse_args(args, positional_arguments=TRUE)
@@ -25,15 +25,34 @@ args_list <- parse_args(args, positional_arguments=TRUE)
 library(ggplot2)
 library(vegan)
 
-# load triangular distance matrix 
-e.sir.dist <- read.table( args_list$args[1], sep = "\t", row.names = 1, header = T )
-# remove X from colnames
-colnames( e.sir.dist ) <- gsub( "X", "", colnames( e.sir.dist ))
+# read in the file, skipping the first 8 rows and filling in empty columns, using the tab as sep, and stripping extra white space
+data <- read.table( args_list$args[1], skip = 8, fill = TRUE, sep="\t", strip.white = T)
+
+# remove the first column of the data as it is blank
+data[1] <- NULL
+
+# get the header as the last column of the data as a character vector
+header <- lapply(data[,ncol(data)], as.character)
+
+# remove the last column from the data as it has been stored as a header
+data[ncol(data)] <- NULL
+
+# remove the current last column from the data as it is blank
+data[ncol(data)] <- NULL
+
+# split header by space and digit to get the sample names
+samples <- strsplit(unlist(header), "[[:blank:]][[:xdigit:]]")
+
+# add the sample names to the columns and rows of the data matrix
+rownames(data) <- samples
+colnames(data) <- samples
+
 # make symmetric, add lower triangle to upper triangle
-e.sir.dist[lower.tri(e.sir.dist)] <- t(e.sir.dist)[lower.tri(e.sir.dist)]
-# dim(e.sir.dist)  # should be 7 by 7 matrix with demo input files
+data[lower.tri(data)] <- t(data)[lower.tri(data)]
+
 # ordinate on the distance matrix
-e.sir.pcoa <- cmdscale( e.sir.dist, eig = T )
+e.sir.pcoa <- cmdscale( data, eig = T )
+
 # variance explained 
 variance <- head(eigenvals(e.sir.pcoa)/sum(eigenvals(e.sir.pcoa)))
 x_variance <- as.integer(variance[1]*100)
