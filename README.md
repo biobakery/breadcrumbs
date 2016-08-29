@@ -5,8 +5,8 @@ BreadCrumbs is an unofficial collection of scripts and code intended to consolid
 
 ## Dependencies: ##
 
-NOTE: Dependencies will be installed, if needed, with the setup.py install function below.
-Manual installs of the following dependencies should not be required.
+NOTE: Python dependencies will be automatically installed, if needed, when installing BreadCrumbs.
+The R libraries are not automatically installed. Please install the required R libraries manually.
 
 1. Cogent 		https://pypi.python.org/pypi/cogent
 2. MatplotLib 		http://matplotlib.org/downloads.html
