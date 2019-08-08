@@ -37,6 +37,10 @@ from ConstantsFiguresBreadCrumbs import ConstantsFiguresBreadCrumbs
 from cogent.cluster.nmds import NMDS
 import csv
 import math
+
+import matplotlib
+matplotlib.use("Agg")
+
 import matplotlib.cm as cm
 from Metric import Metric
 import numpy as np
@@ -118,7 +122,7 @@ class PCoA:
             #Read in the file data to a numpy array.
             #Samples (column) by Taxa (rows)(lists) without the column
             data = xData.funcToArray()
-            if data==None:
+            if not data.any():
                 print("PCoA:loadData::Error when converting AbundanceTable to Array, did not perform PCoA.")
                 return False
 

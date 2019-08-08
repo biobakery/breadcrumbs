@@ -34,6 +34,9 @@ __status__ = "Development"
 
 #External libraries
 from ConstantsFiguresBreadCrumbs import ConstantsFiguresBreadCrumbs
+import matplotlib
+matplotlib.use("Agg")
+
 import matplotlib.pyplot as plt
 from pylab import *
 
@@ -81,7 +84,7 @@ class BoxPlot:
 
     #Color/Invert figure
     imgFigure.set_facecolor(objFigureControl.c_strBackgroundColorWord)
-    imgSubplot = imgFigure.add_subplot(111,axisbg=objFigureControl.c_strBackgroundColorLetter)
+    imgSubplot = imgFigure.add_subplot(111,facecolor=objFigureControl.c_strBackgroundColorLetter)
     imgSubplot.set_xlabel(strXTitle)
     imgSubplot.set_ylabel(strYTitle)
     imgSubplot.spines['top'].set_color(objFigureControl.c_strDetailsColorLetter)
