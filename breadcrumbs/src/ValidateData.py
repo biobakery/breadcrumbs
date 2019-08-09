@@ -490,7 +490,7 @@ class ValidateData:
         """
 
         #Check to make sure it is not null
-        if parameterValue == None:
+        if not parameterValue.any():
             return False
 
         #Check to make sure it is a structure array
